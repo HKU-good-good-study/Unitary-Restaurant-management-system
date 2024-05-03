@@ -14,4 +14,4 @@ class Database:
         return self.__mongo_client.close()
     
     def close(self):
-        return self.__del__();
+        return self.__del__()
