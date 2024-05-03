@@ -1,7 +1,7 @@
 # Unitary-Restaurant-management-system
 
 ## Setup
-If virtual enviroment not yet created, use: ```python -m venv EnvironmentPathYouWish```
+If virtual enviroment not yet created, use: ```python -m venv EnvironmentPathYouWish``` (Don't forget to add your virtual enviroment folder into .gitignore if it is in project directory's scope)
 
 If virtual enviroment is created, use command: ```YourEnvironmentPath/Script/activate``` to activate your virtual environment
 
