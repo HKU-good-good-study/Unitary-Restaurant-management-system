@@ -1,9 +1,10 @@
-<script context="module">
-    import { redirect } from '@sveltejs/kit';
-  
-    export function load() {
-        throw redirect(307, '/login');
-    }
+<script>
+    
+
 </script>
-  
-<h1>hello</h1>
+
+<!-- svelte-ignore a11y-missing-attribute -->
+<html lang="en" on:load>
+    <h1>hello</h1>
+
+</html>
