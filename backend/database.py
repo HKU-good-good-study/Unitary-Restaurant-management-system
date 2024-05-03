@@ -6,7 +6,7 @@ class Database:
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls.__mongo_client = MongoClient(host, port)
-            cls.db_name = "resturant"
+            cls.db_name = "restaurant"
             cls.database = cls.__mongo_client[cls.db_name]
         return cls._instance
     
