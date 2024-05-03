@@ -13,9 +13,9 @@ If virtual enviroment is created, use command: ```YourEnvironmentPath/Script/act
 
 **Frontend**:
 If first time: Run command ```npm install```
-Go to directory frontend, then run with command ```npm run dev```
+Go to directory ```frontend```, then run with command ```npm run dev```
 **Backend**:
-Go to directory backend, run with command:   ```uvicorn main:app --reload``` to startup fastapi
+Go to directory ```backend```, run with command:   ```uvicorn main:app --reload``` to startup fastapi
 
 **Database**
 Run MongoDB client
