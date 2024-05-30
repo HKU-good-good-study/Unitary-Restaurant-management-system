@@ -1,20 +1,21 @@
 <script lang="ts">
     import { onMount } from 'svelte';
+    import { goto } from '$app/navigation';
+
     let username = '';
     let password = '';
-    
+    let isRegisterModalOpen = false;
+    let registerUsername = '';
+    let registerEmail = '';
+    let registerPhoneNumber = '';
+    let registerRole = 'Customer';
+    let registerRemarks = '';
+
     onMount(() => {
-        let registerButton = document.getElementById("register");
-        document.body.style.backgroundColor = '#ADD8E6'; // Light Blue
-        if (registerButton) {
-        registerButton.onclick = function(){
-            window.location.href="http://localhost:5173/register";
-        }
-    }
+        document.body.style.backgroundColor = '#f2f2f2'; // Light Gray
     });
 
-
-    async function submitForm() {
+    async function submitLogin() {
         const response = await fetch('http://localhost:8000/auth/users/tokens', {
             method: 'POST',
             headers: {
@@ -24,73 +25,180 @@
         });
         const data = await response.json();
         console.log(data);
+
+        if (data.role === 'Manager') {
+            goto('/manager');
+        } else if (data.role === 'Dining Staff') {
+            goto('/dining-staff');
+        } else if (data.role === 'Kitchen Staff') {
+            goto('/kitchen-staff');
+        } else if (data.role === 'Customer') {
+            goto('/customer');
+        }
+    }
+
+    async function submitRegister() {
+        const response = await fetch('http://localhost:8000/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username: registerUsername, email: registerEmail, phone_number: registerPhoneNumber, role: registerRole, remarks: registerRemarks })
+        });
+        const data = await response.json();
+        console.log(data);
+
+        if (data.role === 'Manager') {
+            goto('/manager');
+        } else if (data.role === 'Dining Staff') {
+            goto('/dining-staff');
+        } else if (data.role === 'Kitchen Staff') {
+            goto('/kitchen-staff');
+        } else if (data.role === 'Customer') {
+            goto('/customer');
+        }
+    }
+
+    function toggleRegisterModal() {
+        isRegisterModalOpen = !isRegisterModalOpen;
     }
 </script>
 
 <style>
-
     body {
+        font-family: Arial, sans-serif;
+        background-color: #f2f2f2;
+        padding: 20px;
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 100vh; /* Set the height of the entire viewport */
-        margin: 0; /* Remove default body margin */
-        background-color: #ADD8E6; /* Light Blue background */
+        height: 100vh;
+        margin: 0;
     }
 
-    .login-container  {
-        background-color: gray;
-        width: 300px;
-        display:flex;
+    .container {
+        max-width: 800px;
+        display: flex;
         flex-direction: column;
-        padding: 20px;
-        color: white;
-        border-radius: 5px;
         justify-content: center;
         align-items: center;
+        background-color: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        margin: 0 auto;
+        width: fit-content;
     }
 
-    .input-field {
-        margin-bottom: 10px;
+    h2 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 30px;
+    }
+
+    .row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        justify-content: space-between;
+    }
+
+    .row > * {
+        margin-right: 15px;
+    }
+
+    input {
+        padding: 10px 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        flex-grow: 1;
+        font-size: 16px;
+        margin-bottom: 15px; /* Added margin-bottom for spacing */
     }
 
     button {
-        background-color: #4B8BF4; /* Blue background */
+        background-color: #333;
         color: white;
-        border: 1px solid #1F50A9; /* Dark blue border */
         padding: 10px 20px;
+        border: none;
+        border-radius: 10px;
         cursor: pointer;
-        align-self: center;
-        text-shadow: none;
-        
-        font-family: Tahoma, sans-serif; /* Font similar to Windows XP */
-        font-size: 11px;
-        box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5), /* Inner shadow */
-                    1px 1px 1px rgba(255, 255, 255, 0.6) inset; /* Outer glow */
-        transition: all 0.1s ease-in-out; /* Smooth transition */
+        font-size: 16px;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
     }
 
-    button:active {
-        background-color: #1F50A9; /* Darker blue background when clicked */
-        box-shadow: none; /* Remove shadow when clicked */
+    button:hover {
+        background-color: #555;
     }
-</style>
 
+    .register-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .register-form {
+        background-color: white;
+        padding: 20px;
+        border-radius: 5px;
+    }
+  </style>
 <body>
-    <div class="login-container">
+    <div class="container">
         <h2>Login</h2>
-        <div class="input-field">
+        <div class="row">
             <label for="username">Username:</label>
             <input id="username" bind:value={username} type="text" placeholder="Enter Username">
         </div>
-        <div class="input-field">
+        <div class="row">
             <label for="password">Password:</label>
             <input id="password" bind:value={password} type="password" placeholder="Enter Password">
         </div>
-        <div class="buttons">
-            <button on:click={submitForm}>Submit</button>
-            <button id="register">Register</button>
+        <div class="row">
+            <button on:click={submitLogin}>Submit</button>
+            <button on:click={toggleRegisterModal}>Register</button>
         </div>
-        
     </div>
 </body>
+{#if isRegisterModalOpen}
+<div class="register-modal">
+    <div class="register-form">
+        <h2>Register</h2>
+        <div class="row">
+            <label for="registerUsername">Username:</label>
+            <input id="registerUsername" bind:value={registerUsername} type="text" placeholder="Enter Username">
+        </div>
+        <div class="row">
+            <label for="registerEmail">Email:</label>
+            <input id="registerEmail" bind:value={registerEmail} type="email" placeholder="Enter Email">
+        </div>
+        <div class="row">
+            <label for="registerPhoneNumber">Phone Number:</label>
+            <input id="registerPhoneNumber" bind:value={registerPhoneNumber} type="tel" placeholder="Enter Phone Number">
+        </div>
+        <div class="row">
+            <label for="registerRole">Role:</label>
+            <select id="registerRole" bind:value={registerRole}>
+                <option value="Manager">Manager</option>
+                <option value="Dining Staff">Dining Staff</option>
+                <option value="Kitchen Staff">Kitchen Staff</option>
+                <option value="Customer">Customer</option>
+            </select>
+        </div>
+        <div class="row">
+            <label for="registerRemarks">Remarks:</label>
+            <textarea id="registerRemarks" bind:value={registerRemarks} placeholder="Enter Remarks"></textarea>
+        </div>
+        <div class="row">
+            <button on:click={submitRegister}>Register</button>
+            <button on:click={toggleRegisterModal}>Close</button>
+        </div>
+    </div>
+</div>
+{/if}
