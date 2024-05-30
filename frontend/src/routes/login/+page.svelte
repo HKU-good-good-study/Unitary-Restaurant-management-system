@@ -8,7 +8,7 @@
     });
 
     async function submitForm() {
-        const response = await fetch('http://localhost:8000/login', {
+        const response = await fetch('http://localhost:8000/auth/users/tokens', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

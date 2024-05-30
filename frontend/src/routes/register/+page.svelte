@@ -22,7 +22,7 @@
             username: username,
             password: password,
             email: email,
-            phone_number: phoneNumber,
+            phone_number: countryCode + " " + phoneNumber,
             role: role,
             remarks: remarks
         };
@@ -112,7 +112,7 @@
                         <option value="+44">Britain (+44)</option>
                         <option value="+86">China (+86)</option>
                         <option value="+91">India (+91)</option>
-                        <option value="+91">HongKong SAR (+852)</option>
+                        <option value="+852">HongKong SAR (+852)</option>
                         <option value="+52">Mexico (+52)</option>
                         <!-- Add more options as needed -->
                     </select>
