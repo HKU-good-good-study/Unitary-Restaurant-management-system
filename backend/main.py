@@ -1,5 +1,4 @@
 from fastapi import Depends, FastAPI, Cookie, Form, HTTPException, Request, Response, status
-from fastapi.middleware.cors import CORSMiddleware
 from auth.router import router as auth_router
 from database import Database
 from os import getenv
@@ -36,18 +35,17 @@ def startup_db_client():
     app.database = Database(host,port).database
     print("Connected to MongoDB")
 
-origins = [
-    "http://localhost:5173",
-    "http://localhost:8000",
-]
+@app.get("/")
+async def root(request: Request):
+    token = request.cookies.get("access_token")
+    if not token:
+        return {"message": "No valid token"}
+    
+    payload = verify_jwt(token)
+    if not payload:
+        return {"message": "No valid token"}
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["GET", "POST"],
-    allow_headers=["*"],
-)
+    return {"message": f"Hello {payload['username']}, your token expires at {payload['exp']}"}
     
     
 app.include_router(auth_router)
