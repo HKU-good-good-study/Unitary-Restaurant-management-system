@@ -8,7 +8,7 @@ from typing import Any
 from pydantic import UUID4
 from bson.objectid import ObjectId
 
-from backend.utils import generate_random_alphanum
+from utils import generate_random_alphanum
 from .config import auth_config
 from .exceptions import InvalidCredentials
 from .schemas import AuthUser, UserLogIn, UserRole

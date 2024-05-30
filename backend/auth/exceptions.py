@@ -1,5 +1,5 @@
 from .constants import ErrorCode
-from backend.exceptions import (
+from exceptions import (
     DetailedHTTPException,
     NotFound,
     BadRequest,

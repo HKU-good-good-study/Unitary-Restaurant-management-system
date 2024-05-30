@@ -2,7 +2,7 @@ from typing import Any
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Response, status
 
-from backend.auth.exceptions import UserNotCreated, UserNotFound
+from .exceptions import UserNotCreated, UserNotFound
 
 from . import jwt, service, utils
 from .dependencies import (
