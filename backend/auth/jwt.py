@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import traceback
 from typing import Any
 
-from fastapi import Depends
+from fastapi import Cookie, Depends
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 
@@ -12,7 +12,7 @@ from .config import auth_config
 from .exceptions import AuthorizationFailed, AuthRequired, InvalidToken
 from .schemas import JWTData, UserRole
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/users/tokens", auto_error=False)
+# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/users/tokens", auto_error=False)
 
 # Define the access levels for each role
 ACCESS_LEVELS = {
@@ -42,7 +42,7 @@ def create_access_token(
 
 
 async def parse_jwt_user_data_optional(
-    token: str = Depends(oauth2_scheme),
+    token: str = Cookie(..., alias="accessToken"),
 ) -> JWTData | None:
     if not token:
         return None

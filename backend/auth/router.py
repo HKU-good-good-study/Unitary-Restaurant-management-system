@@ -53,12 +53,14 @@ async def get_my_account(
 @router.post("/users/tokens", response_model=AccessTokenResponse)
 async def auth_user(auth_data: UserLogIn, response: Response) -> AccessTokenResponse:
     user = await service.authenticate_user(auth_data)
+    access_token_value = jwt.create_access_token(user=user)
     refresh_token_value = await service.create_refresh_token(user_id=user["_id"])
 
+    response.set_cookie(**utils.get_access_token_settings(access_token_value))
     response.set_cookie(**utils.get_refresh_token_settings(refresh_token_value))
 
     return AccessTokenResponse(
-        access_token=jwt.create_access_token(user=user),
+        access_token=access_token_value,
         refresh_token=refresh_token_value,
     )
 
@@ -89,6 +91,9 @@ async def logout_user(
 ) -> None:
     await service.expire_refresh_token(refresh_token["uuid"])
 
+    response.delete_cookie(
+        **utils.get_access_token_settings("", expired=True)
+    )
     response.delete_cookie(
         **utils.get_refresh_token_settings(refresh_token["refresh_token"], expired=True)
     )
