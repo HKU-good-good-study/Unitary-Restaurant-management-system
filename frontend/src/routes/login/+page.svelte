@@ -38,7 +38,7 @@
     }
 
     async function submitRegister() {
-        const response = await fetch('http://localhost:8000/register', {
+        const response = await fetch('http://localhost:8000/auth/users', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -61,6 +61,7 @@
 
     function toggleRegisterModal() {
         isRegisterModalOpen = !isRegisterModalOpen;
+        window.location.href = "http://localhost:5173/register";
     }
 </script>
 
