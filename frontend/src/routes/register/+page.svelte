@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import { onMount } from 'svelte';
     let username = '';
     let password = '';
@@ -11,6 +11,12 @@
 
     onMount(() => {
         document.body.style.backgroundColor = '#ADD8E6'; // Light Blue
+        let loginButton = document.getElementById("login");
+        if (loginButton){
+            loginButton.onclick = function() {
+                window.location.href="http://localhost:5173/login";
+            }
+        }
     });
 
     async function submitRegistrationForm() {
@@ -26,6 +32,7 @@
             role: role,
             remarks: remarks
         };
+
         const response = await fetch('http://localhost:8000/auth/users', {
             method: 'POST',
             headers: {
@@ -50,7 +57,11 @@
 
     .form-container {
         background-color: gray;
-        width: 300px;
+        width: 350px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
         padding: 20px;
         color: white;
         border-radius: 5px;
@@ -60,6 +71,7 @@
         margin-bottom: 10px;
     }
 
+    
     button {
         background-color: #4B8BF4; /* Blue background */
         color: white;
@@ -122,9 +134,11 @@
                     <input id="phoneNumber" bind:value={phoneNumber} type="tel" placeholder="Enter Phone Number">
                 </div>
             </div>
+            <div id="buttons">
+                <button on:click={submitRegistrationForm}>Register</button>
+                <button id="login">Back To Login</button>
+            </div>
             
-            
-            <button on:click={submitRegistrationForm}>Register</button>
         </div>
     </body>
     
