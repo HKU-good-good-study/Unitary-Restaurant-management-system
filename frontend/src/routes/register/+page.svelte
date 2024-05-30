@@ -61,17 +61,17 @@
     }
 
     button {
-    background-color: #4B8BF4; /* Blue background */
-    color: white;
-    border: 1px solid #1F50A9; /* Dark blue border */
-    padding: 10px 20px;
-    cursor: pointer;
-    text-shadow: none;
-    font-family: Tahoma, sans-serif; /* Font similar to Windows XP */
-    font-size: 11px;
-    box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5), /* Inner shadow */
-                1px 1px 1px rgba(255, 255, 255, 0.6) inset; /* Outer glow */
-    transition: all 0.1s ease-in-out; /* Smooth transition */
+        background-color: #4B8BF4; /* Blue background */
+        color: white;
+        border: 1px solid #1F50A9; /* Dark blue border */
+        padding: 10px 20px;
+        cursor: pointer;
+        text-shadow: none;
+        font-family: Tahoma, sans-serif; /* Font similar to Windows XP */
+        font-size: 11px;
+        box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5), /* Inner shadow */
+                    1px 1px 1px rgba(255, 255, 255, 0.6) inset; /* Outer glow */
+        transition: all 0.1s ease-in-out; /* Smooth transition */
     }
 
     button:active {
