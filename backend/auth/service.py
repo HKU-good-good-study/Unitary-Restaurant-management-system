@@ -8,7 +8,7 @@ from typing import Any
 from pydantic import UUID4
 from bson.objectid import ObjectId
 
-from utils import generate_random_alphanum
+from backend.utils import generate_random_alphanum
 from .config import auth_config
 from .exceptions import InvalidCredentials
 from .schemas import AuthUser, UserLogIn, UserRole
@@ -45,7 +45,7 @@ async def get_user_by_email(email: str) -> dict[str, Any] | None:
 
 
 async def create_refresh_token(
-        *, user_id: str, refresh_token: str | None = None
+    *, user_id: str, refresh_token: str | None = None
 ) -> str:
     if not refresh_token:
         refresh_token = generate_random_alphanum(64)
@@ -53,7 +53,8 @@ async def create_refresh_token(
     token_data = {
         "uuid": uuid.uuid4(),
         "refresh_token": refresh_token,
-        "expires_at": datetime.utcnow() + timedelta(seconds=auth_config.REFRESH_TOKEN_EXP),
+        "expires_at": datetime.utcnow()
+        + timedelta(seconds=auth_config.REFRESH_TOKEN_EXP),
         "user_id": user_id,
     }
     db.database["auth_refresh_token"].insert_one(token_data)
@@ -67,7 +68,7 @@ async def get_refresh_token(refresh_token: str) -> dict[str, Any] | None:
 async def expire_refresh_token(refresh_token_uuid: UUID4) -> None:
     db.database["auth_refresh_token"].update_one(
         {"uuid": refresh_token_uuid},
-        {"$set": {"expires_at": datetime.utcnow() - timedelta(days=1)}}
+        {"$set": {"expires_at": datetime.utcnow() - timedelta(days=1)}},
     )
 
 
@@ -84,7 +85,7 @@ async def authenticate_user(auth_data: UserLogIn) -> dict[str, Any]:
     if not user:
         raise InvalidCredentials()
 
-    # if not check_password(auth_data.password, user["password"]):
-    #     raise InvalidCredentials()
+    if not check_password(auth_data.password, user["password"]):
+        raise InvalidCredentials()
 
     return user

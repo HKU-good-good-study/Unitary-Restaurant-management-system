@@ -20,7 +20,7 @@ from contextlib import asynccontextmanager
 async def lifespan(app: FastAPI):
     startup_db_client()
     yield
-    Database.close()
+    close_db_client()
 
 
 app = FastAPI(lifespan=lifespan)
@@ -30,22 +30,20 @@ def startup_db_client():
     args = {}
 
     # grab address and port from system variables
-    host = getenv("MONGODB_ADDR")
-    port = getenv("MONGODB_PORT")
+    host = getenv("MONGODB_ADDR", "localhost")
+    port = int(getenv("MONGODB_PORT", "27017"))
 
-    # Check if using default path
-    if host == None:
-        host = "localhost"
-    if port == None:
-        port = 27017
-
-    if host:
-        args["host"] = host
-    if port:
-        args["port"] = port
+    args["host"] = host
+    args["port"] = port
     print(args)
-    app.database = Database(host, port).database
+
+    setattr(app, "database", Database(**args))
     print("Connected to MongoDB")
+
+
+def close_db_client():
+    app.database.close()  # type: ignore
+    print("Closed connection to MongoDB")
 
 
 origins = [

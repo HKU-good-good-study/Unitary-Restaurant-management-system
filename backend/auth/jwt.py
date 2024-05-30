@@ -28,9 +28,9 @@ def has_access(required_role: UserRole, user_role: UserRole) -> bool:
 
 
 def create_access_token(
-        *,
-        user: dict[str, Any],
-        expires_delta: timedelta = timedelta(minutes=auth_config.JWT_EXP),
+    *,
+    user: dict[str, Any],
+    expires_delta: timedelta = timedelta(minutes=auth_config.JWT_EXP),
 ) -> str:
     jwt_data = {
         "sub": str(user["_id"]),
@@ -42,7 +42,7 @@ def create_access_token(
 
 
 async def parse_jwt_user_data_optional(
-        token: str = Depends(oauth2_scheme),
+    token: str = Depends(oauth2_scheme),
 ) -> JWTData | None:
     if not token:
         return None
@@ -59,7 +59,7 @@ async def parse_jwt_user_data_optional(
 
 
 async def parse_jwt_user_data(
-        token: JWTData | None = Depends(parse_jwt_user_data_optional),
+    token: JWTData | None = Depends(parse_jwt_user_data_optional),
 ) -> JWTData:
     if not token:
         raise AuthRequired()
@@ -68,8 +68,8 @@ async def parse_jwt_user_data(
 
 
 async def parse_jwt_admin_data(
-        token: JWTData = Depends(parse_jwt_user_data),
-        required_role: UserRole = UserRole.MANAGER,
+    token: JWTData = Depends(parse_jwt_user_data),
+    required_role: UserRole = UserRole.MANAGER,
 ) -> JWTData:
     if not has_access(required_role, token.role):
         raise AuthorizationFailed()
@@ -78,8 +78,8 @@ async def parse_jwt_admin_data(
 
 
 async def validate_admin_access(
-        token: JWTData | None = Depends(parse_jwt_user_data_optional),
-        required_role: UserRole = UserRole.MANAGER,
+    token: JWTData | None = Depends(parse_jwt_user_data_optional),
+    required_role: UserRole = UserRole.MANAGER,
 ) -> None:
     if token and has_access(required_role, token.role):
         return

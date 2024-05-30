@@ -1,5 +1,11 @@
 from .constants import ErrorCode
-from exceptions import BadRequest, NotAuthenticated, PermissionDenied
+from backend.exceptions import (
+    DetailedHTTPException,
+    NotFound,
+    BadRequest,
+    NotAuthenticated,
+    PermissionDenied,
+)
 
 
 class AuthRequired(NotAuthenticated):
@@ -28,3 +34,11 @@ class UsernameTaken(BadRequest):
 
 class RefreshTokenNotValid(NotAuthenticated):
     DETAIL = ErrorCode.REFRESH_TOKEN_NOT_VALID
+
+
+class UserNotFound(NotFound):
+    DETAIL = ErrorCode.USER_NOT_FOUND
+
+
+class UserNotCreated(DetailedHTTPException):
+    DETAIL = ErrorCode.USER_NOT_CREATED

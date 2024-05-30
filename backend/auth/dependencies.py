@@ -18,7 +18,7 @@ async def valid_user_create(user: AuthUser) -> AuthUser:
 
 
 async def valid_refresh_token(
-        refresh_token: str = Cookie(..., alias="refreshToken"),
+    refresh_token: str = Cookie(..., alias="refreshToken"),
 ) -> dict[str, Any]:
     db_refresh_token = await service.get_refresh_token(refresh_token)
     if not db_refresh_token:
@@ -31,7 +31,7 @@ async def valid_refresh_token(
 
 
 async def valid_refresh_token_user(
-        refresh_token: dict[str, Any] = Depends(valid_refresh_token),
+    refresh_token: dict[str, Any] = Depends(valid_refresh_token),
 ) -> dict[str, Any]:
     user = await service.get_user_by_id(refresh_token["user_id"])
     if not user:
