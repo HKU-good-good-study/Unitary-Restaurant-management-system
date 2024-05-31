@@ -6,6 +6,7 @@
     let password = '';
     let isRegisterModalOpen = false;
     let registerUsername = '';
+    let registerPassword = '';
     let registerEmail = '';
     let registerPhoneNumber = '';
     let registerRole = 'Customer';
@@ -27,35 +28,39 @@
         console.log(data);
 
         if (data.role === 'Manager') {
-            goto('/manager');
+            goto('./manager');
         } else if (data.role === 'Dining Staff') {
-            goto('/dining-staff');
+            goto('./dining');
         } else if (data.role === 'Kitchen Staff') {
-            goto('/kitchen-staff');
+            goto('./kitchen');
         } else if (data.role === 'Customer') {
-            goto('/customer');
+            goto('./customer');
         }
     }
 
     async function submitRegister() {
+        if (!registerUsername || !registerPassword || !registerEmail || !registerPhoneNumber) {
+            alert('Please fill in all the required fields.');
+            return;
+        }
         const response = await fetch('http://localhost:8000/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ username: registerUsername, email: registerEmail, phone_number: registerPhoneNumber, role: registerRole, remarks: registerRemarks })
+            body: JSON.stringify({ username: registerUsername, password: registerPassword, email: registerEmail, phone_number: registerPhoneNumber, role: registerRole, remarks: registerRemarks })
         });
         const data = await response.json();
         console.log(data);
 
         if (data.role === 'Manager') {
-            goto('/manager');
+            goto('./manager');
         } else if (data.role === 'Dining Staff') {
-            goto('/dining-staff');
+            goto('./dining');
         } else if (data.role === 'Kitchen Staff') {
-            goto('/kitchen-staff');
+            goto('./kitchen');
         } else if (data.role === 'Customer') {
-            goto('/customer');
+            goto('./customer');
         }
     }
 
@@ -169,6 +174,10 @@
         <div class="row">
             <label for="registerUsername">Username:</label>
             <input id="registerUsername" bind:value={registerUsername} type="text" placeholder="Enter Username">
+        </div>
+        <div class="row">
+            <label for="registerPassword">Password:</label>
+            <input id="registerPassword" bind:value={registerPassword} type="password" placeholder="Enter Password">
         </div>
         <div class="row">
             <label for="registerEmail">Email:</label>
