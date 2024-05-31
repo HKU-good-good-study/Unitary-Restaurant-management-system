@@ -1,5 +1,8 @@
 <script>
   let role = 'customer'; // Change this to 'kitchen', 'manager', or 'customer' based on the current user
+  let roles=['kitchen', 'manager', 'customer'];
+  let i=1;
+
 
   let products = [
     { name: 'Salad', price: 13.99, weight: 'Weight 1', quantity: 0, image: './src/images/chopped-power-salad-with-chicken-0ad93f1931524a679c0f8854d74e6e57.jpg' },
@@ -52,6 +55,11 @@
   function removeProduct(index) {
     // Here you can add communication logic with the backend and delete dishes
     products.splice(index, 1);
+  }
+
+  function changeRole(){
+    role=roles[i%3];
+    i+=1;
   }
 </script>
 
@@ -155,6 +163,7 @@
 </style>
 
 <div class="menu">
+  <a  on:click={() => changeRole()}>{role}</a>
   {#each products as product, index (product.name)}
   <div class="product">
     <h2>{product.name}</h2>

@@ -278,31 +278,31 @@
                 <td width=10%>{currentPageRow.role}</td>
                 {#if currentPageRow.status}
                 <td class = activeStatus width=10%>
-                active 
+                active
                 </td>
                 {/if}
                 {#if !currentPageRow.status}
                 <td class= deactiveStatus width=10%>
-                deactive 
+                deactive
                 </td>
                 {/if}
                 
                 <td width=20%>                
                   {#if currentPageRow.status}
                   <button class = deactiveButton 
-                  on:click={() =>changeStatus(index)}>
-                  deactivate
+                  on:click={() =>changeStatus(index+page*itemsPerPage)}>
+                  deactivate 
                   </button>
                   {/if}
                   {#if !currentPageRow.status}
                   <button class = activeButton 
-                  on:click={() =>changeStatus(index)}>
+                  on:click={() =>changeStatus(index+page*itemsPerPage)}>
                   activate
                   </button>
                   {/if}
                   <button class = updateButton 
-                  on:click={() =>updateRole(index,1)}>
-                  update
+                  on:click={() =>updateRole(index+page*itemsPerPage,1)}>
+                  update 
                   </button>
                 </td>
               </tr>
