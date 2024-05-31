@@ -78,17 +78,20 @@
   function changeStatus(index) {
     // 更改用户账户状态
     // 用户账户状态 false停用/true 启用
-    currentPageRows[index].status = !currentPageRows[index].status;
+    users[index].status = !users[index].status;
+    paginate(users);
   }
 
   function addUser(userName,userRole) {
     // 添加用户
-    currentPageRows.push({name: userName, role: userRole, status: 0});
+    users.push({name: userName, role: userRole, status: 0});
+    paginate(users);
   }
 
   function updateRole(index,userRole) {
     // 修改用户角色权限
-    currentPageRows[index].role = userRole;
+    users[index].role = userRole;
+    paginate(users);
   }
 
 </script>
