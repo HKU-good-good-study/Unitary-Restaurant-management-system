@@ -251,7 +251,6 @@
 </style>
 
 <div>
-  <body bgcolor="#FFE4C4">
 
   <img width=10% {src} alt="{name}">
   <button class=addUser on:click={() =>addUser()}>

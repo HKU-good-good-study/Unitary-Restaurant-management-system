@@ -109,7 +109,7 @@
     <div class="row">
         <p>Complaint status: {complaintStatus}</p>
         <button on:click={handleComplaint}>Complaint</button>
-      </div>
+    </div>
     
       {#if showComplaintDialog}
         <div class="complaint-dialog">
@@ -119,5 +119,5 @@
           <button on:click={closeComplaintDialog}>Cancel</button>
         </div>
       {/if}
-    </div>
+</div>
   

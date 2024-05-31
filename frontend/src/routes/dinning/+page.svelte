@@ -1,5 +1,5 @@
 <script>
-  import Table from 'C:/Users/11570/Desktop/Unitary-Restaurant-management-system/frontend/src/routes/dinning/Tables.svelte';
+  import Table from './Tables.svelte';
   let tables = [1, 2, 3, 4, 5]; // 这里可以根据你的实际需求调整餐桌的数量
 </script>
 
