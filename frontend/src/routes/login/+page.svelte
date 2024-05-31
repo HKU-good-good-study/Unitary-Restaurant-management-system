@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
 
@@ -16,7 +16,7 @@
     });
 
     async function submitLogin() {
-        const response = await fetch('http://localhost:8000/login', {
+        const response = await fetch('http://localhost:8000/auth/users/tokens', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -38,7 +38,7 @@
     }
 
     async function submitRegister() {
-        const response = await fetch('http://localhost:8000/register', {
+        const response = await fetch('http://localhost:8000/auth/users', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -61,6 +61,7 @@
 
     function toggleRegisterModal() {
         isRegisterModalOpen = !isRegisterModalOpen;
+        window.location.href = "http://localhost:5173/register";
     }
 </script>
 
@@ -78,6 +79,10 @@
 
     .container {
         max-width: 800px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
         background-color: white;
         padding: 30px;
         border-radius: 10px;
@@ -145,23 +150,23 @@
         border-radius: 5px;
     }
   </style>
-
-<div class="container">
-    <h2>Login</h2>
-    <div class="row">
-        <label for="username">Username:</label>
-        <input id="username" bind:value={username} type="text" placeholder="Enter Username">
+<body>
+    <div class="container">
+        <h2>Login</h2>
+        <div class="row">
+            <label for="username">Username:</label>
+            <input id="username" bind:value={username} type="text" placeholder="Enter Username">
+        </div>
+        <div class="row">
+            <label for="password">Password:</label>
+            <input id="password" bind:value={password} type="password" placeholder="Enter Password">
+        </div>
+        <div class="row">
+            <button on:click={submitLogin}>Submit</button>
+            <button on:click={toggleRegisterModal}>Register</button>
+        </div>
     </div>
-    <div class="row">
-        <label for="password">Password:</label>
-        <input id="password" bind:value={password} type="password" placeholder="Enter Password">
-    </div>
-    <div class="row">
-        <button on:click={submitLogin}>Submit</button>
-        <button on:click={toggleRegisterModal}>Register</button>
-    </div>
-</div>
-
+</body>
 {#if isRegisterModalOpen}
 <div class="register-modal">
     <div class="register-form">
