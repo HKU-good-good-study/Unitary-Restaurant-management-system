@@ -1,15 +1,11 @@
 <script>
-    import { goto } from '$app/navigation';
     import HeaderBar from '$lib/HeaderBar.svelte';
 
     let user={name:"zhou", role: "manager", imgSrc:"./src/images/"};
     let png=".png";
     user.imgSrc=user.imgSrc+user.role+png;
 
-    function logout(){
-        user.name="";
-        goto('/login');
-    }
+
 </script>
 
 {#if user.name}
@@ -28,12 +24,6 @@
    <svelte:fragment slot="user">
     <span >{user.name}</span>
     <span style:padding-left=5% ><img width=10% src={user.imgSrc}></span>
-    </svelte:fragment>
-
-    <svelte:fragment slot="logout">
-        <button type="button" on:click={() => logout()}>
-            logout
-        </button>
     </svelte:fragment>
 </HeaderBar>
 </div>

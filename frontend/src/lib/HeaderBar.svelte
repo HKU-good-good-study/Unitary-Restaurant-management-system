@@ -19,37 +19,28 @@
     // 层级
     export let zIndex = 2021
 
-
-    let routes=["customer","dinning","kitchen","manager","menu"]
-
     function goBack() {
-        console.log('go back');
-        history.go(-1);
+        console.log('go back')
+        history.go(-1)
         // history.back(-1)
     }
 
     function gotoUserManagement(){
-        goto('/usermanagement');
-    }
-    
-    //展示临时使用
-    function gotoLink(link){
-        let url="\/"+link;
-        goto(url);
+        goto('/usermanagement')
     }
 
 </script>
 
 <style>
-    .right{
+    .user{
         position:fixed;
         right: 1%;
         display: inline-block;
         color: black; 
     }
     .link{
-        display: inline-block; 
-        padding: 10px;
+        margin-left:5%;
+        display: inline-block;
     }
 
 </style>
@@ -58,26 +49,15 @@
     <div class="header-bar__wrap flexbox flex-alignc" style:color style:background={bgcolor} style:z-index={zIndex}>
         <!-- //返回 -->
         {#if back && back != 'false'}
-            <div class=link on:click={goBack}>
+            <div style="display: inline-block; padding: 10px;" on:click={goBack}>
                 <slot name="backIco" /><slot name="backText" />
             </div>
         {/if}
 
-        {#each routes as route}
-            <div class=link on:click={() => gotoLink(route)}>
-                {route}
-            </div>
-        {/each}        
-
         <!-- //用户姓名及标识 -->
-        <div class=right on:click={gotoUserManagement}>
+        <div class= user on:click={gotoUserManagement}>
             <slot name="user" />
         </div>
-
-        <div class= right>
-            <slot name="logout"/>
-        </div>      
-        
 
         <!-- //标题 -->
         <div class="hdbar-title" class:center>
