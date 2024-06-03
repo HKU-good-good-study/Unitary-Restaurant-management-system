@@ -1,26 +1,36 @@
 <script>
   import Table from './Tables.svelte';
-  let tables = [1, 2, 3, 4, 5]; // 这里可以根据你的实际需求调整餐桌的数量
+  let tables = Array.from({ length: 21 }, (_, i) => i + 1); // 创建21个餐桌
+  const rowSize = 7; // 每行7个餐桌
 </script>
 
 <style>
+  .table-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-gap: 10px;
+  }
+
   .table-container {
     border: 1px solid #ccc;
-    margin: 10px;
     padding: 10px;
     border-radius: 5px;
+    text-align: center;
+    cursor: pointer;
   }
 </style>
 
 <div class="container">
-  <h2>Dinning Staff</h2>
+  <h2>Dining Staff</h2>
   <div class="row">
     <button>Work</button>
     <button>Get Off Work</button>
   </div>
-  {#each tables as tableNumber}
-    <div class="table-container">
-      <Table {tableNumber} />
-    </div>
-  {/each}
+  <div class="table-grid">
+    {#each tables as tableNumber}
+      <div class="table-container" on:click={() => showModal = true}>
+        <Table {tableNumber} />
+      </div>
+    {/each}
+  </div>
 </div>
