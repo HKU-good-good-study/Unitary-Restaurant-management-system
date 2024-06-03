@@ -1,20 +1,34 @@
 <script>
-    import { goto } from '$app/navigation'; /* go to menu page after pressing "go to menu"*/
+  import { onMount } from 'svelte';
+  import { writable } from 'svelte/store';
+  import { goto } from '$app/navigation'; /* go to menu page after pressing "go to menu"*/
 
-    export let tableNumber;
-    let dishNumber = '';
-    let closedTableNumber = '';
-    let sum = '';
-    let note = '';
-    let showModal = false;
 
-    function goToMenu() {
-        goto('./menu');
-    }
+  export let tableNumber;
+
+  let showModal = false;
+  let modalContent = '';
+  let dishNumber = '';
+  let closedTableNumber = '';
+  let sum = '';
+  let note = '';
+
+  function goToMenu() {
+      goto('./menu');
+  }
+
+  function openModal(content) {
+    modalContent = content;
+    showModal = true;
+  }
+
+  function closeModal() {
+    showModal = false;
+  }
 </script>
 
 <style>
-    body {
+  body {
       font-family: Arial, sans-serif;
       background-color: #f2f2f2;
       padding: 20px;
@@ -90,10 +104,10 @@
       height: 100px;
       margin-bottom: 10px;
     }
-  </style>
+</style>
 
-<div class="table" on:click="{() => showModal = true}">
-  <h3>Table {tableNumber}</h3>
+<div class="table-container" on:click={() => openModal(`Table ${tableNumber}`)}>
+  Table {tableNumber}
 </div>
 
 {#if showModal}
@@ -119,9 +133,8 @@
               <button on:click={goToMenu}>Go to Menu</button>
           </div>
           <div class="row">
-              <button on:click="{() => showModal = false}">CLOSE</button>
+            <button on:click={closeModal}>Close</button>
           </div>
       </div>
   </div>
 {/if}
-  
