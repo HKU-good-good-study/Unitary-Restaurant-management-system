@@ -1,12 +1,9 @@
 <script>
   let role = 'customer'; // Change this to 'kitchen', 'manager', or 'customer' based on the current user
-  let roles=['kitchen', 'manager', 'customer'];
-  let i=1;
-
 
   let products = [
-    { name: 'Salad', price: 'Price 1', weight: 'Weight 1', quantity: 0, image: './src/images/chopped-power-salad-with-chicken-0ad93f1931524a679c0f8854d74e6e57.jpg' },
-    { name: 'Beef Burger', price: 'Price 2', weight: 'Weight 2', quantity: 0, image: './src/images/photo-1571091718767-18b5b1457add.avif' },
+    { name: 'Salad', price: 13.99, weight: 'Weight 1', quantity: 0, image: './src/images/chopped-power-salad-with-chicken-0ad93f1931524a679c0f8854d74e6e57.jpg' },
+    { name: 'Beef Burger', price: 15.99, weight: 'Weight 2', quantity: 0, image: './src/images/photo-1571091718767-18b5b1457add.avif' },
     // More dishes...
   ];
   let total = 0;
@@ -37,12 +34,14 @@
 
   function increaseQuantity(index) {
     products[index].quantity += 1;
+    updateTotal();
   }
 
   function decreaseQuantity(index) {
     if (products[index].quantity > 0) {
       products[index].quantity -= 1;
     }
+    updateTotal();
   }
 
   function addProduct() {
@@ -53,11 +52,6 @@
   function removeProduct(index) {
     // Here you can add communication logic with the backend and delete dishes
     products.splice(index, 1);
-  }
-
-  function changeRole(){
-    role=roles[i%3];
-    i+=1;
   }
 </script>
 
@@ -149,26 +143,36 @@
     text-align: right;
     margin-top: 15px;
   }
+
+  .quantity-btn {
+    width: 40px; /* 设置按钮宽度 */
+    height: 40px; /* 设置按钮高度 */
+    font-size: 16px; /* 设置按钮内部文字/图标大小 */
+    display: inline-flex; /* 使用flexbox布局 */
+    justify-content: center; /* 水平居中 */
+    align-items: center; /* 垂直居中 */
+  }
 </style>
 
 <div class="menu">
-  <a  on:click={() => changeRole()}>{role}</a>
   {#each products as product, index (product.name)}
-    <div class="product">
-      <h2>{product.name}</h2>
-      <p>Price: {product.price}</p>
-      {#if role === 'manager' || role === 'kitchen staff'}
-        <input type="text" bind:value={product.price} on:change={() => changePrice(index, product.price)} />
-      {/if}
-      <p>Weight: {product.weight}</p>
-      <p>Quantity: {product.quantity}</p>
-      <button on:click={() => increaseQuantity(index)}>+</button>
-      <button on:click={() => decreaseQuantity(index)}>-</button>
-      <img src={product.image} />
-      {#if role === 'manager' || role === 'kitchen staff'}
-        <button on:click={() => removeProduct(index)}>Delete dish</button>
-      {/if}
+  <div class="product">
+    <h2>{product.name}</h2>
+    <p>Price: {product.price}</p>
+    {#if role === 'manager' || role === 'kitchen staff'}
+      <input type="text" bind:value={product.price} on:change={() => changePrice(index, product.price)} />
+    {/if}
+    <p>Weight: {product.weight}</p>
+    <p>Quantity: <input type="number" min="0" bind:value={product.quantity} /></p>
+    <div>
+      <button on:click={() => increaseQuantity(index)} class="quantity-btn">+</button>
+<button on:click={() => decreaseQuantity(index)} class="quantity-btn">-</button>
     </div>
+    <img src={product.image} />
+    {#if role === 'manager' || role === 'kitchen staff'}
+      <button on:click={() => removeProduct(index)}>Delete dish</button>
+    {/if}
+  </div>
   {/each}
   {#if role === 'manager' || role === 'kitchen staff'}
     <button on:click={addProduct}>Add dish</button>
@@ -183,8 +187,8 @@
         {#if product.quantity > 0}
           <li>
             {product.name} - {product.price} x {product.quantity} = {product.price * product.quantity}
-            <button on:click={() => addToCart(index)}>+</button>
-            <button on:click={() => removeFromCart(index)}>-</button>
+            <button on:click={() => addToCart(index)} class="quantity-btn">+</button>
+            <button on:click={() => removeFromCart(index)} class="quantity-btn">-</button>
           </li>
         {/if}
       {/each}
