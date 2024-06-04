@@ -1,4 +1,33 @@
 <script>
+  export let tableNumber;
+  export let status; // 接收当前餐桌的状态
+</script>
+
+<style>
+  .table {
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  .table.idle {
+    border-color: #ccc;
+  }
+
+  .table.reserved {
+    border-color: #FFB74D;
+  }
+
+  .table.occupied {
+    border-color: #E53935;
+  }
+</style>
+
+<div class="table {status}">Table {tableNumber}</div>
+
+<!-- <script>
   import { goto } from '$app/navigation'; /* go to menu page after pressing "go to menu"*/
 
   export let tableNumber;
@@ -124,3 +153,4 @@
     </div>
 </div>
 {/if}
+ -->

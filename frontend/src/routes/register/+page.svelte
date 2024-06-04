@@ -47,49 +47,71 @@
 
 <style>
     body {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh; /* Set the height of the entire viewport */
-        margin: 0; /* Remove default body margin */
-        background-color: #ADD8E6; /* Light Blue background */
-    }
+    font-family: Arial, sans-serif;
+    background-color: #f2f2f2;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
 
-    .form-container {
-        background-color: gray;
-        width: 350px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-        color: white;
-        border-radius: 5px;
-    }
+.form-container {
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin: 0 auto;
+    width: fit-content;
+}
 
-    .input-field {
-        margin-bottom: 10px;
-    }
+h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
+}
 
-    
-    button {
-        background-color: #4B8BF4; /* Blue background */
-        color: white;
-        border: 1px solid #1F50A9; /* Dark blue border */
-        padding: 10px 20px;
-        cursor: pointer;
-        text-shadow: none;
-        font-family: Tahoma, sans-serif; /* Font similar to Windows XP */
-        font-size: 11px;
-        box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5), /* Inner shadow */
-                    1px 1px 1px rgba(255, 255, 255, 0.6) inset; /* Outer glow */
-        transition: all 0.1s ease-in-out; /* Smooth transition */
-    }
+.input-field {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    justify-content: space-between;
+}
 
-    button:active {
-        background-color: #1F50A9; /* Darker blue background when clicked */
-        box-shadow: none; /* Remove shadow when clicked */
-    }
+.input-field > * {
+    margin-right: 15px;
+}
+
+input {
+    padding: 10px 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    flex-grow: 1;
+    font-size: 16px;
+    margin-bottom: 15px;
+}
+
+button {
+    background-color: #333;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #555;
+}
 
 
 
