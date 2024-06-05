@@ -14,14 +14,17 @@
 
   .table.idle {
     border-color: #ccc;
+    border-width: 5px;
   }
 
   .table.reserved {
     border-color: #FFB74D;
+    border-width: 5px;
   }
 
   .table.occupied {
     border-color: #E53935;
+    border-width: 5px;
   }
 </style>
 

@@ -49,10 +49,15 @@
 </script>
 
 <style>
+  .container {
+    margin-top: 30px; /* 增加容器的上边距 */
+  } 
+
   .table-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    grid-gap: 10px;
+    grid-gap: 20px;
+    margin-top: 20px;
   }
 
   .modal {
