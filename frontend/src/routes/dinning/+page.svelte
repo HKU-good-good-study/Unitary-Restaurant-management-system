@@ -1,6 +1,7 @@
 <script>
   import Table from './Tables.svelte';
   import { goto } from '$app/navigation';
+  import { onMount } from 'svelte';
 
   // 创建一个对象来存储每个 table 的状态
   let tableStatus = {
@@ -46,6 +47,11 @@
   function goToMenu() {
     goto('./menu');
   }
+
+  onMount(() => {
+    // 在这里可以添加与后端的通信逻辑，从数据库或API获取真实数据
+    history.replaceState(null, '', '/profile');
+  });
 </script>
 
 <style>
@@ -56,11 +62,12 @@
   .table-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    grid-gap: 20px;
+    grid-gap: 30px;
     margin-top: 20px;
   }
 
   .modal {
+    padding: 50px;
     position: fixed;
     top: 0;
     left: 0;
@@ -73,11 +80,38 @@
   }
 
   .modal-content {
+    max-width: 800px;
+    padding: 30px;
     background-color: white;
     padding: 20px;
     border-radius: 5px;
     max-width: 600px;
     width: 100%;
+  }
+
+  .modal-content .row {
+    margin-bottom: 20px;
+  }
+
+  .table-grid {
+    grid-gap: 30px;
+  }
+
+  button {
+    padding: 10px 20px;
+    font-size: 16px;
+  }
+
+  .table-container {
+    margin: 0 10px;
+  }
+
+  .modal select {
+    font-size: 16px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 </style>
 

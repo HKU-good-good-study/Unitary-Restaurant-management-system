@@ -1,4 +1,6 @@
 <script>
+  import { onMount } from 'svelte';
+
   let reservationStatus = '';
   let orderStatus = '';
   let complaintStatus = '';
@@ -22,6 +24,11 @@
     showComplaintDialog = false;
     complaintText = '';
   }
+
+  onMount(() => {
+    // 在这里可以添加与后端的通信逻辑，从数据库或API获取真实数据
+    history.replaceState(null, '', '/profile');
+  });
 </script>
 
 <style>

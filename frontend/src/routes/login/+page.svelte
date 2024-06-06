@@ -13,6 +13,7 @@
 
     onMount(() => {
         document.body.style.backgroundColor = '#f2f2f2'; // Light Gray
+        history.replaceState(null, '', '/profile');
     });
 
     async function submitLogin() {

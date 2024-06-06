@@ -33,6 +33,8 @@
 
 
   onMount(() => {
+    history.replaceState(null, '', '/profile');
+
     users =[
     { name: 'liu', role: 'customer', status:false},
     { name: 'zhou', role: 'customer', status: true},
