@@ -10,7 +10,8 @@
     let remarks = '';
 
     onMount(() => {
-        history.replaceState(null, '', '/profile');
+        history.replaceState(null, 'Profile', '/profile');
+        document.title = 'Profile';
 
         document.body.style.backgroundColor = '#ADD8E6'; // Light Blue
         let loginButton = document.getElementById("login");

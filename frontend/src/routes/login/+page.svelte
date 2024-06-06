@@ -13,7 +13,8 @@
 
     onMount(() => {
         document.body.style.backgroundColor = '#f2f2f2'; // Light Gray
-        history.replaceState(null, '', '/profile');
+        history.replaceState(null, 'Profile', '/profile');
+        document.title = 'Profile';
     });
 
     async function submitLogin() {
