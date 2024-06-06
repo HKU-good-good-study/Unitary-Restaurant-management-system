@@ -33,7 +33,7 @@
 
 <style>
     .user{
-        position:fixed;
+        position:absolute;
         right: 1%;
         display: inline-block;
         color: black; 

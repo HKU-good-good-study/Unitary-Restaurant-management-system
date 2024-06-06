@@ -22,8 +22,8 @@
     </svelte:fragment-->
 
    <svelte:fragment slot="user">
-    <span >{user.name}</span>
-    <span style:padding-left=5% ><img width=10% src={user.imgSrc}></span>
+    <i >{user.name}</i>
+    <i style:padding-left=5% ><img width=10% src={user.imgSrc}></i>
     </svelte:fragment>
 </HeaderBar>
 </div>

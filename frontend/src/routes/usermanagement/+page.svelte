@@ -11,6 +11,9 @@
   let currentPageRows = [];
   let itemsPerPage = 13;
   let loading = true;
+  let showAddUserDialog = false;
+  let showUpdateDialog=false;
+  let newUser={name:"",role:"",status:true,password:"",email:"",countryCode:"",phoneNumber:""};
 
   
   $: currentPageRows = totalPages.length > 0 ? totalPages[page] : [];
@@ -81,17 +84,53 @@
     users[index].status = !users[index].status;
     paginate(users);
   }
-
-  function addUser(userName,userRole) {
-    // 添加用户
-    users.push({name: userName, role: userRole, status: 0});
+  
+   // 添加用户
+  function addUser(){
+    newUser.password=newUser.phoneNumber;
+    users.push(newUser);
     paginate(users);
+    showAddUserDialog=false;
+    console.log(newUser);
   }
 
-  function updateRole(index,userRole) {
+  function addUserBotton() {   
+    showAddUserDialog=true;
+    newUser={name:"",role:"",status:true,password:"",email:"",countryCode:"",phoneNumber:""};  
+  }
+
+  /*async function submitRegistrationForm() {
+        const userData = {
+            username: username,
+            password: password,
+            email: email,
+            phone_number: countryCode + " " + phoneNumber,
+            role: role,
+            remarks: remarks
+        };
+
+        const response = await fetch('http://localhost:8000/auth/users', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(userData)
+        });
+        const data = await response.json();
+        console.log(data);
+    }*/
+
+  
+
+  function updateBotton() {   
+    showUpdateDialog=true;  
+  }
+  function update(index) {
     // 修改用户角色权限
     users[index].role = userRole;
-    paginate(users);
+    paginate(users);    
+    showAddUserDialog=false;
+    console.log(newUser);
   }
 
 </script>
@@ -198,7 +237,7 @@
   }
 
   .addUser{
-    position:fixed; 
+    position:absolute; 
     right: 10%; 
     top:10%; 
     display: inline-block; 
@@ -246,9 +285,29 @@
   }
 
   .pagination{
-    position: absolute;
+    position: fixed;
     top:80%;
     left: 53%;
+  }
+
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    max-width: 600px;
+    width: 100%;
   }
 
 </style>
@@ -256,7 +315,7 @@
 <div>
 
   <img width=10% {src} alt="{name}">
-  <button class=addUser on:click={() =>addUser()}>
+  <button class=addUser on:click={() =>addUserBotton()}>
   addUser
   </button>
 
@@ -301,7 +360,7 @@
                   </button>
                   {/if}
                   <button class = updateButton 
-                  on:click={() =>updateRole(index+page*itemsPerPage,1)}>
+                  on:click={() =>updateBotton(index+page*itemsPerPage,1)}>
                   update 
                   </button>
                 </td>
@@ -352,5 +411,49 @@
     </nav>
   </div>
 
+  <!-- addUserDialog-->
+  {#if showAddUserDialog}
+  <div class="modal" on:click={() => showAddUserDialog = false}>
+    <div class="modal-content" on:click|stopPropagation>
+      <h3>please input new user information</h3>
+      <div class="row">
+        <label for="userRole">role:</label>
+        <select id="userRole"bind:value={newUser.role}>
+          <option value="customer">customer</option>
+          <option value="management">management</option>
+          <option value="dinning">dinning</option>          
+          <option value="kitchen">kitchen</option>
+        </select>
+      </div>
+      <div class="row">
+        <label for="userName">name:</label>
+        <input id="userName" bind:value={newUser.name} placeholder="Enter new user name" />
+      </div> 
+      <div class="row">
+        <label for="countryCode">country code:</label>
+        <select id="countryCode" bind:value={newUser.countryCode}>
+            <option value="+1">USA (+1)</option>
+            <option value="+1">CANADA (+1)</option>
+            <option value="+44">Britain (+44)</option>
+            <option value="+86">China (+86)</option>
+            <option value="+91">India (+91)</option>
+            <option value="+852">HongKong SAR (+852)</option>
+            <option value="+52">Mexico (+52)</option>
+            <!-- Add more options as needed -->
+        </select>
+      </div>
+      <div class="row">
+        <label for="phoneNumber">phone number:</label>
+        <input id="phoneNumber" bind:value={newUser.phoneNumber} placeholder="Enter Phone Number">
+      </div>
+      <div class="row">
+        <label for="email">email:</label>
+        <input id="email" bind:value={newUser.email} placeholder="Enter Email">
+      </div>
+      <button on:click={addUser}>Submit</button>
+      <button on:click={() => showAddUserDialog = false}>CLOSE</button>     
+    </div>    
+  </div>
+  {/if}
 
 </div>

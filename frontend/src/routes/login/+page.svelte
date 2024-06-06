@@ -154,6 +154,7 @@
         border-radius: 5px;
     } */
   </style>
+  <!-- body 导致显示banner异常-->
 <body>
     <div class="container">
         <h2>Login</h2>
