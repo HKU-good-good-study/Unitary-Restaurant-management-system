@@ -1,0 +1,23 @@
+version: '3'
+services:
+  backend:
+    build: ./backend/app/
+    container_name: Restaurant-backend
+    volumes:
+      - ./backend/app:/app
+
+  frontend:
+    build:
+      context: ./frontend/
+    container_name: Restaurant-frontend
+    ports:
+      - 5173:80
+
+  mongodb:
+    container_name: Restaurant-db
+    image: mongo
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: admin
+    volume:
+      - ./data:/data
