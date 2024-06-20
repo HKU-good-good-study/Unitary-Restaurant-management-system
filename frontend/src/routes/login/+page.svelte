@@ -23,17 +23,15 @@
             headers: {
                 'Content-Type': 'application/json'
             },
+            credentials: 'include', // This is important for cookies to be sent
             body: JSON.stringify({ username, password })
         });
         const data = await response.json();
         console.log(data);
 
-        // Get role info
         const roleResponse = await fetch('http://localhost:8000/auth/users/me', {
             method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${data.access_token}`
-            }
+            credentials: 'include', // This is important for cookies to be sent
         });
         const roleData = await roleResponse.json();
         console.log(roleData);
@@ -41,41 +39,17 @@
         if (roleData.role === 'Manager') {
             goto('/manager');
         } else if (roleData.role === 'Dining Staff') {
-            goto('/dining-staff');
+            goto('/dining');
         } else if (roleData.role === 'Kitchen Staff') {
-            goto('/kitchen-staff');
+            goto('/kitchen');
         } else if (roleData.role === 'Customer') {
             goto('/customer');
-        } else {
-            // 处理其他角色或错误情况
-            console.error('Unknown role:', roleData.role);
         }
     }
 
     function goToRegister() {
         goto('./register');
     }
-    // async function submitRegister() {
-    //     const response = await fetch('http://localhost:8000/auth/users', {
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type': 'application/json'
-    //         },
-    //         body: JSON.stringify({ username: registerUsername, email: registerEmail, phone_number: registerPhoneNumber, role: registerRole, remarks: registerRemarks })
-    //     });
-    //     const data = await response.json();
-    //     console.log(data);
-
-    //     if (data.role === 'Manager') {
-    //         goto('/manager');
-    //     } else if (data.role === 'Dining Staff') {
-    //         goto('/dining-staff');
-    //     } else if (data.role === 'Kitchen Staff') {
-    //         goto('/kitchen-staff');
-    //     } else if (data.role === 'Customer') {
-    //         goto('/customer');
-    //     }
-    // }
 
     function toggleRegisterModal() {
         isRegisterModalOpen = !isRegisterModalOpen;
@@ -169,7 +143,7 @@
         border-radius: 5px;
     } */
   </style>
-  <!-- body 导致显示banner异常-->
+
 <body>
     <div class="container">
         <h2>Login</h2>
