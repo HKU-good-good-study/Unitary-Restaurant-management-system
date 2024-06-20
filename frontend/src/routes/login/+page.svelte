@@ -13,7 +13,7 @@
 
     onMount(() => {
         document.body.style.backgroundColor = '#f2f2f2'; // Light Gray
-        history.replaceState(null, 'Profile', '/profile');
+        // history.replaceState(null, 'Profile', '/profile');
         document.title = 'Profile';
     });
 
@@ -28,14 +28,27 @@
         const data = await response.json();
         console.log(data);
 
-        if (data.role === 'Manager') {
+        // Get role info
+        const roleResponse = await fetch('http://localhost:8000/auth/users/me', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${data.access_token}`
+            }
+        });
+        const roleData = await roleResponse.json();
+        console.log(roleData);
+
+        if (roleData.role === 'Manager') {
             goto('/manager');
-        } else if (data.role === 'Dining Staff') {
+        } else if (roleData.role === 'Dining Staff') {
             goto('/dining-staff');
-        } else if (data.role === 'Kitchen Staff') {
+        } else if (roleData.role === 'Kitchen Staff') {
             goto('/kitchen-staff');
-        } else if (data.role === 'Customer') {
+        } else if (roleData.role === 'Customer') {
             goto('/customer');
+        } else {
+            // 处理其他角色或错误情况
+            console.error('Unknown role:', roleData.role);
         }
     }
 
