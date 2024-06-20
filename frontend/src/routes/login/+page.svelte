@@ -144,7 +144,7 @@
     } */
   </style>
 
-<body>
+
     <div class="container">
         <h2>Login</h2>
         <div class="row">
@@ -160,7 +160,7 @@
             <button on:click={toggleRegisterModal}>Register</button>
         </div>
     </div>
-</body>
+
 <!-- {#if isRegisterModalOpen}
 <div class="register-modal">
     <div class="register-form">

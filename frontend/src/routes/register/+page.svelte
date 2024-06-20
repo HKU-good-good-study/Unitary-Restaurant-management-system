@@ -121,7 +121,6 @@ button:hover {
 </style>
 
 <html lang="utf-8">
-    <body>
         <div class="form-container">
             <h2>Register</h2>
             <div class="input-field">
@@ -165,6 +164,5 @@ button:hover {
             </div>
             
         </div>
-    </body>
     
 </html>
