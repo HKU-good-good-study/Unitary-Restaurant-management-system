@@ -5,6 +5,7 @@ from zoneinfo import ZoneInfo
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel, ConfigDict, model_validator
 
+
 def convert_datetime_to_gmt(dt: datetime) -> str:
     if not dt.tzinfo:
         dt = dt.replace(tzinfo=ZoneInfo("UTC"))

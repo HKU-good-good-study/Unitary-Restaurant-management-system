@@ -16,10 +16,12 @@ from os import getenv
 import uvicorn
 from contextlib import asynccontextmanager
 
-
 from menu.routes import router as menu_router
-from models import Menu, MenuUpdate
-from constants import menuDb
+from menu.models import Menu, MenuUpdate
+from typing import List
+
+
+#from constants import menuDb
 
 
 @asynccontextmanager
@@ -67,9 +69,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 app.include_router(auth_router)
 
+# Sample Editing Methods
+menuDb: List[Menu] = []
 
 
 @app.get("/menus")
