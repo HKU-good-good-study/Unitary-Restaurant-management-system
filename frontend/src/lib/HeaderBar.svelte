@@ -25,8 +25,8 @@
         // history.back(-1)
     }
 
-    function gotoUserManagement(){
-        goto('/usermanagement')
+    function gotoRole(){
+        goto('/role')
     }
 
 </script>
@@ -55,7 +55,7 @@
         {/if}
 
         <!-- //用户姓名及标识 -->
-        <div class= user on:click={gotoUserManagement}>
+        <div class= user on:click={gotoRole}>
             <slot name="user" />
         </div>
 
