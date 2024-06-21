@@ -1,9 +1,11 @@
 <script>
-  import { onMount } from "svelte";
+  import { onMount } from "svelte";  
+  //import { user } from '../../stores';
 
   let src = './src/images/0.png';
 	let name = 'icon';
-
+  let role ='manager';
+  //let role=user.role;
 
   let users = [];
   let page = 0;
@@ -14,6 +16,7 @@
   let showAddUserDialog = false;
   let showUpdateDialog=false;
   let newUser={name:"",role:"",status:true,password:"",email:"",countryCode:"",phoneNumber:""};
+  let selectUser;
 
   
   $: currentPageRows = totalPages.length > 0 ? totalPages[page] : [];
@@ -37,38 +40,38 @@
     document.title = 'Profile';
 
     users =[
-    { name: 'liu', role: 'customer', status:false},
-    { name: 'zhou', role: 'customer', status: true},
-    { name: 'liu', role: 'customer', status:false},
-    { name: 'zhou', role: 'customer', status: true},
-    { name: 'liu', role: 'customer', status:false},
-    { name: 'zhou', role: 'customer', status: true},
-    { name: 'liu', role: 'customer', status:false},
-    { name: 'zhou', role: 'customer', status: true},
-    { name: 'liu', role: 'customer', status:false},
-    { name: 'zhou', role: 'customer', status: true},
-    { name: 'liu', role: 'customer', status:false},
-    { name: 'zhou', role: 'customer', status: true},
-    { name: 'liu', role: 'customer', status:false},
-    { name: 'zhou', role: 'customer', status: true},
-    { name: 'liu', role: 'customer', status:false},
-    { name: 'zhou', role: 'customer', status: true},
-    { name: 'liu', role: 'customer', status:false},
-    { name: 'zhou', role: 'customer', status: true},
-    { name: 'liu', role: 'customer', status:false},
-    { name: 'zhou', role: 'customer', status: true},
-    { name: 'liu', role: 'customer', status:false},
-    { name: 'zhou', role: 'customer', status: true},
-    { name: 'liu', role: 'customer', status:false},
-    { name: 'zhou', role: 'customer', status: true},
-    { name: 'liu', role: 'customer', status:false},
-    { name: 'zhou', role: 'customer', status: true},
-    { name: 'liu', role: 'customer', status:false},
-    { name: 'zhou', role: 'customer', status: true},
-    { name: 'liu', role: 'customer', status:false},
-    { name: 'zhou', role: 'customer', status: true},
-    { name: 'liu', role: 'customer', status:false},
-    { name: 'zhou', role: 'customer', status: true},    
+    { name: 'liu', role: 'Customer', status:false,email:"132@qq.com",countryCode:"+86",phoneNumber:"123123123"},
+    { name: 'zhou', role: 'Customer', status: true},
+    { name: 'liu', role: 'Customer', status:false},
+    { name: 'zhou', role: 'Customer', status: true},
+    { name: 'liu', role: 'Customer', status:false},
+    { name: 'zhou', role: 'Customer', status: true},
+    { name: 'liu', role: 'Customer', status:false},
+    { name: 'zhou', role: 'Customer', status: true},
+    { name: 'liu', role: 'Customer', status:false},
+    { name: 'zhou', role: 'Customer', status: true},
+    { name: 'liu', role: 'Customer', status:false},
+    { name: 'zhou', role: 'Customer', status: true},
+    { name: 'liu', role: 'Customer', status:false},
+    { name: 'zhou', role: 'Customer', status: true},
+    { name: 'liu', role: 'Customer', status:false},
+    { name: 'zhou', role: 'Customer', status: true},
+    { name: 'liu', role: 'Customer', status:false},
+    { name: 'zhou', role: 'Customer', status: true},
+    { name: 'liu', role: 'Customer', status:false},
+    { name: 'zhou', role: 'Customer', status: true},
+    { name: 'liu', role: 'Customer', status:false},
+    { name: 'zhou', role: 'Customer', status: true},
+    { name: 'liu', role: 'Customer', status:false},
+    { name: 'zhou', role: 'Customer', status: true},
+    { name: 'liu', role: 'Customer', status:false},
+    { name: 'zhou', role: 'Customer', status: true},
+    { name: 'liu', role: 'Customer', status:false},
+    { name: 'zhou', role: 'Customer', status: true},
+    { name: 'liu', role: 'Customer', status:false},
+    { name: 'zhou', role: 'Customer', status: true},
+    { name: 'liu', role: 'Customer', status:false},
+    { name: 'zhou', role: 'Customer', status: true},    
     
     // more user...
   ];
@@ -88,7 +91,7 @@
     paginate(users);
   }
   
-   // 添加用户
+   // 添加用户 用户默认密码位手机号码
   function addUser(){
     newUser.password=newUser.phoneNumber;
     users.push(newUser);
@@ -101,38 +104,16 @@
     showAddUserDialog=true;
     newUser={name:"",role:"",status:true,password:"",email:"",countryCode:"",phoneNumber:""};  
   }
+ 
 
-  /*async function submitRegistrationForm() {
-        const userData = {
-            username: username,
-            password: password,
-            email: email,
-            phone_number: countryCode + " " + phoneNumber,
-            role: role,
-            remarks: remarks
-        };
-
-        const response = await fetch('http://localhost:8000/auth/users', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(userData)
-        });
-        const data = await response.json();
-        console.log(data);
-    }*/
-
-  
-
-  function updateBotton() {   
+  function updateBotton(index) {  
+    selectUser= users[index];
     showUpdateDialog=true;  
   }
-  function update(index) {
-    // 修改用户角色权限
-    users[index].role = userRole;
+  function update() {
+    //users[index] = selectUser;
     paginate(users);    
-    showAddUserDialog=false;
+    showUpdateDialog=false;
     console.log(newUser);
   }
 
@@ -318,145 +299,191 @@
 <div>
 
   <img width=10% {src} alt="{name}">
-  <button class=addUser on:click={() =>addUserBotton()}>
-  addUser
-  </button>
+  {#if role=='manager'}
+    <button class=addUser on:click={() =>addUserBotton()}>
+    addUser
+    </button>
 
-  <div>
-    <table >
-      <thead>
-          <tr>
-            <th>name</th>
-            <th>role</th>
-            <th>status</th>
-            <th>operation</th>
-          </tr>
-        </thead>
-        
-        <tbody>
-            {#each currentPageRows as currentPageRow, index}
-              <tr>
-                <td width=10%>{currentPageRow.name}</td>
-                <td width=10%>{currentPageRow.role}</td>
-                {#if currentPageRow.status}
-                <td class = activeStatus width=10%>
-                active
-                </td>
-                {/if}
-                {#if !currentPageRow.status}
-                <td class= deactiveStatus width=10%>
-                deactive
-                </td>
-                {/if}
-                
-                <td width=20%>                
+    <div>
+      <table >
+        <thead>
+            <tr>
+              <th>name</th>
+              <th>role</th>
+              <th>status</th>
+              <th>operation</th>
+            </tr>
+          </thead>
+          
+          <tbody>
+              {#each currentPageRows as currentPageRow, index}
+                <tr>
+                  <td width=10%>{currentPageRow.name}</td>
+                  <td width=10%>{currentPageRow.role}</td>
                   {#if currentPageRow.status}
-                  <button class = deactiveButton 
-                  on:click={() =>changeStatus(index+page*itemsPerPage)}>
-                  deactivate 
-                  </button>
+                  <td class = activeStatus width=10%>
+                  active
+                  </td>
                   {/if}
                   {#if !currentPageRow.status}
-                  <button class = activeButton 
-                  on:click={() =>changeStatus(index+page*itemsPerPage)}>
-                  activate
-                  </button>
+                  <td class= deactiveStatus width=10%>
+                  deactive
+                  </td>
                   {/if}
-                  <button class = updateButton 
-                  on:click={() =>updateBotton(index+page*itemsPerPage,1)}>
-                  update 
-                  </button>
-                </td>
-              </tr>
-            {/each}
-        </tbody>
+                  
+                  <td width=20%>                
+                    {#if currentPageRow.status}
+                    <button class = deactiveButton 
+                    on:click={() =>changeStatus(index+page*itemsPerPage)}>
+                    deactivate 
+                    </button>
+                    {/if}
+                    {#if !currentPageRow.status}
+                    <button class = activeButton 
+                    on:click={() =>changeStatus(index+page*itemsPerPage)}>
+                    activate
+                    </button>
+                    {/if}
+                    <button class = updateButton 
+                    on:click={() =>updateBotton(index+page*itemsPerPage)}>
+                    update 
+                    </button>
+                  </td>
+                </tr>
+              {/each}
+          </tbody>
 
-    </table>
-  </div>
+      </table>
+    </div>
 
 
-  <!--翻页栏-->
-  <div>
-    <nav class="pagination">
-      <ul>
-        <li>
-        page {page + 1}/{totalPages.length}
-        </li>
-        <li>
-          <button
-            type="button"
-            class="btn-next-prev"
-            on:click={() => setPage(page - 1)}>
-            PREV
-          </button>
-        </li>
-
-        {#each totalPages as page, i}
+    <!--翻页栏-->
+    <div>
+      <nav class="pagination">
+        <ul>
+          <li>
+          page {page + 1}/{totalPages.length}
+          </li>
           <li>
             <button
               type="button"
-              class="btn-page-number"
-              on:click={() => setPage(i)}>
-              {i + 1}
+              class="btn-next-prev"
+              on:click={() => setPage(page - 1)}>
+              PREV
             </button>
           </li>
-        {/each}
 
-        <li>
-          <button
-            type="button"
-            class="btn-next-prev"
-            on:click={() => setPage(page + 1)}>
-            NEXT
-          </button>
-        </li>
-      </ul>
-    </nav>
-  </div>
+          {#each totalPages as page, i}
+            <li>
+              <button
+                type="button"
+                class="btn-page-number"
+                on:click={() => setPage(i)}>
+                {i + 1}
+              </button>
+            </li>
+          {/each}
 
-  <!-- addUserDialog-->
-  {#if showAddUserDialog}
-  <div class="modal" on:click={() => showAddUserDialog = false}>
-    <div class="modal-content" on:click|stopPropagation>
-      <h3>please input new user information</h3>
-      <div class="row">
-        <label for="userRole">role:</label>
-        <select id="userRole"bind:value={newUser.role}>
-          <option value="customer">customer</option>
-          <option value="management">management</option>
-          <option value="dinning">dinning</option>          
-          <option value="kitchen">kitchen</option>
-        </select>
+          <li>
+            <button
+              type="button"
+              class="btn-next-prev"
+              on:click={() => setPage(page + 1)}>
+              NEXT
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <!-- addUserDialog-->
+    {#if showAddUserDialog}
+      <div class="modal" on:click={() => showAddUserDialog = false}>
+        <div class="modal-content" on:click|stopPropagation>
+          <h3>please input new user information</h3>
+          <div class="row">
+            <label for="userRole">role:</label>
+            <select id="userRole"bind:value={newUser.role}>
+              <option value="Customer">Customer</option>
+              <option value="Manager">Manager</option>
+              <option value="Dining Room Staff">Dining Room Staff</option>          
+              <option value="Kitchen Staff">Kitchen Staff</option>
+            </select>
+          </div>
+          <div class="row">
+            <label for="userName">name:</label>
+            <input id="userName" bind:value={newUser.name} placeholder={"Enter new user name"} />
+          </div> 
+          <div class="row">
+            <label for="countryCode">country code:</label>
+            <select id="countryCode" bind:value={newUser.countryCode}>
+                <option value="+1">USA (+1)</option>
+                <option value="+1">CANADA (+1)</option>
+                <option value="+44">Britain (+44)</option>
+                <option value="+86">China (+86)</option>
+                <option value="+91">India (+91)</option>
+                <option value="+852">HongKong SAR (+852)</option>
+                <option value="+52">Mexico (+52)</option>
+                <!-- Add more options as needed -->
+            </select>
+          </div>
+          <div class="row">
+            <label for="phoneNumber">phone number:</label>
+            <input id="phoneNumber" bind:value={newUser.phoneNumber} placeholder="Enter Phone Number">
+          </div>
+          <div class="row">
+            <label for="email">email:</label>
+            <input id="email" bind:value={newUser.email} placeholder="Enter Email">
+          </div>
+          <button on:click={addUser}>Submit</button>
+          <button on:click={() => showAddUserDialog = false}>CLOSE</button>     
+        </div>    
       </div>
-      <div class="row">
-        <label for="userName">name:</label>
-        <input id="userName" bind:value={newUser.name} placeholder="Enter new user name" />
-      </div> 
-      <div class="row">
-        <label for="countryCode">country code:</label>
-        <select id="countryCode" bind:value={newUser.countryCode}>
-            <option value="+1">USA (+1)</option>
-            <option value="+1">CANADA (+1)</option>
-            <option value="+44">Britain (+44)</option>
-            <option value="+86">China (+86)</option>
-            <option value="+91">India (+91)</option>
-            <option value="+852">HongKong SAR (+852)</option>
-            <option value="+52">Mexico (+52)</option>
-            <!-- Add more options as needed -->
-        </select>
+    {/if}
+
+
+     <!--UpdateDialog-->
+    {#if showUpdateDialog}
+      <div class="modal" on:click={() => showUpdateDialog = false}>
+        <div class="modal-content" on:click|stopPropagation>
+          <h3>please update user information</h3>
+          <div class="row">
+            <label for="userRole">role:</label>
+            <select id="userRole"bind:value={selectUser.role}>
+              <option value="Customer">Customer</option>
+              <option value="Manager">Manager</option>
+              <option value="Dining Room Staff">Dining Room Staff</option>          
+              <option value="Kitchen Staff">Kitchen Staff</option>
+            </select>
+          </div>
+          <div class="row">
+            <label for="userName">name:</label>
+            <input id="userName" bind:value={selectUser.name} />
+          </div> 
+          <div class="row">
+            <label for="countryCode">country code:</label>
+            <select id="countryCode" bind:value={selectUser.countryCode}>
+                <option value="+1">USA (+1)</option>
+                <option value="+1">CANADA (+1)</option>
+                <option value="+44">Britain (+44)</option>
+                <option value="+86">China (+86)</option>
+                <option value="+91">India (+91)</option>
+                <option value="+852">HongKong SAR (+852)</option>
+                <option value="+52">Mexico (+52)</option>
+            </select>
+          </div>
+          <div class="row">
+            <label for="phoneNumber">phone number:</label>
+            <input id="phoneNumber" bind:value={selectUser.phoneNumber}>
+          </div>
+          <div class="row">
+            <label for="email">email:</label>
+            <input id="email" bind:value={selectUser.email}>
+          </div>
+          <button on:click={update}>Submit</button>
+          <button on:click={() => showUpdateDialog = false}>CLOSE</button>     
+        </div>    
       </div>
-      <div class="row">
-        <label for="phoneNumber">phone number:</label>
-        <input id="phoneNumber" bind:value={newUser.phoneNumber} placeholder="Enter Phone Number">
-      </div>
-      <div class="row">
-        <label for="email">email:</label>
-        <input id="email" bind:value={newUser.email} placeholder="Enter Email">
-      </div>
-      <button on:click={addUser}>Submit</button>
-      <button on:click={() => showAddUserDialog = false}>CLOSE</button>     
-    </div>    
-  </div>
+    {/if} 
   {/if}
-
 </div>

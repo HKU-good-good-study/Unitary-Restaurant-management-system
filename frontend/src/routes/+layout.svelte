@@ -1,10 +1,8 @@
 <script>
     import HeaderBar from '$lib/HeaderBar.svelte';
+    import { user } from '../stores.js'; 
 
-    let user={name:"zhou", role: "manager", imgSrc:"./src/images/"};
-    let png=".png";
-    user.imgSrc=user.imgSrc+user.role+png;
-
+    $: user.name= user.name;
 
 </script>
 

@@ -1,15 +1,19 @@
 <script>
   import { goto } from '$app/navigation';
-  let role = 'manager'; // Change this to 'kitchen', 'manager', 'customer', or 'dinning' based on the current user
-  role='kitchen';
-  //role='dinning';
-  //role='customer';
+  import { user } from '../../stores';
+
+  // let roleData=sessionStorage.getItem("role");
+  //let role = roleData; // Change this to 'kitchen', 'manager', 'customer', or 'dining' based on the current user
+  // role='Kitchen';
+  //role='Dining';
+  //role='Customer';
+  let role=user.role;
 
   var rolePermissions={};
-  rolePermissions["manager"]=["dinning","kitchen","manager","menu","usermanagement"];  
-  rolePermissions["kitchen"]=["kitchen","menu"];
-  rolePermissions["dinning"]=["dinning","menu"];
-  rolePermissions["customer"]=["customer"];
+  rolePermissions["Manager"]=["dining","kitchen","manager","menu","usermanagement"];  
+  rolePermissions["Kitchen Staff"]=["kitchen","menu"];
+  rolePermissions["Dining Room Staff"]=["dining","menu"];
+  rolePermissions["Customer"]=["customer"];
 
   function goToFunction(feature) {
     var url='./'+feature;

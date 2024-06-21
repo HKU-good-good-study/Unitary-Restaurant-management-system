@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
+    import { user } from '../../stores';
 
     let username = '';
     let password = '';
@@ -36,15 +37,26 @@
         const roleData = await roleResponse.json();
         console.log(roleData);
 
-        if (roleData.role === 'Manager') {
-            goto('/manager');
-        } else if (roleData.role === 'Dining Staff') {
-            goto('/dining');
-        } else if (roleData.role === 'Kitchen Staff') {
-            goto('/kitchen');
-        } else if (roleData.role === 'Customer') {
-            goto('/customer');
-        }
+        // sessionStorage.setItem("role",roleData.role);
+        // sessionStorage.setItem("username",roleData.username);
+        // sessionStorage.setItem("email",roleData.email);
+        // sessionStorage.setItem("phone_number",roleData.phone_number);
+        user.name=roleData.username;
+        user.role=roleData.role;
+        user.imgSrc=user.imgSrc+user.role.split(" ")[0].toLowerCase()+'.png';
+        user.email=roleData.email;
+        user.phone_number=roleData.phone_number;
+        console.log(user);
+        // if (roleData.role === 'Manager') {
+        //     goto('/manager');
+        // } else if (roleData.role === 'Dining Staff') {
+        //     goto('/dining');
+        // } else if (roleData.role === 'Kitchen Staff') {
+        //     goto('/kitchen');
+        // } else if (roleData.role === 'Customer') {
+        //     goto('/customer');
+        // }
+        goto('./role');
     }
 
     function goToRegister() {

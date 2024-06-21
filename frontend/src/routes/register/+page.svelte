@@ -1,13 +1,15 @@
 <script lang="ts">
     import { onMount } from 'svelte';
+    import { goto } from '$app/navigation';
     let username = '';
     let password = '';
     let confirmPassword = '';
     let email = '';
     let phoneNumber = '';
-    let role = 'Manager';
+    let role = 'Dining Room Staff';
     let countryCode = ''
     let remarks = '';
+    
 
     onMount(() => {
         history.replaceState(null, 'Profile', '/profile');
@@ -45,6 +47,7 @@
         });
         const data = await response.json();
         console.log(data);
+        //goto('./login');
     }
 </script>
 
