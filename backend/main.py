@@ -102,8 +102,12 @@ async def update_user(menu_update: MenuUpdate, _id):
                 menu.name = menu_update.name
             if menu_update.price is not None:
                 menu.price = menu_update.price
-            if menu_update.weight is not None:
-                menu.weight = menu_update.weight
+            if menu_update.ingredient is not None:
+                menu.ingredient = menu_update.ingredient
+            if menu_update.sold is not None:
+                menu.sold = menu_update.sold
+            if menu_update.availability is not None:
+                menu.availability = menu_update.availability
         return menu.id
     raise HTTPException(status_code=404, detail=f"Could not find user with id: {_id}")
 
