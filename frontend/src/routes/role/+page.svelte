@@ -7,13 +7,15 @@
   // role='Kitchen';
   //role='Dining';
   //role='Customer';
-  let role=user.role;
+  let role="";
+  role=user.role;
 
   var rolePermissions={};
   rolePermissions["Manager"]=["dining","kitchen","manager","menu","usermanagement"];  
   rolePermissions["Kitchen Staff"]=["kitchen","menu"];
   rolePermissions["Dining Room Staff"]=["dining","menu"];
-  rolePermissions["Customer"]=["customer"];
+  rolePermissions["Customer"]=["customer","menu"];  
+  rolePermissions[" "]=["menu"];
 
   function goToFunction(feature) {
     var url='./'+feature;

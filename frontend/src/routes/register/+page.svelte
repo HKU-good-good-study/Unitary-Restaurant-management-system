@@ -7,6 +7,9 @@
     let email = '';
     let phoneNumber = '';
     let role = 'Dining Room Staff';
+    //role = 'Kitchen Staff';
+    //role = 'Manager';
+    role = 'Customer';
     let countryCode = ''
     let remarks = '';
     

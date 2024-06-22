@@ -21,7 +21,11 @@
 
    <svelte:fragment slot="user">
     <i >{user.name}</i>
-    <i style:padding-left=5% ><img width=10% src={user.imgSrc}></i>
+    <i style:padding-left=5%><img width=10% src={user.imgSrc} alt="role"></i>
+    </svelte:fragment>
+    
+    <svelte:fragment slot="logout">
+    <i >logout</i>
     </svelte:fragment>
 </HeaderBar>
 </div>

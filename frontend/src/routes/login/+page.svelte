@@ -43,6 +43,7 @@
         // sessionStorage.setItem("phone_number",roleData.phone_number);
         user.name=roleData.username;
         user.role=roleData.role;
+        user.imgSrc="./src/images/";
         user.imgSrc=user.imgSrc+user.role.split(" ")[0].toLowerCase()+'.png';
         user.email=roleData.email;
         user.phone_number=roleData.phone_number;
@@ -67,6 +68,9 @@
         isRegisterModalOpen = !isRegisterModalOpen;
         goToRegister();
     //     window.location.href = "http://localhost:5173/register";
+    }
+    function noRegisterOrder(){
+        goto('./menu');
     }
 </script>
 
@@ -170,6 +174,7 @@
         <div class="row">
             <button on:click={submitLogin}>Submit</button>
             <button on:click={toggleRegisterModal}>Register</button>
+            <button on:click={noRegisterOrder}>Order without registration</button>
         </div>
     </div>
 

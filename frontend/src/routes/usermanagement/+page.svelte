@@ -1,11 +1,11 @@
 <script>
   import { onMount } from "svelte";  
-  //import { user } from '../../stores';
+  import { user } from '../../stores';
 
   let src = './src/images/0.png';
 	let name = 'icon';
-  let role ='manager';
-  //let role=user.role;
+  let role ='Manager';
+  $: role=user.role;
 
   let users = [];
   let page = 0;
@@ -16,11 +16,12 @@
   let showAddUserDialog = false;
   let showUpdateDialog=false;
   let newUser={name:"",role:"",status:true,password:"",email:"",countryCode:"",phoneNumber:""};
-  let selectUser;
+  let selectUser={name:"",role:"",status:true,index:-1,email:"",countryCode:"",phoneNumber:""};
 
   
   $: currentPageRows = totalPages.length > 0 ? totalPages[page] : [];
   $: console.log("Page is", page);
+  $: console.log(user);
 
   const paginate = (items) => {
     const pages = Math.ceil(items.length / itemsPerPage);
@@ -93,7 +94,7 @@
   
    // 添加用户 用户默认密码位手机号码
   function addUser(){
-    newUser.password=newUser.phoneNumber;
+    newUser.password='!Qw123456';
     users.push(newUser);
     paginate(users);
     showAddUserDialog=false;
@@ -107,14 +108,20 @@
  
 
   function updateBotton(index) {  
-    selectUser= users[index];
-    showUpdateDialog=true;  
+    selectUser.name= users[index].name;
+    selectUser.role= users[index].role;
+    selectUser.status= users[index].status;
+    selectUser.email= users[index].email;
+    selectUser.countryCode= users[index].countryCode;
+    selectUser.phoneNumber= users[index].phoneNumber;
+    selectUser.index=index;
+    showUpdateDialog=true;
   }
   function update() {
-    //users[index] = selectUser;
+    let number = selectUser.index;
+    users[number] = selectUser;
     paginate(users);    
     showUpdateDialog=false;
-    console.log(newUser);
   }
 
 </script>
@@ -299,7 +306,7 @@
 <div>
 
   <img width=10% {src} alt="{name}">
-  {#if role=='manager'}
+  {#if role=='Manager'}
     <button class=addUser on:click={() =>addUserBotton()}>
     addUser
     </button>
