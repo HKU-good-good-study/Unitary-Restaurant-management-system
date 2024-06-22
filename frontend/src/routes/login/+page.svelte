@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
+    import { user } from '../../stores';
 
     let username = '';
     let password = '';
@@ -13,6 +14,8 @@
 
     onMount(() => {
         document.body.style.backgroundColor = '#f2f2f2'; // Light Gray
+        // history.replaceState(null, 'Profile', '/profile');
+        document.title = 'Profile';
     });
 
     async function submitLogin() {
@@ -21,47 +24,53 @@
             headers: {
                 'Content-Type': 'application/json'
             },
+            credentials: 'include', // This is important for cookies to be sent
             body: JSON.stringify({ username, password })
         });
         const data = await response.json();
         console.log(data);
 
-        if (data.role === 'Manager') {
-            goto('/manager');
-        } else if (data.role === 'Dining Staff') {
-            goto('/dining-staff');
-        } else if (data.role === 'Kitchen Staff') {
-            goto('/kitchen-staff');
-        } else if (data.role === 'Customer') {
-            goto('/customer');
-        }
+        const roleResponse = await fetch('http://localhost:8000/auth/users/me', {
+            method: 'GET',
+            credentials: 'include', // This is important for cookies to be sent
+        });
+        const roleData = await roleResponse.json();
+        console.log(roleData);
+
+        // sessionStorage.setItem("role",roleData.role);
+        // sessionStorage.setItem("username",roleData.username);
+        // sessionStorage.setItem("email",roleData.email);
+        // sessionStorage.setItem("phone_number",roleData.phone_number);
+        user.name=roleData.username;
+        user.role=roleData.role;
+        user.imgSrc="./src/images/";
+        user.imgSrc=user.imgSrc+user.role.split(" ")[0].toLowerCase()+'.png';
+        user.email=roleData.email;
+        user.phone_number=roleData.phone_number;
+        console.log(user);
+        // if (roleData.role === 'Manager') {
+        //     goto('/manager');
+        // } else if (roleData.role === 'Dining Staff') {
+        //     goto('/dining');
+        // } else if (roleData.role === 'Kitchen Staff') {
+        //     goto('/kitchen');
+        // } else if (roleData.role === 'Customer') {
+        //     goto('/customer');
+        // }
+        goto('./role');
     }
 
-    async function submitRegister() {
-        const response = await fetch('http://localhost:8000/auth/users', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ username: registerUsername, email: registerEmail, phone_number: registerPhoneNumber, role: registerRole, remarks: registerRemarks })
-        });
-        const data = await response.json();
-        console.log(data);
-
-        if (data.role === 'Manager') {
-            goto('/manager');
-        } else if (data.role === 'Dining Staff') {
-            goto('/dining-staff');
-        } else if (data.role === 'Kitchen Staff') {
-            goto('/kitchen-staff');
-        } else if (data.role === 'Customer') {
-            goto('/customer');
-        }
+    function goToRegister() {
+        goto('./register');
     }
 
     function toggleRegisterModal() {
         isRegisterModalOpen = !isRegisterModalOpen;
-        window.location.href = "http://localhost:5173/register";
+        goToRegister();
+    //     window.location.href = "http://localhost:5173/register";
+    }
+    function noRegisterOrder(){
+        goto('./menu');
     }
 </script>
 
@@ -133,7 +142,7 @@
         background-color: #555;
     }
 
-    .register-modal {
+    /* .register-modal {
         position: fixed;
         top: 0;
         left: 0;
@@ -148,9 +157,10 @@
         background-color: white;
         padding: 20px;
         border-radius: 5px;
-    }
+    } */
   </style>
-<body>
+
+
     <div class="container">
         <h2>Login</h2>
         <div class="row">
@@ -164,10 +174,11 @@
         <div class="row">
             <button on:click={submitLogin}>Submit</button>
             <button on:click={toggleRegisterModal}>Register</button>
+            <button on:click={noRegisterOrder}>Order without registration</button>
         </div>
     </div>
-</body>
-{#if isRegisterModalOpen}
+
+<!-- {#if isRegisterModalOpen}
 <div class="register-modal">
     <div class="register-form">
         <h2>Register</h2>
@@ -197,9 +208,9 @@
             <textarea id="registerRemarks" bind:value={registerRemarks} placeholder="Enter Remarks"></textarea>
         </div>
         <div class="row">
-            <button on:click={submitRegister}>Register</button>
+            <button on:click={goToRegister}>Register</button>
             <button on:click={toggleRegisterModal}>Close</button>
         </div>
     </div>
 </div>
-{/if}
+{/if} -->
