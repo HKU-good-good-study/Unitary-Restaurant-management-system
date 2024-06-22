@@ -18,6 +18,8 @@ from contextlib import asynccontextmanager
 
 from menu.routes import router as menu_router
 from menu.models import Menu, MenuUpdate
+from table.router import router as table_router
+from table.schemas import Table, Order
 from typing import List
 
 
@@ -32,7 +34,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
-
+app.include_router(table_router, tags=["tables"], prefix="/table")
 app.include_router(menu_router, tags=["menus"], prefix="/menu")
 
 
