@@ -37,8 +37,8 @@
 
 
   onMount(() => {
-    history.replaceState(null, 'Profile', '/profile');
-    document.title = 'Profile';
+    // history.replaceState(null, 'Profile', '/profile');
+    document.title = 'User Management';
 
     users =[
     { name: 'liu', role: 'Customer', status:false,email:"132@qq.com",countryCode:"+86",phoneNumber:"123123123"},

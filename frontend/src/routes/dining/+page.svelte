@@ -49,8 +49,8 @@
   }
 
   onMount(() => {
-    history.replaceState(null, 'Profile', '/profile');
-    document.title = 'Profile';
+    // history.replaceState(null, 'Profile', '/profile');
+    document.title = 'Dining Staff Page';
   });
 </script>
 

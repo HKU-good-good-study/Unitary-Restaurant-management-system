@@ -15,8 +15,8 @@
     
 
     onMount(() => {
-        history.replaceState(null, 'Profile', '/profile');
-        document.title = 'Profile';
+        // history.replaceState(null, 'Profile', '/profile');
+        document.title = 'Register Page';
 
         document.body.style.backgroundColor = '#ADD8E6'; // Light Blue
         let loginButton = document.getElementById("login");

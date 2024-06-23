@@ -1,6 +1,7 @@
 <script>
   import { goto } from '$app/navigation';
   import { user } from '../../stores';
+  import { onMount } from 'svelte';
 
   // let roleData=sessionStorage.getItem("role");
   //let role = roleData; // Change this to 'kitchen', 'manager', 'customer', or 'dining' based on the current user
@@ -11,7 +12,7 @@
   role=user.role;
 
   var rolePermissions={};
-  rolePermissions["Manager"]=["dining","kitchen","manager","menu","usermanagement"];  
+  rolePermissions["Manager"]=["dining","kitchen","menu","usermanagement"];  
   rolePermissions["Kitchen Staff"]=["kitchen","menu"];
   rolePermissions["Dining Room Staff"]=["dining","menu"];
   rolePermissions["Customer"]=["customer","menu"];  
@@ -22,7 +23,10 @@
     goto(url);
   }
 
-
+  onMount(() => {
+    // history.replaceState(null, 'Profile', '/profile');
+    document.title = 'Role Page';
+  });
 
 </script>
 
