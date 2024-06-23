@@ -36,11 +36,15 @@ class Database:
         collection = self.get_collection(collection_name)
         return list(collection.find(query))
 
+    async def fetch_collection(self, collection_name:str) -> list:
+        return list(self.get_collection(collection_name).find())
+    
     async def execute(self, collection_name: str, query: dict, operation: Any) -> None:
         collection = self.get_collection(collection_name)
         if operation == "insert":
-            collection.insert_one(query)
+            result = collection.insert_one(query)
         elif operation == "update":
-            collection.update_one(query["filter"], query["update"])
+            result = collection.update_one(query["filter"], query["update"])
         elif operation == "delete":
-            collection.delete_one(query)
+            result = collection.delete_one(query)
+        return result
