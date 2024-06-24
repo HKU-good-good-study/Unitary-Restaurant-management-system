@@ -1,12 +1,13 @@
 <script>
   import { onMount } from 'svelte';
-  
-  let role = 'customer'; // Change this to 'kitchen', 'manager', or 'customer' based on the current user
+  import { user } from '../../stores';
+
+  let role = '';
+  role = user.role;
 
   let products = [
-    { name: 'Salad', price: 13.99, weight: 'Weight 1', quantity: 0, image: './src/images/chopped-power-salad-with-chicken-0ad93f1931524a679c0f8854d74e6e57.jpg' },
-    { name: 'Beef Burger', price: 15.99, weight: 'Weight 2', quantity: 0, image: './src/images/photo-1571091718767-18b5b1457add.avif' },
-    // More dishes...
+    { id: 1, name: 'Salad', price: 13.99, weight: 120, quantity: 0, image: './src/images/salad.jpg', sold: 0, ingredients: [{'name': 'Carrot', 'weight': 120, 'id': 1}, {'name': 'Lettuce', 'weight': 80, 'id': 2}], description: 'A fresh and healthy salad with a variety of vegetables.' },
+    { id: 2, name: 'Beef Burger', price: 15.99, weight: 200, quantity: 0, image: './src/images/beefburger.jpg', sold: 0, ingredients: [{'name': 'Beef Patty', 'weight': 150, 'id': 1}, {'name': 'Bun', 'weight': 50, 'id': 2}], description: 'A juicy beef burger with fresh toppings.' },
   ];
   let total = 0;
 
@@ -15,23 +16,6 @@
     products.forEach((product) => {
       total += product.price * product.quantity;
     });
-  }
-
-  function addToCart(index) {
-    products[index].quantity += 1;
-    updateTotal();
-  }
-
-  function removeFromCart(index) {
-    if (products[index].quantity > 0) {
-      products[index].quantity -= 1;
-      updateTotal();
-    }
-  }
-
-  function changePrice(index, price) {
-    // Here you can add communication logic with the backend to update price information
-    products[index].price = price;
   }
 
   function increaseQuantity(index) {
@@ -47,159 +31,242 @@
   }
 
   function addProduct() {
-    // Here you can add communication logic with the backend and add new dishes
-    products.push({ name: 'New Food', price: 'New Price', weight: 'New Weight', quantity: 0, image: 'New Picture' });
+    let newId = products.length + 1;
+    products.push({ id: newId, name: 'New Food', price: 'New Price', weight: 'New Weight', quantity: 0, image: 'New Picture', sold: 0, ingredients: [], description: 'New Description' });
+    updateTotal();
   }
 
   function removeProduct(index) {
-    // Here you can add communication logic with the backend and delete dishes
     products.splice(index, 1);
+    updateTotal();
   }
 
   onMount(() => {
-    // history.replaceState(null, 'Profile', '/profile');
     document.title = 'Menu Page';
   });
 </script>
 
 <style>
-  .menu {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 20px;
-    padding: 20px;
-    background-color: #f8f8f8;
-  }
+  /* 整体布局 */
+.menu {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  padding: 20px;
+  background-color: #f8f8f8;
+}
 
-  .product {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+/* 单个菜品 */
+.product {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 20px;
+  background-color: #fff;
+  text-align: center;
+  width: 300px;
+}
+
+/* 菜品 ID */
+.product .id {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+/* 菜品名称 */
+.product .dish-name {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+/* 价格 */
+.product .price {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+/* 重量 */
+.product .weight {
+  font-size: 14px;
+  color: #999;
+  margin-bottom: 10px;
+}
+
+/* 数量控制 */
+.product .quantity {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.product .quantity-btn {
+  width: 30px;
+  height: 30px;
+  font-size: 18px;
+  background-color: #f0f0f0;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.product .quantity-input {
+  width: 40px;
+  text-align: center;
+  margin: 0 10px;
+}
+
+/* 图片 */
+.product .pic {
+  width: 2000px;
+  height: 2000px;
+  object-fit: cover;
+  margin-bottom: 10px;
+}
+
+/* 配料 */
+.product .ingredients {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+/* 描述 */
+.product .description {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+/* 已售数量 */
+.product .sold {
+  font-size: 14px;
+  color: #999;
+  margin-bottom: 10px;
+}
+
+/* 添加菜品按钮 */
+.add-dishes {
+  width: 100%;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.add-dishes button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.add-dishes button:hover {
+  background-color: #0056b3;
+}
+
+/* 可用性提示 */
+.availability {
+  font-size: 14px;
+  color: #999;
+  margin-top: 20px;
+  text-align: center;
+}
+
+/* .cart {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  border-top: 1px solid #ddd;
+  padding: 10px;
+  text-align: right;
+  font-size: 16px;
+  font-weight: bold;
+  height: 80px; 
+} */
+  
+.cart-total {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #fff;
     border: 1px solid #ddd;
     border-radius: 10px;
-    padding: 20px;
-    background-color: #fff;
-    text-align: center;
-    width: 300px; /* Set the width of each product */
-  }
-
-  .product h2 {
-    color: #333;
-    margin-bottom: 10px;
-  }
-
-  .product p {
-    color: #666;
-    margin-bottom: 10px;
-  }
-
-  .product img {
-    width: 200px; /* Set the width of each product */
-    height: auto; /* Automatically adjust height to maintain image proportions */
-    object-fit: cover; /* Set the image fill method */
-    margin-bottom: 10px;
-  }
-
-  .cart {
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 20px;
-    background-color: #f9f9f9;
+    padding: 10px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  }
-
-  .cart h2 {
-    font-size: 20px;
-    font-weight: bold;
-    margin-bottom: 15px;
-  }
-
-  .cart ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .cart li {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #e0e0e0;
-  }
-
-  .cart button {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 3px;
-    padding: 5px 10px;
-    cursor: pointer;
-    font-size: 14px;
-  }
-
-  .cart button:hover {
-    background-color: #0056b3;
-  }
-
-  .cart p {
-    font-size: 16px;
+    flex-direction: column;
+    align-items: flex-end;
+    font-size: 24px;
     font-weight: bold;
-    text-align: right;
-    margin-top: 15px;
+    max-height: 300px; 
+    overflow-y: auto; 
   }
 
-  .quantity-btn {
-    width: 40px; /* 设置按钮宽度 */
-    height: 40px; /* 设置按钮高度 */
-    font-size: 16px; /* 设置按钮内部文字/图标大小 */
-    display: inline-flex; /* 使用flexbox布局 */
-    justify-content: center; /* 水平居中 */
-    align-items: center; /* 垂直居中 */
+  .cart-total p {
+    margin: 5px 0;
   }
+  
 </style>
 
 <div class="menu">
-  {#each products as product, index (product.name)}
-  <div class="product">
-    <h2>{product.name}</h2>
-    <p>Price: {product.price}</p>
-    {#if role === 'manager' || role === 'kitchen staff'}
-      <input type="text" bind:value={product.price} on:change={() => changePrice(index, product.price)} />
-    {/if}
-    <p>Weight: {product.weight}</p>
-    <p>Quantity: <input type="number" min="0" bind:value={product.quantity} /></p>
-    <div>
-      <button on:click={() => increaseQuantity(index)} class="quantity-btn">+</button>
-<button on:click={() => decreaseQuantity(index)} class="quantity-btn">-</button>
+  {#each products as product, index (product.id)}
+    <div class="product">
+      <p>ID: {product.id}</p>
+      <h2>{product.name}</h2>
+      <p>Price: ${product.price.toFixed(2)}</p>
+      <p>Weight: {product.weight}g</p>
+      <div class="quantity">
+        <button on:click={() => decreaseQuantity(index)} class="quantity-btn">-</button>
+        <span class="quantity-text">Quantity: {product.quantity}</span>
+        <button on:click={() => increaseQuantity(index)} class="quantity-btn">+</button>
+      </div>
+      <img src={product.image} alt={product.name} />
+      <h3>Ingredients:</h3>
+      <ul>
+        {#each product.ingredients as ingredient}
+          <li>{ingredient.name} ({ingredient.weight}g)</li>
+        {/each}
+      </ul>
+      <p>{product.description}</p>
+      <p>Sold: {product.sold}</p>
+      {#if role === "Manager" || role === "Kitchen Staff"}
+        <button on:click={() => removeProduct(index)}>Delete dish</button>
+      {/if}
     </div>
-    <img src={product.image} />
-    {#if role === 'manager' || role === 'kitchen staff'}
-      <button on:click={() => removeProduct(index)}>Delete dish</button>
-    {/if}
-  </div>
   {/each}
-  {#if role === 'manager' || role === 'kitchen staff'}
+  {#if role === "Manager" || role === "Kitchen Staff"}
     <button on:click={addProduct}>Add dish</button>
   {/if}
 </div>
 
-{#if role === 'customer' || role === 'unregistered'}
-  <div class="cart">
+{#if role === "Customer" || role === "Dining Room Staff" || role === " "}
+<div class="cart-container">
+  <div class="cart-calc">
     <h2>Your Order</h2>
     <ul>
-      {#each products as product, index (product.name)}
+      {#each products as product, index (product.id)}
         {#if product.quantity > 0}
           <li>
-            {product.name} - {product.price} x {product.quantity} = {product.price * product.quantity}
-            <button on:click={() => addToCart(index)} class="quantity-btn">+</button>
-            <button on:click={() => removeFromCart(index)} class="quantity-btn">-</button>
+            {product.name} - ${product.price.toFixed(2)} x {product.quantity} = ${(product.price * product.quantity).toFixed(2)}
+            <button on:click={() => increaseQuantity(index)} class="quantity-btn">+</button>
+            <button on:click={() => decreaseQuantity(index)} class="quantity-btn">-</button>
           </li>
         {/if}
       {/each}
     </ul>
-    <p>Total: {total.toFixed(2)}</p>
   </div>
+  <div class="cart-total">
+    <p>Total: ${total.toFixed(2)}</p>
+  </div>
+</div>
 {/if}
