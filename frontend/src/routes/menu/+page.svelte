@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { user } from '../../stores';
+  import AddProductModal from './AddProductModal.svelte';
 
   let role = '';
   role = user.role;
@@ -10,6 +11,7 @@
     { id: 2, name: 'Beef Burger', price: 15.99, weight: 200, quantity: 0, image: './src/images/beefburger.jpg', sold: 0, ingredients: [{'name': 'Beef Patty', 'weight': 150, 'id': 1}, {'name': 'Bun', 'weight': 50, 'id': 2}], description: 'A juicy beef burger with fresh toppings.' },
   ];
   let total = 0;
+  let showAddProductModal = false;
 
   function updateTotal() {
     total = 0;
@@ -34,12 +36,27 @@
     let newId = products.length + 1;
     products.push({ id: newId, name: 'New Food', price: 'New Price', weight: 'New Weight', quantity: 0, image: 'New Picture', sold: 0, ingredients: [], description: 'New Description' });
     updateTotal();
+    showAddProductModal = true;
   }
 
   function removeProduct(index) {
     products.splice(index, 1);
     updateTotal();
   }
+
+  function handleSaveProduct(newProduct) {
+    products.push({
+      id: products.length + 1,
+      ...newProduct
+    });
+    products = products;
+    updateTotal();
+    closeAddProductModal();
+  }
+  function closeAddProductModal() {
+    showAddProductModal = false;
+  }
+
 
   onMount(() => {
     document.title = 'Menu Page';
@@ -116,6 +133,25 @@
   cursor: pointer;
 }
 
+.add-dish-btn {
+    width: 70px;
+    height: 70px;
+    font-size: 30px;
+    background-color: #f0f0f0;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    margin-left: 10px;
+    /* enlarge */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+.add-dish-btn:hover {
+  background-color: #e0e0e045;
+}
+
 .product .quantity-input {
   width: 40px;
   text-align: center;
@@ -171,6 +207,17 @@
 .add-dishes button:hover {
   background-color: #0056b3;
 }
+
+.menu {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px;
+    background-color: #f8f8f8;
+    min-height: calc(100vh - 80px); /* 减去页脚高度 */
+    align-items: center;
+  }
 
 /* 可用性提示 */
 .availability {
@@ -245,9 +292,15 @@
     </div>
   {/each}
   {#if role === "Manager" || role === "Kitchen Staff"}
-    <button on:click={addProduct}>Add dish</button>
+    <button on:click={addProduct} class="add-dish-btn">+</button>
   {/if}
 </div>
+
+<AddProductModal
+  visible={showAddProductModal}
+  onClose={() => (closeAddProductModal())}
+  onSave={handleSaveProduct}
+/>
 
 {#if role === "Customer" || role === "Dining Room Staff" || role === " "}
 <div class="cart-container">
