@@ -272,11 +272,13 @@
       <h2>{product.name}</h2>
       <p>Price: ${product.price.toFixed(2)}</p>
       <p>Weight: {product.weight}g</p>
-      <div class="quantity">
-        <button on:click={() => decreaseQuantity(index)} class="quantity-btn">-</button>
-        <span class="quantity-text">Quantity: {product.quantity}</span>
-        <button on:click={() => increaseQuantity(index)} class="quantity-btn">+</button>
-      </div>
+      {#if role === "Customer" || role === "Dining Room Staff" || role === " "}
+        <div class="quantity">
+          <button on:click={() => decreaseQuantity(index)} class="quantity-btn">-</button>
+          <span class="quantity-text">Quantity: {product.quantity}</span>
+          <button on:click={() => increaseQuantity(index)} class="quantity-btn">+</button>
+        </div>
+      {/if}
       <img src={product.image} alt={product.name} />
       <h3>Ingredients:</h3>
       <ul>
