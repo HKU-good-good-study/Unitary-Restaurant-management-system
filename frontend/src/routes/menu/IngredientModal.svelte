@@ -3,6 +3,8 @@
     export let onClose;
     export let onSave;
     export let ingredient = null;
+    export let editingIngredientIndex = -1;
+
   
     let ingredientName = '';
     let ingredientWeight = '';
@@ -15,11 +17,16 @@
     }
   
     function handleSave() {
-      onSave({ name: ingredientName, weight: ingredientWeight });
-      ingredientName = '';
-      ingredientWeight = '';
-      onClose();
+        onSave({ name: ingredientName, weight: ingredientWeight }, editingIngredientIndex);
+        reset();
     }
+
+    function reset() {
+        ingredientName = '';
+        ingredientWeight = '';
+        onClose();
+    }
+
   </script>
   
   <style>
