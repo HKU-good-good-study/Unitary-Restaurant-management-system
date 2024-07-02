@@ -1,266 +1,286 @@
 <script>
   import { onMount } from 'svelte';
-  import { fly } from 'svelte/transition';
-  import { quintOut } from 'svelte/easing';
+  import { user } from '../../stores';
 
-  let menuItems = [];
-  let newMenuItem = {
-    id: '',
-    name: '',
-    price: '',
-    weight: '',
-    ingredient: [],
-    sold: '',
-    availability: true,
-    desc: '',
-    image: null
-  };
-  let showModal = false;
-  let newIngredient = { name: '', weight: '' };
-  let ingredients = [];
+  let role = '';
+  role = user.role;
 
-  onMount(async () => {
-    await fetchMenuItems();
-  });
-
-  async function fetchMenuItems() {
-    try {
-      const response = await fetch('http://localhost:8000/api/menu');
-      menuItems = await response.json();
-    } catch (error) {
-      console.error('Error fetching menu items:', error);
-    }
-  }
-
-  async function createMenuItem() {
-    try {
-      const response = await fetch('http://localhost:8000/api/menu', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(newMenuItem)
-      });
-      const createdMenuItem = await response.json();
-      menuItems = [...menuItems, createdMenuItem];
-      resetNewMenuItem();
-      showModal = false;
-    } catch (error) {
-      console.error('Error creating menu item:', error);
-    }
-  }
-
-  function resetNewMenuItem() {
-    newMenuItem = {
-      id: '',
+  let menus = [];
+  let newMenu = {
       name: '',
-      price: '',
-      weight: '',
+      price: 0,
+      weight: 0,
       ingredient: [],
-      sold: '',
+      sold: 0,
       availability: true,
       desc: '',
       image: null
-    };
-    ingredients = [];
-  }
+  };
+  let ingredients = [
+      { id: 0, name: '', weight: 0 }
+  ];
+  let totalPrice = 0;
+  let quantities = {};
+  let showAddMenu = false;
 
-  function toggleModal() {
-    showModal = !showModal;
+  onMount(async () => {
+      await fetchMenus();
+  });
+
+  async function fetchMenus() {
+      const response = await fetch('http://localhost:8000/menus');
+      menus = await response.json();
   }
 
   function addIngredient() {
-    ingredients = [...ingredients, newIngredient];
-    newMenuItem.ingredient = ingredients;
-    newIngredient = { name: '', weight: '' };
+      ingredients = [...ingredients, { id: ingredients.length, name: '', weight: 0 }];
   }
 
   function removeIngredient(index) {
-    ingredients.splice(index, 1);
-    ingredients = ingredients;
-    newMenuItem.ingredient = ingredients;
+      ingredients.splice(index, 1);
+      ingredients = ingredients;
   }
 
-  function handleFileInput(event) {
-    newMenuItem.image = event.target.files[0];
+  async function saveMenu() {
+      const formData = new FormData();
+      formData.append('menu', JSON.stringify(newMenu));
+      formData.append('image', newMenu.image);
+
+      const response = await fetch('http://localhost:8000/menus', {
+          method: 'POST',
+          body: formData
+      });
+      const createdMenu = await response.json();
+      menus = [...menus, createdMenu];
+      newMenu = {
+          name: '',
+          price: 0,
+          weight: 0,
+          ingredient: [],
+          sold: 0,
+          availability: true,
+          desc: '',
+          image: null
+      };
+      ingredients = [{ id: 0, name: '', weight: 0 }];
+      showAddMenu = false;
+  }
+
+  function updateQuantity(menuId, operation) {
+      if (operation === 'increment') {
+          quantities[menuId] = (quantities[menuId] || 0) + 1;
+      } else {
+          quantities[menuId] = Math.max(0, (quantities[menuId] || 0) - 1);
+      }
+      calculateTotalPrice();
+  }
+
+  function calculateTotalPrice() {
+      totalPrice = Object.entries(quantities).reduce((acc, [menuId, quantity]) => {
+          const menu = menus.find(m => m.id === parseInt(menuId));
+          return acc + (menu?.price || 0) * quantity;
+      }, 0);
   }
 </script>
 
-<main>
-  <h1>Menu</h1>
-  <button on:click={toggleModal}>Add New Menu Item</button>
+<h1>Menu</h1>
 
-  {#if showModal}
-    <div class="modal" transition:fly={{ y: 200, duration: 300, easing: quintOut }}>
-      <div class="modal-content">
-        <span class="close-button" on:click={toggleModal}>&times;</span>
-        <h2>Add New Menu Item</h2>
-        <form on:submit|preventDefault={createMenuItem}>
-          <div class="form-group">
-            <label for="name">Name:</label>
-            <input type="text" id="name" bind:value={newMenuItem.name} required />
-          </div>
-          <div class="form-group">
-            <label for="price">Price:</label>
-            <input type="number" id="price" bind:value={newMenuItem.price} required />
-          </div>
-          <div class="form-group">
-            <label for="weight">Weight:</label>
-            <input type="number" id="weight" bind:value={newMenuItem.weight} required />
-          </div>
-          <div class="form-group">
-            <label for="sold">Sold:</label>
-            <input type="number" id="sold" bind:value={newMenuItem.sold} required />
-          </div>
-          <div class="form-group">
-            <label for="description">Description:</label>
-            <textarea id="description" bind:value={newMenuItem.desc} required></textarea>
-          </div>
-          <div class="form-group">
-            <label for="availability">Availability:</label>
-            <input type="checkbox" id="availability" bind:checked={newMenuItem.availability} />
-          </div>
-          <h3>Ingredients</h3>
-          {#each ingredients as ingredient, index}
-            <div class="ingredient-box">
-              <span>{ingredient.name} - {ingredient.weight}</span>
-              <span class="close-button" on:click={() => removeIngredient(index)}>&times;</span>
-            </div>
-          {/each}
-          <div class="ingredient-input">
-            <input type="text" bind:value={newIngredient.name} placeholder="Ingredient Name" />
-            <input type="number" bind:value={newIngredient.weight} placeholder="Ingredient Weight" />
-            <button type="button" on:click={addIngredient}>Add Ingredient</button>
-          </div>
-          <div class="form-group">
-            <label for="image">Image:</label>
-            <input type="file" id="image" on:change={handleFileInput} />
-          </div>
-          <button type="submit" class="save-button">Save</button>
-        </form>
-      </div>
+{#if role === 'Manager' || role === 'Kitchen Staff'}
+<div>
+    <button on:click={() => showAddMenu = true}>Add New Menu</button>
+    {#if showAddMenu}
+    <div class="add-menu-container">
+        <div class="add-menu-form">
+            <h2>Add New Menu</h2>
+            <form on:submit|preventDefault={saveMenu}>
+                <label>
+                    Name:
+                    <input type="text" bind:value={newMenu.name} required>
+                </label>
+                <label>
+                    Price:
+                    <input type="number" step="0.01" bind:value={newMenu.price} required>
+                </label>
+                <label>
+                    Weight:
+                    <input type="number" step="0.01" bind:value={newMenu.weight} required>
+                </label>
+                <label>
+                    Ingredients:
+                    {#each ingredients as ingredient, index}
+                    <div class="ingredient-container">
+                        <input type="text" bind:value={ingredient.name} placeholder="Ingredient Name" required>
+                        <input type="number" step="0.01" bind:value={ingredient.weight} placeholder="Ingredient Weight" required>
+                        <button type="button" on:click={() => removeIngredient(index)}>x</button>
+                    </div>
+                    {/each}
+                    <button type="button" on:click={addIngredient}>Add Ingredient</button>
+                </label>
+                <label>
+                    Sold:
+                    <input type="number" bind:value={newMenu.sold} required>
+                </label>
+                <label>
+                    Availability:
+                    <input type="checkbox" bind:checked={newMenu.availability}>
+                </label>
+                <label>
+                    Description:
+                    <textarea bind:value={newMenu.desc} required></textarea>
+                </label>
+                <label>
+                    Image:
+                    <input type="file" on:change={(e) => newMenu.image = e.target.files[0]}>
+                </label>
+                <button type="submit">Save</button>
+                <button type="button" on:click={() => showAddMenu = false}>Cancel</button>
+            </form>
+        </div>
     </div>
-  {/if}
+    {/if}
+</div>
+{/if}
 
-  <div class="menu-items">
-    {#each menuItems as item}
-      <div class="menu-item-box">
-        <p>ID: {item.id}</p>
-        <p>Name: {item.name}</p>
-        <p>Price: {item.price}</p>
-        <p>Weight: {item.weight}</p>
-        <p>Ingredients:</p>
-        {#each item.ingredient as ingredient}
-          <p>{ingredient.name} - {ingredient.weight}</p>
-        {/each}
-        <p>Sold: {item.sold}</p>
-        <p>Availability: {item.availability ? 'Available' : 'Unavailable'}</p>
-        <p>Description: {item.desc}</p>
-        {#if item.image}
-          <img src={URL.createObjectURL(item.image)} alt={item.name} />
+<h2>Menu List</h2>
+<div class="menu-list">
+    {#each menus as menu}
+    <div class="menu-item">
+        <p>ID: {menu.id}</p>
+        <p>Name: {menu.name}</p>
+        <p>Price: ${menu.price}</p>
+        <p>Weight: {menu.weight}g</p>
+        {#if role !== 'Manager' && role !== 'kitchen staff'}
+        <div class="quantity-container">
+            <button on:click={() => updateQuantity(menu.id, 'decrement')}>-</button>
+            <span>{quantities[menu.id] || 0}</span>
+            <button on:click={() => updateQuantity(menu.id, 'increment')}>+</button>
+        </div>
         {/if}
-      </div>
+        <p>Ingredients:</p>
+        {#each menu.ingredient as ingredient}
+        <div class="ingredient-info">
+            <p>{ingredient.name} - {ingredient.weight}g</p>
+        </div>
+        {/each}
+        <p>Sold: {menu.sold}</p>
+        <p>Availability: {menu.availability ? 'Yes' : 'No'}</p>
+        <p>Description: {menu.desc}</p>
+        <img src={`data:image/jpeg;base64,${btoa(String.fromCharCode(...new Uint8Array(menu.image)))}`} alt="{menu.name} image">
+        {#if role === 'Manager' || role === 'Kitchen Staff'}
+        <div class="actions">
+            <button>Edit</button>
+            <button>Delete</button>
+        </div>
+        {/if}
+    </div>
     {/each}
-  </div>
-</main>
+</div>
+
+{#if role !== 'Manager' && role !== 'Kitchen Staff'}
+<div class="total-price-container">
+    <p>Total Price: ${totalPrice.toFixed(2)}</p>
+</div>
+{/if}
 
 <style>
-  .modal {
+    .menu-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+    }
+
+    .menu-item {
+        border: 1px solid #ccc;
+        padding: 20px;
+    }
+
+    .ingredient-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    .ingredient-info {
+        background-color: #f5f5f5;
+        padding: 5px 10px;
+        border-radius: 5px;
+    }
+
+    .quantity-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .total-price-container {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background-color: #f5f5f5;
+      padding: 10px;
+      text-align: right;
+  }
+
+  .add-menu-container {
     position: fixed;
-    z-index: 1;
-    left: 0;
     top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 999;
   }
 
-  .modal-content {
-    background-color: #fefefe;
+  .add-menu-form {
+    background-color: white;
     padding: 20px;
-    border: 1px solid #888;
+    border-radius: 5px;
     width: 80%;
     max-width: 600px;
-  }
-
-  .close-button {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-  }
-
-  .close-button:hover,
-  .close-button:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
-  }
-
-  .menu-items {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    grid-gap: 20px;
-  }
-
-  .menu-item-box {
-    border: 1px solid #ccc;
-    padding: 20px;
-    text-align: left;
-  }
-
-  .ingredient-box {
-    background-color: #f1f1f1;
-    padding: 5px 10px;
-    margin-bottom: 5px;
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
     align-items: center;
   }
 
-  .ingredient-input {
+  .add-menu-form label {
     display: flex;
-    gap: 10px;
+    flex-direction: column;
+    align-items: flex-start;
     margin-bottom: 10px;
+    width: 100%;
   }
 
-  .ingredient-input input {
-    flex-grow: 1;
+  .add-menu-form input,
+  .add-menu-form textarea {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
   }
 
-  .form-group {
-    display: flex;
-    align-items: center;
-    margin-bottom: 1rem;
-  }
-
-  .form-group label {
-    flex-basis: 100px;
-    text-align: right;
-    margin-right: 1rem;
-  }
-
-  .form-group input,
-  .form-group textarea {
-    flex-grow: 1;
-  }
-
-  .save-button {
-    font-size: 1.2rem;
-    padding: 0.8rem 1.5rem;
+  .add-menu-form button {
+    margin-top: 10px;
+    padding: 5px 10px;
     background-color: #4CAF50;
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 3px;
     cursor: pointer;
   }
 
-  .save-button:hover {
-    background-color: #45a049;
+  .add-menu-form button:hover {
+      background-color: #45a049;
   }
 </style>
