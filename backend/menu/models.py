@@ -26,8 +26,8 @@ class Menu(BaseModel):
                 "id": "3",
                 "name": "Beef Chow Fun",
                 "price": "45.50",
-                "weight": "450g",
-                "ingredient": [{"id": 1, "name": "Carrot", "weight": 120.0}], # {1: (carrot, 120.0)}
+                "weight": "450",
+                "ingredient": [{"id": 1, "name": "Carrot", "weight": 120.0}], # [{carrot: 120.0}. {}, {}]
                 "sold": "45",
                 "availability": "true",
                 "desc": "Dry fried beef Shahe noodles",

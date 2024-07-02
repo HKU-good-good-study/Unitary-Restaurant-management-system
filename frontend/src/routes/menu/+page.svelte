@@ -17,7 +17,7 @@
       image: null
   };
   let ingredients = [
-      { id: 0, name: '', weight: 0 }
+      { name: '', weight: 0 }
   ];
   let totalPrice = 0;
   let quantities = {};
@@ -44,11 +44,12 @@
   async function saveMenu() {
       const formData = new FormData();
       formData.append('menu', JSON.stringify(newMenu));
-      formData.append('image', newMenu.image);
 
       const response = await fetch('http://localhost:8000/menus', {
           method: 'POST',
-          body: formData
+          body: formData,
+
+          credentials: 'include'
       });
       const createdMenu = await response.json();
       menus = [...menus, createdMenu];
@@ -99,18 +100,18 @@
                 </label>
                 <label>
                     Price:
-                    <input type="number" step="0.01" bind:value={newMenu.price} required>
+                    <input type="number" step="1" bind:value={newMenu.price} min="0" required>
                 </label>
                 <label>
                     Weight:
-                    <input type="number" step="0.01" bind:value={newMenu.weight} required>
+                    <input type="number" step="1" bind:value={newMenu.weight} min="0" required>
                 </label>
                 <label>
                     Ingredients:
                     {#each ingredients as ingredient, index}
                     <div class="ingredient-container">
                         <input type="text" bind:value={ingredient.name} placeholder="Ingredient Name" required>
-                        <input type="number" step="0.01" bind:value={ingredient.weight} placeholder="Ingredient Weight" required>
+                        <input type="number" step="1" bind:value={ingredient.weight} placeholder="Ingredient Weight" min="0" required>
                         <button type="button" on:click={() => removeIngredient(index)}>x</button>
                     </div>
                     {/each}
@@ -118,7 +119,7 @@
                 </label>
                 <label>
                     Sold:
-                    <input type="number" bind:value={newMenu.sold} required>
+                    <input type="number" step="1" bind:value={newMenu.sold} min="0" required>
                 </label>
                 <label>
                     Availability:
