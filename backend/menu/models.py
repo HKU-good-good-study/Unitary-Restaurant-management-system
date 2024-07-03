@@ -39,7 +39,7 @@ class MenuUpdate(BaseModel):
     name: Optional[str]
     price: Optional[float]
     weight: Optional[float]
-    ingredient: Optional[List[Ingredient]]
+    ingredient: Optional[List]
     sold: Optional[int]
     availability: Optional[bool]
     desc: Optional[str]
