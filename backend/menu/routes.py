@@ -1,61 +1,57 @@
-from fastapi import APIRouter, Body, Request, Response, HTTPException, status
+from fastapi import APIRouter, Body, Request, Response, HTTPException, status, File, UploadFile
 from fastapi.encoders import jsonable_encoder
 from typing import List
+from bson import ObjectId
+from database import Database
+import uuid
+from .models import Menu, MenuUpdate, Ingredient
 
-from .models import Menu, MenuUpdate
-
+db = Database()
 router = APIRouter()
 
 
-@router.post("/", response_description="Create a new menu", status_code=status.HTTP_201_CREATED, response_model=Menu)
-async def create_menu(request: Request, menu: Menu = Body(...)):
-    menu = jsonable_encoder(menu)
-    new_menu = request.app.database["menus"].insert_one(menu)
-    created_menu = request.app.database["menus"].find_one(
-        {"_id": new_menu.inserted_id}
-    )
-
-    return created_menu
+async def get_menu(id: str):
+    result = await db.fetch_one("menus", {"id": f"{id}"})
+    return result
 
 
-@router.get("/", response_description="List all menus", response_model=List[Menu])
-async def list_menu(request: Request):
-    menus = list(request.app.database["menus"].find(limit=100))
-    return menus
+@router.get("/all")
+async def get_menus():
+    menus = await db.fetch_collection("menus")
+    if menus:
+        for i in range(len(menus)):
+            del menus[i]["_id"]  # remove defualt id given by mongodb
+        return menus
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No menu created")
 
 
-@router.get("/{id}", response_description="Get a single menu by id", response_model=Menu)
-async def find_menu(id: int, request: Request):
-    if (menu := request.app.database["menus"].find_one({"_id": id})) is not None:
-        return menu
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Menu with ID {id} not found")
+@router.post("{id}")
+async def create_menu(id: str, menu: Menu):
+    result = await get_menu(id)
+    if result:  # should not exist table having the same id
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"menu exists")
+
+    result = await db.execute("menus", menu.model_dump(), "insert")
+    if not result:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"menu creation failed")
 
 
-@router.put("/{id}", response_description="Update a menu", response_model=Menu)
-async def update_menu(id: int, request: Request, menu: MenuUpdate = Body(...)):
-    menu = {k: v for k, v in menu.dict().items() if v is not None}
-    if len(menu) >= 1:
-        update_result = request.app.database["menus"].update_one(
-            {"_id": id}, {"$set": menu}
-        )
+@router.put("{id}")
+async def update_menu(id: str, menu: Menu):
+    result = await db.fetch_one("menus", {"id": f"{id}"})
+    if not result:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"menu not found")
 
-        if update_result.modified_count == 0:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Menu with ID {id} not found")
-
-    if (
-            existing_menu := request.app.database["menus"].find_one({"_id": id})
-    ) is not None:
-        return existing_menu
-
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Menu with ID {id} not found")
+    result = await db.execute("menus", {"filter": {"id": f"{id}"}, "update": {"$set": menu.model_dump()}}, "update")
+    if not result:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"table update failed")
 
 
-@router.delete("/{id}", response_description="Delete a menu")
-async def delete_menu(id: int, request: Request, response: Response):
-    delete_result = request.app.database["menus"].delete_one({"_id": id})
-
-    if delete_result.deleted_count == 1:
-        response.status_code = status.HTTP_204_NO_CONTENT
-        return response
-
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Menu with ID {id} not found")
+@router.delete("{id}")
+async def delete_menu(id: str):
+    menu = await db.fetch_one("menus", {"id": f"{id}"})
+    if not menu:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"menu not found")
+    result = await db.execute("menus", {"id": f"{id}"}, "delete")  # delete menu from database
+    if not result:  # deleteion failed
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"menu deletion failed")

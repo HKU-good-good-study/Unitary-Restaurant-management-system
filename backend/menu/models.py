@@ -1,24 +1,23 @@
-from typing import Optional
-from typing_extensions import TypedDict
+from typing import Optional, List, Dict
 from pydantic import BaseModel, Field, ConfigDict
 
-
-class Ingredient(TypedDict):
-    name: str
-    weight: int
+class Ingredient(BaseModel):
     id: int
-
+    name: str
+    weight: float
 
 class Menu(BaseModel):
-    __pydantic_config__ = ConfigDict(extra='forbid')
+#    __pydantic_config__ = ConfigDict(extra='forbid')
 
     id: int = Field(...)
     name: str = Field(...)
     price: float = Field(...)
-    ingredient: Ingredient = Field(...)
+    weight: float = Field(...)
+    ingredient: List = Field(...)
     sold: int = Field(...)
     availability: bool = Field(...)
     desc: str = Field(...)
+    image: str = Field(...)
 
     class Config:
         populate_by_name = True
@@ -27,30 +26,35 @@ class Menu(BaseModel):
                 "id": "3",
                 "name": "Beef Chow Fun",
                 "price": "45.50",
-                "ingredient": "{'name': 'Carrot', 'weight': 120, 'id': 1}",
+                "weight": "450",
+                "ingredient": [{"id": 1, "name": "Carrot", "weight": 120.0}],
                 "sold": "45",
                 "availability": "true",
-                "desc": "Dry fried beef Shahe noodles"
+                "desc": "Dry fried beef Shahe noodles",
+                "image": "123"
             }
         }
-
 
 class MenuUpdate(BaseModel):
     name: Optional[str]
     price: Optional[float]
-    ingredient: Optional[Ingredient]
+    weight: Optional[float]
+    ingredient: Optional[List[Ingredient]]
     sold: Optional[int]
     availability: Optional[bool]
     desc: Optional[str]
+    image: Optional[str]
 
     class Config:
         json_schema_extra = {
             "example": {
                 "name": "Beef Chow Fun",
                 "price": "45.50",
-                "ingredient": "{'name': 'Carrot', 'weight': 120, 'id': 1}",
+                "weight": "450g",
+                "ingredient": [{"id": 1, "name": "Carrot", "weight": 120.0}],
                 "sold": "45",
                 "availability": "true",
-                "desc": "Dry fried beef Shahe noodles"
+                "desc": "Dry fried beef Shahe noodles",
+                "image": "123"
             }
         }

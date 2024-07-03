@@ -9,7 +9,7 @@
   //role='Dining';
   //role='Customer';
   let role="";
-  role=user.role;
+  $: role=user.role;
 
   var rolePermissions={};
   rolePermissions["Manager"]=["dining","kitchen","menu","usermanagement"];  
@@ -23,9 +23,21 @@
     goto(url);
   }
 
-  onMount(() => {
-    // history.replaceState(null, 'Profile', '/profile');
-    document.title = 'Role Page';
+  onMount(async () => {
+      // history.replaceState(null, 'Profile', '/profile');
+      document.title = 'Role Page';
+      const roleResponse = await fetch('http://localhost:8000/auth/users/me', {
+              method: 'GET',
+              credentials: 'include', // This is important for cookies to be sent
+      });
+      const roleData = await roleResponse.json();
+      console.log(roleData);
+      user.name=roleData.username;
+      user.role=roleData.role;
+      user.imgSrc="./src/images/";
+      user.imgSrc=user.imgSrc+user.role.split(" ")[0].toLowerCase()+'.png';
+      user.email=roleData.email;
+      user.phone_number=roleData.phone_number;
   });
 
 </script>
