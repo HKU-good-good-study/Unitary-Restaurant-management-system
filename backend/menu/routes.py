@@ -8,10 +8,8 @@ from .models import Menu, MenuUpdate, Ingredient
 router = APIRouter()
 
 @router.post("/", response_description="Create a new menu", status_code=status.HTTP_201_CREATED, response_model=Menu)
-async def create_menu(request: Request, menu: Menu = Body(...), image: UploadFile = File(...)):
-    menu = jsonable_encoder(menu)
-    menu["image"] = await image.read()
-    new_menu = request.app.database.database["menus"].insert_one(menu)
+async def create_menu(request: Request, menu: Menu = Body(...)):
+    new_menu = request.app.database.database["menus"].insert_one(menu.model_dump())
     created_menu = request.app.database.database["menus"].find_one(
         {"_id": new_menu.inserted_id}
     )
