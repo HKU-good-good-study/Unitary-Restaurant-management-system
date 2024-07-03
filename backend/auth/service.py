@@ -28,8 +28,8 @@ async def create_user(user: AuthUser) -> dict[str, Any] | None:
         "remarks": user.remarks,
         "created_at": datetime.utcnow(),
     }
-    user_id = db.database["users"].insert_one(user_data).inserted_id
-    return await db.fetch_one("users", {"_id": user_id})
+    user_id = await db.execute("users", user_data, "insert")
+    return await db.fetch_one("users", {"_id": user_id.inserted_id})
 
 
 async def get_user_by_id(user_id: str) -> dict[str, Any] | None:
@@ -57,7 +57,7 @@ async def create_refresh_token(
         + timedelta(seconds=auth_config.REFRESH_TOKEN_EXP),
         "user_id": user_id,
     }
-    db.database["auth_refresh_token"].insert_one(token_data)
+    await db.execute("auth_refresh_token", token_data, "insert")
     return refresh_token
 
 
@@ -66,11 +66,11 @@ async def get_refresh_token(refresh_token: str) -> dict[str, Any] | None:
 
 
 async def expire_refresh_token(refresh_token_uuid: UUID4) -> None:
-    db.database["auth_refresh_token"].update_one(
-        {"uuid": refresh_token_uuid},
-        {"$set": {"expires_at": datetime.utcnow() - timedelta(days=1)}},
+    await db.execute(
+        "auth_refresh_token",
+        {"filter": {"uuid": refresh_token_uuid}, "update": {"$set": {"expires_at": datetime.utcnow() - timedelta(days=1)}}},
+        "update"
     )
-
 
 # async def expire_refresh_token(user_id: str) -> None:
 #     await db.database["auth_refresh_token"].update_one(
