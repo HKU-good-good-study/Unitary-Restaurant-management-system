@@ -1,5 +1,7 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onMount } from 'svelte';  
+  import { validation } from '$lib/tool.svelte';
+  
 
   // 存储员工数据
   let employees = [
@@ -97,8 +99,9 @@
     // 解雇员工
   }
 
-  onMount(() => {
+  onMount(async() => {
     // 在这里可以添加与后端的通信逻辑，从数据库或API获取真实数据
+    await validation();
     history.replaceState(null, 'Profile', '/profile');
     document.title = 'Profile';
   });

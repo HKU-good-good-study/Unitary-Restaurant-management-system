@@ -1,12 +1,22 @@
 <script>
     import HeaderBar from '$lib/HeaderBar.svelte';
+    import { onMount } from 'svelte';
     import { user } from '../stores.js'; 
+    import { page } from '$app/stores';
+    import { validation } from '$lib/tool.svelte';
 
-    $: user.name= user.name;
+    onMount(async () => {
+      // history.replaceState(null, 'Profile', '/profile');
+      document.title = 'Role Page';
+      await validation();
+      user.name= user.name;
+  });
+
+    //$: user.name= user.name;
 
 </script>
 
-{#if user.name}
+{#if user.name && $page.url.pathname != '/login'}
 <div>
 <HeaderBar back="true" bgcolor="linear-gradient(to right, #4978ff, #17f532)" color="#e4ff00">
     <svelte:fragment slot="backText">

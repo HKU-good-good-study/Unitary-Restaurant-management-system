@@ -1,205 +1,357 @@
 <script>
-  import { onMount } from 'svelte';
+    import { onMount } from 'svelte';
+    import { user } from '../../stores';
+    import { validation } from '$lib/tool.svelte';
+    
+
+    let role = '';
+    $: role = user.role;
   
-  let role = 'customer'; // Change this to 'kitchen', 'manager', or 'customer' based on the current user
+    let menus = [];
+    // let newMenu = { "availability": true, "desc": "", "id": "3", "image": "123", "ingredient": [ { "name": "", "weight": 0 } ], "name": "Beef Chow Fun", "price": 45, "sold": 45, "weight": 450 };
+    let newMenu = {
+        availability: true,
+        desc: "",
+        id: "",
+        image: "",
+        ingredient: [],
+        name: "",
+        price: 0,
+        sold: 0,
+        weight: 0
+    };
 
-  let products = [
-    { name: 'Salad', price: 13.99, weight: 'Weight 1', quantity: 0, image: './src/images/chopped-power-salad-with-chicken-0ad93f1931524a679c0f8854d74e6e57.jpg' },
-    { name: 'Beef Burger', price: 15.99, weight: 'Weight 2', quantity: 0, image: './src/images/photo-1571091718767-18b5b1457add.avif' },
-    // More dishes...
-  ];
-  let total = 0;
-
-  function updateTotal() {
-    total = 0;
-    products.forEach((product) => {
-      total += product.price * product.quantity;
+    let ingredients = [
+        { name: '', weight: 0 }
+    ];
+    let totalPrice = 0;
+    let quantities = {};
+    let showAddMenu = false;
+  
+    onMount(async () => {
+        await validation();
+        await fetchMenus();
+        role = user.role;
+  
     });
+  
+    // async function fetchMenus() {
+    //     const response = await fetch('http://localhost:8000/menu/all' ,{
+    //       method: 'GET',
+    //       credentials: 'include',
+    //     });
+    //     menus = await response.json();
+    // }
+
+    async function fetchMenus() {
+      try {
+          const response = await fetch('http://localhost:8000/menu/all', {
+              method: 'GET',
+              credentials: 'include',
+          });
+          if (response.ok) {
+              menus = await response.json();
+          } else {
+              console.error('Error fetching menus:', response.status);
+              menus = []; // 设置 menus 为空数组
+          }
+      } catch (error) {
+          console.error('Error fetching menus:', error);
+          menus = []; // 设置 menus 为空数组
+      }
   }
 
-  function addToCart(index) {
-    products[index].quantity += 1;
-    updateTotal();
-  }
+    function createTextBox() {
+      var textBox = document.createElement('input');
+      textBox.setAttribute('type', 'text');
+      textBox.setAttribute('placeholder', 'Ingredient Name');
+      textBox.setAttribute('class', 'ingredient-name');
+      textBox.setAttribute('required', true);
 
-  function removeFromCart(index) {
-    if (products[index].quantity > 0) {
-      products[index].quantity -= 1;
-      updateTotal();
+      var weightBox = document.createElement('input');
+      weightBox.setAttribute('type', 'number');
+      weightBox.setAttribute('placeholder', 'Ingredient Weight');
+      weightBox.setAttribute('class', 'ingredient-weight');
+      weightBox.setAttribute('min', '0');
+      weightBox.setAttribute('required', true);
+
+      var container = document.createElement('div');
+      container.setAttribute('class', 'ingredient-container');
+      container.appendChild(textBox);
+      container.appendChild(weightBox);
+      container.appendChild(document.createElement('button')).textContent = 'x';
+
+      document.body.appendChild(container);
     }
-  }
-
-  function changePrice(index, price) {
-    // Here you can add communication logic with the backend to update price information
-    products[index].price = price;
-  }
-
-  function increaseQuantity(index) {
-    products[index].quantity += 1;
-    updateTotal();
-  }
-
-  function decreaseQuantity(index) {
-    if (products[index].quantity > 0) {
-      products[index].quantity -= 1;
+  
+    function addIngredient() {
+        ingredients = [...ingredients, { name: '', weight: 0 }];
+        createTextBox();
     }
-    updateTotal();
-  }
+  
+    function removeIngredient(index) {
+        ingredients.splice(index, 1);
+        ingredients = ingredients;
+    }
+  
+    async function saveMenu() {
+        while (!lock) {}
+        newMenu.id = document.getElementById('menuId').value;
+        newMenu.name = document.getElementById('menuName').value;
+        newMenu.price = document.getElementById('menuPrice').value;
+        newMenu.weight = document.getElementById('menuWeight').value;
+        newMenu.availability = document.getElementById('menuAvail').checked;
+        newMenu.desc = document.getElementById('menuDes').value;
+        newMenu.sold = document.getElementById('menuSold').value;
+        newMenu.ingredient = ingredients;
 
-  function addProduct() {
-    // Here you can add communication logic with the backend and add new dishes
-    products.push({ name: 'New Food', price: 'New Price', weight: 'New Weight', quantity: 0, image: 'New Picture' });
-  }
 
-  function removeProduct(index) {
-    // Here you can add communication logic with the backend and delete dishes
-    products.splice(index, 1);
-  }
-
-  onMount(() => {
-    // history.replaceState(null, 'Profile', '/profile');
-    document.title = 'Menu Page';
-  });
-</script>
-
-<style>
-  .menu {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 20px;
-    padding: 20px;
-    background-color: #f8f8f8;
-  }
-
-  .product {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    padding: 20px;
-    background-color: #fff;
-    text-align: center;
-    width: 300px; /* Set the width of each product */
-  }
-
-  .product h2 {
-    color: #333;
-    margin-bottom: 10px;
-  }
-
-  .product p {
-    color: #666;
-    margin-bottom: 10px;
-  }
-
-  .product img {
-    width: 200px; /* Set the width of each product */
-    height: auto; /* Automatically adjust height to maintain image proportions */
-    object-fit: cover; /* Set the image fill method */
-    margin-bottom: 10px;
-  }
-
-  .cart {
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 20px;
-    background-color: #f9f9f9;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  }
-
-  .cart h2 {
-    font-size: 20px;
-    font-weight: bold;
-    margin-bottom: 15px;
-  }
-
-  .cart ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .cart li {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #e0e0e0;
-  }
-
-  .cart button {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 3px;
-    padding: 5px 10px;
-    cursor: pointer;
-    font-size: 14px;
-  }
-
-  .cart button:hover {
-    background-color: #0056b3;
-  }
-
-  .cart p {
-    font-size: 16px;
-    font-weight: bold;
-    text-align: right;
-    margin-top: 15px;
-  }
-
-  .quantity-btn {
-    width: 40px; /* 设置按钮宽度 */
-    height: 40px; /* 设置按钮高度 */
-    font-size: 16px; /* 设置按钮内部文字/图标大小 */
-    display: inline-flex; /* 使用flexbox布局 */
-    justify-content: center; /* 水平居中 */
-    align-items: center; /* 垂直居中 */
-  }
-</style>
-
-<div class="menu">
-  {#each products as product, index (product.name)}
-  <div class="product">
-    <h2>{product.name}</h2>
-    <p>Price: {product.price}</p>
-    {#if role === 'manager' || role === 'kitchen staff'}
-      <input type="text" bind:value={product.price} on:change={() => changePrice(index, product.price)} />
-    {/if}
-    <p>Weight: {product.weight}</p>
-    <p>Quantity: <input type="number" min="0" bind:value={product.quantity} /></p>
-    <div>
-      <button on:click={() => increaseQuantity(index)} class="quantity-btn">+</button>
-<button on:click={() => decreaseQuantity(index)} class="quantity-btn">-</button>
-    </div>
-    <img src={product.image} />
-    {#if role === 'manager' || role === 'kitchen staff'}
-      <button on:click={() => removeProduct(index)}>Delete dish</button>
-    {/if}
+        const response = await fetch('http://localhost:8000/menu/'+newMenu.id, {
+            method: 'POST',
+            headers: {
+                  'Content-Type': 'application/json'
+              },
+            body: JSON.stringify(newMenu),
+  
+            credentials: 'include'
+        });
+        const createdMenu = await response.json();
+  
+        showAddMenu = false;
+        lock = false;
+    }
+  
+    function updateQuantity(menuId, operation) {
+        if (operation === 'increment') {
+            quantities[menuId] = (quantities[menuId] || 0) + 1;
+        } else {
+            quantities[menuId] = Math.max(0, (quantities[menuId] || 0) - 1);
+        }
+        calculateTotalPrice();
+    }
+  
+    function calculateTotalPrice() {
+        totalPrice = Object.entries(quantities).reduce((acc, [menuId, quantity]) => {
+            const menu = menus.find(m => m.id === parseInt(menuId));
+            return acc + (menu?.price || 0) * quantity;
+        }, 0);
+    }
+    var lock = false;
+    function getImage(file){
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = e => {
+          newMenu.image= e.target.result;
+          lock = true;
+          newMenu.image = newMenu.image.split(',')[1];
+          // newMenu.image = "123";
+      };
+    }
+  </script>
+  
+  <h1>Menu</h1>
+  
+  {#if role === 'Manager' || role === 'Kitchen Staff'}
+  <div>
+      <button on:click={() => showAddMenu = true}>Add New Menu</button>
+      {#if showAddMenu}
+      <div class="add-menu-container">
+          <div class="add-menu-form">
+              <h2>Add New Menu</h2>
+              <form on:submit|preventDefault={saveMenu}>
+                  <label>
+                        ID:
+                        <input type="text" id="menuId" required>
+                  </label>
+                  <label>
+                      Name:
+                      <input type="text" id="menuName" required>
+                  </label>
+                  <label>
+                      Price:
+                      <input type="number" step="1" id="menuPrice" value="{newMenu.id || ''}" min="0" required>
+                  </label>
+                  <label>
+                      Weight:
+                      <input type="number" step="1" id="menuWeight" value="{newMenu.name || ''}" min="0" required>
+                  </label>
+                  <label>
+                      Ingredients:
+                      {#each ingredients as ingredient, index}
+                      <div class="ingredient-container">
+                          <input type="text" bind:value={ingredient.name} placeholder="Ingredient Name" required>
+                          <input type="number" step="1" bind:value={ingredient.weight} placeholder="Ingredient Weight" min="0" required>
+                          <button type="button" on:click={() => removeIngredient(index)}>x</button>
+                      </div>
+                      {/each}
+                      <button type="button" on:click={addIngredient}>Add Ingredient</button>
+                  </label>
+                  <label>
+                      Sold:
+                      <input type="number" step="1" id="menuSold" min="0" required>
+                  </label>
+                  <label>
+                      Availability:
+                      <input type="checkbox" id="menuAvail">
+                  </label>
+                  <label>
+                      Description:
+                      <textarea id="menuDes" required></textarea>
+                  </label>
+                  <label>
+                      Image:
+                      <input type="file" on:change={(e) => getImage(e.target.files[0])}>
+                  </label>
+                  <button type="submit" on:click={() => fetchMenus}>Save</button>
+                  <button type="button" on:click={() => showAddMenu = false}>Cancel</button>
+              </form>
+          </div>
+      </div>
+      {/if}
   </div>
-  {/each}
-  {#if role === 'manager' || role === 'kitchen staff'}
-    <button on:click={addProduct}>Add dish</button>
   {/if}
-</div>
-
-{#if role === 'customer' || role === 'unregistered'}
-  <div class="cart">
-    <h2>Your Order</h2>
-    <ul>
-      {#each products as product, index (product.name)}
-        {#if product.quantity > 0}
-          <li>
-            {product.name} - {product.price} x {product.quantity} = {product.price * product.quantity}
-            <button on:click={() => addToCart(index)} class="quantity-btn">+</button>
-            <button on:click={() => removeFromCart(index)} class="quantity-btn">-</button>
-          </li>
-        {/if}
+  
+  <h2>Menu List</h2>
+  <div class="menu-list">
+      {#each menus as menu}
+      <div class="menu-item">
+          <p>ID: {menu.id}</p>
+          <p>Name: {menu.name}</p>
+          <p>Price: ${menu.price}</p>
+          <p>Weight: {menu.weight}g</p>
+          {#if role !== 'Manager' && role !== 'kitchen staff'}
+          <div class="quantity-container">
+              <button on:click={() => updateQuantity(menu.id, 'decrement')}>-</button>
+              <span>{quantities[menu.id] || 0}</span>
+              <button on:click={() => updateQuantity(menu.id, 'increment')}>+</button>
+          </div>
+          {/if}
+          <p>Ingredients:</p>
+          {#each menu.ingredient as ingredient}
+          <div class="ingredient-info">
+              <p>{ingredient.name} - {ingredient.weight}g</p>
+          </div>
+          {/each}
+          <p>Sold: {menu.sold}</p>
+          <p>Availability: {menu.availability ? 'Yes' : 'No'}</p>
+          <p>Description: {menu.desc}</p>
+          <!-- <img src={`data:image/jpeg;base64,${btoa(String.fromCharCode(...new Uint8Array(menu.image)))}`} alt="{menu.name} image"> -->
+          <img src={`data:image/jpeg;base64,${menu.image}`} alt="{menu.name} image" />
+          {#if role === 'Manager' || role === 'Kitchen Staff'}
+          <div class="actions">
+              <button>Edit</button>
+              <button>Delete</button>
+          </div>
+          {/if}
+      </div>
       {/each}
-    </ul>
-    <p>Total: {total.toFixed(2)}</p>
   </div>
-{/if}
+  
+  {#if role !== 'Manager' && role !== 'Kitchen Staff'}
+  <div class="total-price-container">
+      <p>Total Price: ${totalPrice.toFixed(2)}</p>
+  </div>
+  {/if}
+  
+  <style>
+      .menu-list {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: 20px;
+      }
+  
+      .menu-item {
+          border: 1px solid #ccc;
+          padding: 20px;
+      }
+  
+      .ingredient-container {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 10px;
+      }
+  
+      .ingredient-info {
+          background-color: #f5f5f5;
+          padding: 5px 10px;
+          border-radius: 5px;
+      }
+  
+      .quantity-container {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+      }
+  
+      .actions {
+          display: flex;
+          justify-content: flex-end;
+          gap: 10px;
+          margin-top: 10px;
+      }
+  
+      .total-price-container {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: #f5f5f5;
+        padding: 10px;
+        text-align: right;
+    }
+  
+    .add-menu-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+    }
+  
+    .add-menu-form {
+      background-color: white;
+      padding: 20px;
+      border-radius: 5px;
+      width: 80%;
+      max-width: 600px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+  
+    .add-menu-form label {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      margin-bottom: 10px;
+      width: 100%;
+    }
+  
+    .add-menu-form input,
+    .add-menu-form textarea {
+      width: 100%;
+      padding: 5px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+    }
+  
+    .add-menu-form button {
+      margin-top: 10px;
+      padding: 5px 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+  
+    .add-menu-form button:hover {
+        background-color: #45a049;
+    }
+  </style>

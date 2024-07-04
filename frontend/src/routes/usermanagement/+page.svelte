@@ -1,10 +1,11 @@
 <script>
   import { onMount } from "svelte";  
   import { user } from '../../stores';
+  import { validation } from "$lib/tool.svelte";
 
   let src = './src/images/0.png';
 	let name = 'icon';
-  let role ='Manager';
+  let role ='';
   $: role=user.role;
 
   let users = [];
@@ -36,8 +37,11 @@
   };
 
 
-  onMount(() => {
+  onMount(async () => {
+    await validation();  
+    role=user.role;
     // history.replaceState(null, 'Profile', '/profile');
+    
     document.title = 'User Management';
 
     users =[
@@ -72,8 +76,7 @@
     { name: 'liu', role: 'Customer', status:false},
     { name: 'zhou', role: 'Customer', status: true},
     { name: 'liu', role: 'Customer', status:false},
-    { name: 'zhou', role: 'Customer', status: true},    
-    
+    { name: 'zhou', role: 'Customer', status: true},        
     // more user...
   ];
     paginate(users);
