@@ -108,7 +108,8 @@
             credentials: 'include'
         });
         const createdMenu = await response.json();
-  
+        
+        await fetchMenus();
         showAddMenu = false;
         lock = false;
     }
