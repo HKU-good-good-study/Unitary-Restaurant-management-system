@@ -39,9 +39,33 @@
         });
         menus = await response.json();
     }
+
+    function createTextBox() {
+      var textBox = document.createElement('input');
+      textBox.setAttribute('type', 'text');
+      textBox.setAttribute('placeholder', 'Ingredient Name');
+      textBox.setAttribute('class', 'ingredient-name');
+      textBox.setAttribute('required', true);
+
+      var weightBox = document.createElement('input');
+      weightBox.setAttribute('type', 'number');
+      weightBox.setAttribute('placeholder', 'Ingredient Weight');
+      weightBox.setAttribute('class', 'ingredient-weight');
+      weightBox.setAttribute('min', '0');
+      weightBox.setAttribute('required', true);
+
+      var container = document.createElement('div');
+      container.setAttribute('class', 'ingredient-container');
+      container.appendChild(textBox);
+      container.appendChild(weightBox);
+      container.appendChild(document.createElement('button')).textContent = 'x';
+
+      document.body.appendChild(container);
+    }
   
     function addIngredient() {
         ingredients = [...ingredients, { name: '', weight: 0 }];
+        createTextBox();
     }
   
     function removeIngredient(index) {
@@ -51,12 +75,14 @@
   
     async function saveMenu() {
         while (!lock) {}
+        newMenu.id = document.getElementById('menuId').value;
         newMenu.name = document.getElementById('menuName').value;
         newMenu.price = document.getElementById('menuPrice').value;
         newMenu.weight = document.getElementById('menuWeight').value;
         newMenu.availability = document.getElementById('menuAvail').checked;
         newMenu.desc = document.getElementById('menuDes').value;
         newMenu.sold = document.getElementById('menuSold').value;
+        newMenu.ingredient = ingredients;
 
 
         const response = await fetch('http://localhost:8000/menu/'+newMenu.id, {
@@ -112,10 +138,10 @@
           <div class="add-menu-form">
               <h2>Add New Menu</h2>
               <form on:submit|preventDefault={saveMenu}>
-                  <!-- <label>
+                  <label>
                         ID:
                         <input type="text" id="menuId" required>
-                  </label> -->
+                  </label>
                   <label>
                       Name:
                       <input type="text" id="menuName" required>
