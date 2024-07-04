@@ -1,9 +1,11 @@
 <script>
     import { onMount } from 'svelte';
     import { user } from '../../stores';
-  
+    import { validation } from '$lib/tool.svelte';
+    
+
     let role = '';
-    role = user.role;
+    $: role = user.role;
   
     let menus = [];
     // let newMenu = { "availability": true, "desc": "", "id": "3", "image": "123", "ingredient": [ { "name": "", "weight": 0 } ], "name": "Beef Chow Fun", "price": 45, "sold": 45, "weight": 450 };
@@ -27,6 +29,7 @@
     let showAddMenu = false;
   
     onMount(async () => {
+        await validation();
         await fetchMenus();
         role = user.role;
   

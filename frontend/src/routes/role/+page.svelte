@@ -2,6 +2,7 @@
   import { goto } from '$app/navigation';
   import { user } from '../../stores';
   import { onMount } from 'svelte';
+  import { validation } from '$lib/tool.svelte';
 
   // let roleData=sessionStorage.getItem("role");
   //let role = roleData; // Change this to 'kitchen', 'manager', 'customer', or 'dining' based on the current user
@@ -26,18 +27,8 @@
   onMount(async () => {
       // history.replaceState(null, 'Profile', '/profile');
       document.title = 'Role Page';
-      const roleResponse = await fetch('http://localhost:8000/auth/users/me', {
-              method: 'GET',
-              credentials: 'include', // This is important for cookies to be sent
-      });
-      const roleData = await roleResponse.json();
-      console.log(roleData);
-      user.name=roleData.username;
-      user.role=roleData.role;
-      user.imgSrc="./src/images/";
-      user.imgSrc=user.imgSrc+user.role.split(" ")[0].toLowerCase()+'.png';
-      user.email=roleData.email;
-      user.phone_number=roleData.phone_number;
+      await validation();
+      role=user.role;
   });
 
 </script>

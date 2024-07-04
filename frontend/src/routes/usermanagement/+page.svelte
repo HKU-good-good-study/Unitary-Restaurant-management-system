@@ -1,10 +1,11 @@
 <script>
   import { onMount } from "svelte";  
   import { user } from '../../stores';
+  import { validation } from "$lib/tool.svelte";
 
   let src = './src/images/0.png';
 	let name = 'icon';
-  let role ='Manager';
+  let role ='';
   $: role=user.role;
 
   let users = [];
@@ -37,18 +38,8 @@
 
 
   onMount(async () => {
-    const roleResponse = await fetch('http://localhost:8000/auth/users/me', {
-            method: 'GET',
-            credentials: 'include', // This is important for cookies to be sent
-    });
-    const roleData = await roleResponse.json();
-    console.log(roleData);
-    user.name=roleData.username;
-    user.role=roleData.role;
-    user.imgSrc="./src/images/";
-    user.imgSrc=user.imgSrc+user.role.split(" ")[0].toLowerCase()+'.png';
-    user.email=roleData.email;
-    user.phone_number=roleData.phone_number;
+    await validation();  
+    role=user.role;
     // history.replaceState(null, 'Profile', '/profile');
     
     document.title = 'User Management';
@@ -85,8 +76,7 @@
     { name: 'liu', role: 'Customer', status:false},
     { name: 'zhou', role: 'Customer', status: true},
     { name: 'liu', role: 'Customer', status:false},
-    { name: 'zhou', role: 'Customer', status: true},    
-    
+    { name: 'zhou', role: 'Customer', status: true},        
     // more user...
   ];
     paginate(users);

@@ -1,5 +1,6 @@
 <script>
   import { onMount } from 'svelte';
+  import { validation } from '$lib/tool.svelte';
 
   let reservationStatus = '';
   let orderStatus = '';
@@ -25,8 +26,9 @@
     complaintText = '';
   }
 
-  onMount(() => {
+  onMount(async() => {
     // history.replaceState(null, 'Profile', '/profile');
+    await validation();
     document.title = 'Customer Page';
   });
 </script>

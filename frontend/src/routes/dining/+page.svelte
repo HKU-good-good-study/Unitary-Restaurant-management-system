@@ -2,6 +2,7 @@
   import Table from './Tables.svelte';
   import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
+  import { validation } from '$lib/tool.svelte';
 
   // 创建一个对象来存储每个 table 的状态
   let tableStatus = {
@@ -48,7 +49,8 @@
     goto('./menu');
   }
 
-  onMount(() => {
+  onMount(async() => {
+    await validation();
     // history.replaceState(null, 'Profile', '/profile');
     document.title = 'Dining Staff Page';
   });
