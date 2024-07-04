@@ -34,14 +34,6 @@
         role = user.role;
   
     });
-  
-    // async function fetchMenus() {
-    //     const response = await fetch('http://localhost:8000/menu/all' ,{
-    //       method: 'GET',
-    //       credentials: 'include',
-    //     });
-    //     menus = await response.json();
-    // }
 
     async function fetchMenus() {
       try {
@@ -137,16 +129,58 @@
         }, 0);
     }
     var lock = false;
-    function getImage(file){
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = e => {
-          newMenu.image= e.target.result;
-          lock = true;
-          newMenu.image = newMenu.image.split(',')[1];
-          // newMenu.image = "123";
-      };
+    // function getImage(file){
+    //   const reader = new FileReader();
+    //   reader.readAsDataURL(file);
+    //   reader.onload = e => {
+    //       newMenu.image= e.target.result;
+    //       lock = true;
+    //       newMenu.image = newMenu.image.split(',')[1];
+    //       // newMenu.image = "123";
+    //   };
+    // }
+    function getImage(file) {
+    // 检查文件类型是否为 JPEG 或 PNG
+    if (!['image/jpeg', 'image/png'].includes(file.type)) {
+        alert('Please upload a JPEG or PNG image file.');
+        return;
     }
+
+    // 创建一个 Image 对象并设置 src 属性
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+
+    // 等待图片加载完成
+    img.onload = () => {
+        // 检查图片尺寸是否符合要求
+        if (img.width > 320 || img.height > 200) {
+            // 调整图片尺寸
+            const canvas = document.createElement('canvas');
+            canvas.width = 320;
+            canvas.height = 200;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, 320, 200);
+
+            // 将调整后的图片转换为 base64 字符串
+            canvas.toBlob((blob) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(blob);
+                reader.onload = () => {
+                    newMenu.image = reader.result.split(',')[1];
+                    lock = true;
+                };
+            }, file.type);
+        } else {
+            // 直接将原图片转换为 base64 字符串
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => {
+                newMenu.image = reader.result.split(',')[1];
+                lock = true;
+            };
+        }
+    };
+}
   </script>
   
   <h1>Menu</h1>
@@ -200,7 +234,7 @@
                   </label>
                   <label>
                       Image:
-                      <input type="file" on:change={(e) => getImage(e.target.files[0])}>
+                      <input type="file" on:change={(e) => getImage(e.target.files[0])} required>
                   </label>
                   <button type="submit" on:click={() => fetchMenus}>Save</button>
                   <button type="button" on:click={() => showAddMenu = false}>Cancel</button>
