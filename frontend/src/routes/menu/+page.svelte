@@ -32,13 +32,31 @@
   
     });
   
+    // async function fetchMenus() {
+    //     const response = await fetch('http://localhost:8000/menu/all' ,{
+    //       method: 'GET',
+    //       credentials: 'include',
+    //     });
+    //     menus = await response.json();
+    // }
+
     async function fetchMenus() {
-        const response = await fetch('http://localhost:8000/menu/all' ,{
-          method: 'GET',
-          credentials: 'include',
-        });
-        menus = await response.json();
-    }
+      try {
+          const response = await fetch('http://localhost:8000/menu/all', {
+              method: 'GET',
+              credentials: 'include',
+          });
+          if (response.ok) {
+              menus = await response.json();
+          } else {
+              console.error('Error fetching menus:', response.status);
+              menus = []; // 设置 menus 为空数组
+          }
+      } catch (error) {
+          console.error('Error fetching menus:', error);
+          menus = []; // 设置 menus 为空数组
+      }
+  }
 
     function createTextBox() {
       var textBox = document.createElement('input');
@@ -148,11 +166,11 @@
                   </label>
                   <label>
                       Price:
-                      <input type="number" step="1" id="menuPrice" min="0" required>
+                      <input type="number" step="1" id="menuPrice" value="{newMenu.id || ''}" min="0" required>
                   </label>
                   <label>
                       Weight:
-                      <input type="number" step="1" id="menuWeight" min="0" required>
+                      <input type="number" step="1" id="menuWeight" value="{newMenu.name || ''}" min="0" required>
                   </label>
                   <label>
                       Ingredients:
