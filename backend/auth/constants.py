@@ -9,3 +9,7 @@ class ErrorCode:
     USER_NOT_CREATED = "User not created."
     REFRESH_TOKEN_NOT_VALID = "Refresh token is not valid."
     REFRESH_TOKEN_REQUIRED = "Refresh token is required either in the body or cookie."
+    PASSWORD_NOT_MATCHED = "Old password is wrong."
+    INVALID_EMAIL = "No user is using this email address."
+    INVALID_RESET_TOKEN = "Invalid reset token."
+    RESET_TOKEN_EXPIRED = "Reset token is expired."

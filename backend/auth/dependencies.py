@@ -5,13 +5,13 @@ from fastapi import Cookie, Depends
 
 from . import service
 from .exceptions import EmailTaken, RefreshTokenNotValid, UsernameTaken
-from .schemas import AuthUser
+from .schemas import AuthUser, UserUpdate
 
 
-async def valid_user_create(user: AuthUser) -> AuthUser:
-    if await service.get_user_by_email(user.email):
+async def valid_user_info(user: AuthUser | UserUpdate) -> AuthUser | UserUpdate:
+    if user.email is not None and await service.get_user_by_email(user.email):
         raise EmailTaken()
-    if await service.get_user_by_username(user.username):
+    if user.username is not None and await service.get_user_by_username(user.username):
         raise UsernameTaken()
 
     return user
