@@ -42,3 +42,19 @@ class UserNotFound(NotFound):
 
 class UserNotCreated(DetailedHTTPException):
     DETAIL = ErrorCode.USER_NOT_CREATED
+
+
+class PasswordNotMatched(BadRequest):
+    DETAIL = ErrorCode.PASSWORD_NOT_MATCHED
+
+
+class InvalidEmail(BadRequest):
+    DETAIL = ErrorCode.INVALID_EMAIL
+
+
+class InvalidResetToken(BadRequest):
+    DETAIL = ErrorCode.INVALID_RESET_TOKEN
+
+
+class ResetTokenExpired(BadRequest):
+    DETAIL = ErrorCode.RESET_TOKEN_EXPIRED

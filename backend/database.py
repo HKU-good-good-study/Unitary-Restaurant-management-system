@@ -38,8 +38,8 @@ class Database:
 
     async def fetch_collection(self, collection_name:str) -> list:
         return list(self.get_collection(collection_name).find())
-    
-    async def execute(self, collection_name: str, query: dict, operation: Any) -> None:
+
+    async def execute(self, collection_name: str, query: dict, operation: Any):
         collection = self.get_collection(collection_name)
         if operation == "insert":
             result = collection.insert_one(query)
