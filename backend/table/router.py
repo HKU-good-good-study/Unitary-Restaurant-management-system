@@ -5,7 +5,7 @@ import uuid
 from .schemas import Order, Table
 
 db = Database()  # Create an instance of the Database class
-router = APIRouter(prefix="/table", tags=["Table"])
+router = APIRouter()
 
                         ############################## helper functions #################################
 async def get_table(id:str):
