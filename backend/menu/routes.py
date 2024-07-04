@@ -25,7 +25,16 @@ async def get_menus():
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No menu created")
 
 
-@router.post("{id}")
+@router.get("/{id}", response_description="Get a single menu by id")
+async def get_menu_by_id(id: str):
+    menu = await get_menu(id)
+    if menu:
+        del menu["_id"]
+        return menu
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"menu not found")
+
+
+@router.post("/{id}")
 async def create_menu(id: str, menu: Menu):
     result = await get_menu(id)
     if result:  # should not exist table having the same id
@@ -36,7 +45,7 @@ async def create_menu(id: str, menu: Menu):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"menu creation failed")
 
 
-@router.put("{id}")
+@router.put("/{id}")
 async def update_menu(id: str, menu: Menu):
     result = await db.fetch_one("menus", {"id": f"{id}"})
     if not result:
@@ -47,7 +56,7 @@ async def update_menu(id: str, menu: Menu):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"table update failed")
 
 
-@router.delete("{id}")
+@router.delete("/{id}")
 async def delete_menu(id: str):
     menu = await db.fetch_one("menus", {"id": f"{id}"})
     if not menu:
