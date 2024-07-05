@@ -32,7 +32,7 @@
         await validation();
         await fetchMenus();
         role = user.role;
-  
+        calculateTotalPrice(); // 在这里调用 calculateTotalPrice
     });
 
     async function fetchMenus() {
@@ -137,20 +137,40 @@ async function updateMenu(menu) {
     menus[index] = updatedMenu;
     menus = menus;
 }
-  
-    function updateQuantity(menuId, operation) {
+    let currentOrder = {};
+
+    // function updateQuantity(menuId, operation) {
+    //     if (operation === 'increment') {
+    //         quantities[menuId] = (quantities[menuId] || 0) + 1;
+    //         currentOrder[menuId] = (currentOrder[menuId] || 0) + 1;
+    //     } else {
+    //         quantities[menuId] = Math.max(0, (quantities[menuId] || 0) - 1);
+    //         currentOrder[menuId] = Math.max(0, (currentOrder[menuId] || 0) - 1);
+    //     }
+    //     calculateTotalPrice();
+    // }
+    function updateQuantity(menu, operation) {
         if (operation === 'increment') {
-            quantities[menuId] = (quantities[menuId] || 0) + 1;
+            quantities[menu.id] = (quantities[menu.id] || 0) + 1;
+            currentOrder[menu.id] = (currentOrder[menu.id] || { menu, quantity: 0 });
+            currentOrder[menu.id].quantity += 1;
         } else {
-            quantities[menuId] = Math.max(0, (quantities[menuId] || 0) - 1);
+            quantities[menu.id] = Math.max(0, (quantities[menu.id] || 0) - 1);
+            currentOrder[menu.id] = (currentOrder[menu.id] || { menu, quantity: 0 });
+            currentOrder[menu.id].quantity = Math.max(0, currentOrder[menu.id].quantity - 1);
         }
         calculateTotalPrice();
     }
   
+    // function calculateTotalPrice() {
+    //     totalPrice = Object.entries(quantities).reduce((acc, [menuId, quantity]) => {
+    //         const menu = menus.find(m => m.id === parseInt(menuId));
+    //         return acc + (menu?.price || 0) * quantity;
+    //     }, 0);
+    // }
     function calculateTotalPrice() {
-        totalPrice = Object.entries(quantities).reduce((acc, [menuId, quantity]) => {
-            const menu = menus.find(m => m.id === parseInt(menuId));
-            return acc + (menu?.price || 0) * quantity;
+        totalPrice = Object.values(currentOrder).reduce((acc, orderItem) => {
+            return acc + (orderItem.menu.price * orderItem.quantity);
         }, 0);
     }
     var lock = false;
@@ -231,11 +251,11 @@ async function updateMenu(menu) {
   
   {#if role === 'Manager' || role === 'Kitchen Staff'}
   <div>
-      <button on:click={() => showAddMenu = true}>Add New Menu</button>
+      <button on:click={() => showAddMenu = true}>Add New Dish</button>
       {#if showAddMenu}
       <div class="add-menu-container">
           <div class="add-menu-form">
-              <h2>Add New Menu</h2>
+              <h2>Add New Dish</h2>
               <form on:submit|preventDefault={saveMenu}>
                   <label>
                         ID:
@@ -301,11 +321,16 @@ async function updateMenu(menu) {
           <p>Price: ${menu.price}</p>
           <p>Weight: {menu.weight}g</p>
           {#if role !== 'Manager' && role !== 'kitchen staff'}
-          <div class="quantity-container">
+          <!-- <div class="quantity-container">
               <button on:click={() => updateQuantity(menu.id, 'decrement')}>-</button>
               <span>{quantities[menu.id] || 0}</span>
               <button on:click={() => updateQuantity(menu.id, 'increment')}>+</button>
-          </div>
+          </div> -->
+          <div class="quantity-container">
+            <button on:click={() => updateQuantity(menu, 'decrement')}>-</button>
+            <span>{quantities[menu.id] || 0}</span>
+            <button on:click={() => updateQuantity(menu, 'increment')}>+</button>
+        </div>
           {/if}
           <p>Ingredients:</p>
           {#each menu.ingredient as ingredient}
@@ -330,11 +355,28 @@ async function updateMenu(menu) {
       {/each}
   </div>
   
-  {#if role !== 'Manager' && role !== 'Kitchen Staff'}
+  <!-- {#if role !== 'Manager' && role !== 'Kitchen Staff'}
   <div class="total-price-container">
       <p>Total Price: ${totalPrice.toFixed(2)}</p>
   </div>
-  {/if}
+  {/if} -->
+    {#if role !== 'Manager' && role !== 'Kitchen Staff'}
+    <div class="total-price-container">
+        <p>My Order:</p>
+        {#each Object.values(currentOrder) as orderItem}
+        {#if orderItem.quantity > 0}
+        <div class="order-item">
+            <p>{orderItem.menu.name} x {orderItem.quantity}</p>
+            <div class="quantity-controls">
+                <button on:click={() => updateQuantity(orderItem.menu, 'decrement')}>-</button>
+                <button on:click={() => updateQuantity(orderItem.menu, 'increment')}>+</button>
+            </div>
+        </div>
+        {/if}
+        {/each}
+        <div class="total-price">Total Price: ${totalPrice.toFixed(2)}</div>
+    </div>
+    {/if}
   
   <style>
       .menu-list {
@@ -374,14 +416,46 @@ async function updateMenu(menu) {
           margin-top: 10px;
       }
   
-      .total-price-container {
-        position: fixed;
+    .total-price-container {
+        position: sticky;
         bottom: 0;
         left: 0;
-        width: 100%;
+        width: 99.5%;
         background-color: #f5f5f5;
         padding: 10px;
+        text-align: left;
+        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+        max-width: 100%;
+        overflow-x: auto;
+        display: inline-block;
+    }
+
+    .total-price-container p {
+        margin: 5px 0;
+    }
+
+    .order-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .quantity-controls {
+        display: flex;
+        gap: 5px;
+    }
+
+    .quantity-controls button {
+        background-color: #e0e0e0;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+    }
+
+    .total-price {
         text-align: right;
+        font-weight: bold;
+        margin-top: 10px;
     }
   
     .add-menu-container {
@@ -436,5 +510,11 @@ async function updateMenu(menu) {
   
     .add-menu-form button:hover {
         background-color: #45a049;
+    }
+
+    .readonly-label {
+        color: #999;
+        font-size: 0.8rem;
+        margin-left: 5px;
     }
   </style>
