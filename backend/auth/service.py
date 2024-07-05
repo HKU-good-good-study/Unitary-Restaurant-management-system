@@ -53,6 +53,10 @@ async def update_user_by_id(user_id: str, update_data: UserUpdate) -> dict[str, 
     return await db.fetch_one("users", {"_id": ObjectId(user_id)})
 
 
+async def delete_user_by_id(user_id: str) -> None:
+    await db.execute("users", {"_id": ObjectId(user_id)}, "delete")
+
+
 async def create_refresh_token(
         *, user_id: str, refresh_token: str | None = None
 ) -> str:
@@ -177,3 +181,5 @@ async def reset_password(reset_token: str, new_password: str) -> None:
     await expire_reset_token(reset_token_data["uuid"])
 
     # send_password_reset_email(user["email"])
+
+

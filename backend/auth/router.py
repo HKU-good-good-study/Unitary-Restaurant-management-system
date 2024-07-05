@@ -8,9 +8,10 @@ from . import jwt, service, utils
 from .dependencies import (
     valid_refresh_token,
     valid_refresh_token_user,
-    valid_user_info,
+    valid_user_update_info,
+    valid_user_register_info
 )
-from .jwt import parse_jwt_user_data
+from .jwt import parse_jwt_user_data, parse_jwt_customer_data
 from .schemas import (
     AccessTokenResponse,
     AuthUser,
@@ -28,7 +29,7 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.post("/users", status_code=status.HTTP_201_CREATED, response_model=UserResponse)
 async def register_user(
-    auth_data: AuthUser = Depends(valid_user_info),
+    auth_data: AuthUser = Depends(valid_user_register_info),
 ) -> dict[str, str]:
     user = await service.create_user(auth_data)
     if not user:
@@ -45,7 +46,7 @@ async def register_user(
 
 @router.get("/users/me", response_model=UserResponse)
 async def get_my_account(
-        jwt_data: JWTData = Depends(parse_jwt_user_data),
+    jwt_data: JWTData = Depends(parse_jwt_user_data),
 ) -> UserResponse:
     user = await service.get_user_by_id(jwt_data.user_id)
     if not user:
@@ -62,8 +63,8 @@ async def get_my_account(
 
 @router.patch("/users/me", response_model=UserResponse)
 async def update_my_account(
-        jwt_data: JWTData = Depends(parse_jwt_user_data),
-        update_data: UserUpdate = Depends(valid_user_info),
+    jwt_data: JWTData = Depends(parse_jwt_user_data),
+    update_data: UserUpdate = Depends(valid_user_update_info),
 ) -> UserResponse:
     user = await service.update_user_by_id(jwt_data.user_id, update_data)
     if not user:
@@ -75,6 +76,21 @@ async def update_my_account(
         phone_number=user["phone_number"],
         role=user["role"],
         remarks=user["remarks"],
+    )
+
+
+@router.delete("/users/me", status_code=204)
+async def delete_my_account(
+    response: Response,
+    jwt_data: JWTData = Depends(parse_jwt_customer_data),
+) -> None:
+    await service.delete_user_by_id(jwt_data.user_id)
+    await service.expire_refresh_token(jwt_data.user_id)
+    response.delete_cookie(
+        **utils.get_access_token_settings(expired=True)
+    )
+    response.delete_cookie(
+        **utils.get_refresh_token_settings(expired=True)
     )
 
 
@@ -112,7 +128,7 @@ async def refresh_tokens(
     )
 
 
-@router.delete("/users/tokens")
+@router.delete("/users/tokens", status_code=204)
 async def logout_user(
     response: Response,
     refresh_token: dict[str, Any] = Depends(valid_refresh_token),
@@ -120,13 +136,14 @@ async def logout_user(
     await service.expire_refresh_token(refresh_token["uuid"])
 
     response.delete_cookie(
-        **utils.get_access_token_settings("", expired=True)
+        **utils.get_access_token_settings(expired=True)
     )
     response.delete_cookie(
-        **utils.get_refresh_token_settings(refresh_token["refresh_token"], expired=True)
+        **utils.get_refresh_token_settings(expired=True)
     )
 
-@router.post("/users/password-update")
+
+@router.post("/users/password-update", status_code=204)
 async def update_password(
     update_data: AuthUserPasswordUpdate,
     jwt_data: JWTData = Depends(parse_jwt_user_data),
@@ -134,7 +151,7 @@ async def update_password(
     await service.update_user_password(jwt_data.user_id, update_data.old_password, update_data.new_password)
 
 
-@router.post("/users/password-reset-token")
+@router.post("/users/password-reset-token", status_code=204)
 async def request_password_reset_token(
     reset_data: PasswordResetRequest,
 ) -> None:
@@ -142,8 +159,10 @@ async def request_password_reset_token(
     print(f"Email: {reset_data.email}, Token: {token}")
 
 
-@router.post("/users/password-reset")
+@router.post("/users/password-reset", status_code=204)
 async def reset_password(
     reset_data: UnAuthUserPasswordReset,
 ) -> None:
     await service.reset_password(reset_data.token, reset_data.new_password)
+
+

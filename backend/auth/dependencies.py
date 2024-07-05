@@ -1,14 +1,23 @@
 from datetime import datetime
-from typing import Any
+from typing import Any, Union
 
 from fastapi import Cookie, Depends
 
 from . import service
-from .exceptions import EmailTaken, RefreshTokenNotValid, UsernameTaken
+from .exceptions import EmailTaken, RefreshTokenNotValid, UsernameTaken, RefreshTokenRequired
 from .schemas import AuthUser, UserUpdate
 
 
-async def valid_user_info(user: AuthUser | UserUpdate) -> AuthUser | UserUpdate:
+async def valid_user_register_info(user: AuthUser) -> AuthUser:
+    if await service.get_user_by_email(user.email):
+        raise EmailTaken()
+    if await service.get_user_by_username(user.username):
+        raise UsernameTaken()
+
+    return user
+
+
+async def valid_user_update_info(user: UserUpdate) -> UserUpdate:
     if user.email is not None and await service.get_user_by_email(user.email):
         raise EmailTaken()
     if user.username is not None and await service.get_user_by_username(user.username):
@@ -18,8 +27,11 @@ async def valid_user_info(user: AuthUser | UserUpdate) -> AuthUser | UserUpdate:
 
 
 async def valid_refresh_token(
-    refresh_token: str = Cookie(..., alias="refreshToken"),
+    refresh_token: str = Cookie(None, alias="refreshToken"),
 ) -> dict[str, Any]:
+    if not refresh_token:
+        raise RefreshTokenRequired()
+
     db_refresh_token = await service.get_refresh_token(refresh_token)
     if not db_refresh_token:
         raise RefreshTokenNotValid()
