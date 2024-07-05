@@ -21,9 +21,8 @@
 
   
   $: currentPageRows = totalPages.length > 0 ? totalPages[page] : [];
-  $: console.log("Page is", page);
-  $: console.log(user);
-
+  //$: console.log("Page is", page);
+  //$: console.log(user);
   const paginate = (items) => {
     const pages = Math.ceil(items.length / itemsPerPage);
 

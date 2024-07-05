@@ -1,5 +1,5 @@
 <script>
-  export let tableNumber;
+  export let id;
   export let status; // 接收当前餐桌的状态
 </script>
 
@@ -28,7 +28,7 @@
   }
 </style>
 
-<div class="table {status}">Table {tableNumber}</div>
+<div class="table {status}">Table {id}</div>
 
 <!-- <script>
   import { goto } from '$app/navigation'; /* go to menu page after pressing "go to menu"*/

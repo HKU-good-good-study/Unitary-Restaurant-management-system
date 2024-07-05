@@ -70,6 +70,7 @@
     height: auto; /* Automatically adjust height to maintain image proportions */
     object-fit: cover; /* Set the image fill method */
     margin-bottom: 8px;
+    margin-top: 10px;
   }
 
   body{
