@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { validation } from '$lib/tool.svelte';
 
   class Dish {
     constructor(name, quantity) {
@@ -28,9 +29,10 @@
     { name: dish3.getName(), quantity: dish3.getQuantity() }
   ];
 
-  onMount(() => {
+  onMount(async() => {
     // 在这里可以添加与后端的通信逻辑，从数据库或API获取真实数据
     // history.replaceState(null, 'Profile', '/profile');
+    await validation();
     document.title = 'Kitchen Staff Page';
   });
 

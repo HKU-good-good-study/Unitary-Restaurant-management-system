@@ -1,12 +1,11 @@
 from fastapi import APIRouter, BackgroundTasks, Response, status, HTTPException
-router = APIRouter(prefix="/auth", tags=["Auth"])
 from database import Database
 from datetime import datetime, timedelta
 import uuid
 from .schemas import Order, Table
 
 db = Database()  # Create an instance of the Database class
-router = APIRouter(prefix="/table", tags=["Auth"])
+router = APIRouter()
 
                         ############################## helper functions #################################
 async def get_table(id:str):
@@ -34,7 +33,7 @@ async def get_tables():
         return tables
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No table created")
 
-@router.get("{id}", response_description="Get a single table by id")
+@router.get("/{id}", response_description="Get a single table by id")
 async def get_table_by_id(id:str):
     table = await get_table(id)
     if table:
@@ -42,7 +41,7 @@ async def get_table_by_id(id:str):
         return table
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"table not found")
 
-@router.post("{id}")
+@router.post("/{id}")
 async def create_table(id:str, table:Table):
     result = await get_table(id)
     if result: # should not exist table having the same id
@@ -52,7 +51,7 @@ async def create_table(id:str, table:Table):
     if not result:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"table creation failed")
     
-@router.put("{id}")
+@router.put("/{id}")
 async def update_table(id: str, table:Table):
     result = await db.fetch_one("tables", {"id":f"{id}"})
     if not result:
@@ -62,7 +61,7 @@ async def update_table(id: str, table:Table):
     if not result:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"table update failed")
 
-@router.delete("{id}")
+@router.delete("/{id}")
 async def delete_table(id:str):
     table = await db.fetch_one("tables",{"id":f"{id}"})
     if not table:

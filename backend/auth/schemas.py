@@ -1,5 +1,6 @@
 import re
 from enum import Enum
+from typing import Optional
 
 from pydantic import EmailStr, field_validator, Field
 from pydantic_extra_types.phone_numbers import PhoneNumber
@@ -16,30 +17,70 @@ class UserRole(Enum):
     KITCHEN_STAFF = "Kitchen Staff"
 
 
-class AuthUser(CustomModel):
+class User(CustomModel):
     username: str = Field(min_length=4, max_length=20)
     email: EmailStr
+    phone_number: PhoneNumber
+    role: UserRole
+    remarks: str = Field(default="")
+
+
+class AuthUser(User):
     password: str = Field(
         min_length=6,
         max_length=20,
     )
-    phone_number: PhoneNumber
-    role: UserRole
-    remarks: str = Field(default="")
 
     @field_validator("password", mode="after")
     @classmethod
     def valid_password(cls, password: str) -> str:
         if not re.match(STRONG_PASSWORD_PATTERN, password):
             raise ValueError(
-                "Password must contain at least "
-                "one lower character, "
-                "one upper character, "
-                "digit or "
-                "special symbol"
+                "Password must contain at least one lower character, "
+                "one upper character, a digit or a special symbol"
             )
 
         return password
+
+
+class UserResponse(User):
+    pass
+
+
+class UserUpdate(CustomModel):
+    username: Optional[str] = Field(None, min_length=4, max_length=20)
+    email: Optional[EmailStr] = None
+    phone_number: Optional[PhoneNumber] = None
+    remarks: Optional[str] = None
+
+
+class PasswordUpdate(CustomModel):
+    new_password: str = Field(
+        min_length=6,
+        max_length=20,
+    )
+
+    @field_validator("new_password", mode="after")
+    @classmethod
+    def valid_new_password(cls, new_password):
+        if not re.match(STRONG_PASSWORD_PATTERN, new_password):
+            raise ValueError(
+                "Password must contain at least one lower character, "
+                "one upper character, a digit or a special symbol"
+            )
+        return new_password
+
+
+class AuthUserPasswordUpdate(PasswordUpdate):
+    old_password: str
+
+
+class PasswordResetRequest(CustomModel):
+    email: EmailStr
+
+
+class UnAuthUserPasswordReset(PasswordUpdate):
+    token: str
 
 
 class JWTData(CustomModel):
@@ -50,14 +91,6 @@ class JWTData(CustomModel):
 class AccessTokenResponse(CustomModel):
     access_token: str
     refresh_token: str
-
-
-class UserResponse(CustomModel):
-    username: str
-    email: EmailStr
-    phone_number: PhoneNumber
-    role: UserRole
-    remarks: str
 
 
 class UserLogIn(CustomModel):

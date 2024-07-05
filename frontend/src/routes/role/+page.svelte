@@ -2,6 +2,7 @@
   import { goto } from '$app/navigation';
   import { user } from '../../stores';
   import { onMount } from 'svelte';
+  import { validation } from '$lib/tool.svelte';
 
   // let roleData=sessionStorage.getItem("role");
   //let role = roleData; // Change this to 'kitchen', 'manager', 'customer', or 'dining' based on the current user
@@ -12,10 +13,10 @@
   role=user.role;
 
   var rolePermissions={};
-  rolePermissions["Manager"]=["dining","kitchen","menu","usermanagement"];  
-  rolePermissions["Kitchen Staff"]=["kitchen","menu"];
-  rolePermissions["Dining Room Staff"]=["dining","menu"];
-  rolePermissions["Customer"]=["customer","menu"];  
+  rolePermissions["Manager"]=["dining","kitchen","menu","usermanagement","profile"];  
+  rolePermissions["Kitchen Staff"]=["kitchen","menu","profile"];
+  rolePermissions["Dining Room Staff"]=["dining","menu","profile"];
+  rolePermissions["Customer"]=["customer","menu","profile"];  
   rolePermissions[" "]=["menu"];
 
   function goToFunction(feature) {
@@ -23,9 +24,11 @@
     goto(url);
   }
 
-  onMount(() => {
-    // history.replaceState(null, 'Profile', '/profile');
-    document.title = 'Role Page';
+  onMount(async () => {
+      // history.replaceState(null, 'Profile', '/profile');
+      document.title = 'Role Page';
+      await validation();
+      role=user.role;
   });
 
 </script>
@@ -66,11 +69,16 @@
     width: 150px; /* Set the width of each product */
     height: auto; /* Automatically adjust height to maintain image proportions */
     object-fit: cover; /* Set the image fill method */
-    margin-bottom: 10px;
+    margin-bottom: 8px;
+    margin-top: 10px;
   }
+
+  body{
+	    margin: 0px;
+  }   
 </style>
 
-
+<body>
 <div class="menu">
   {#each rolePermissions[role] as permission }
     <div class=function on:click={() => goToFunction(permission)}>
@@ -79,3 +87,4 @@
     </div>    
   {/each}  
 </div>
+</body>

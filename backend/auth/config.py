@@ -10,6 +10,9 @@ class AuthConfig(BaseSettings):
     REFRESH_TOKEN_KEY: str = "refreshToken"
     REFRESH_TOKEN_EXP: int = 60 * 60 * 24 * 21
 
+    RESET_TOKEN_EXP: int = 60 * 60 * 24
+    
+
     SECURE_COOKIES: bool = True
 
 

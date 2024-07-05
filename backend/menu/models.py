@@ -12,7 +12,7 @@ class Ingredient(TypedDict):
 class Menu(BaseModel):
     __pydantic_config__ = ConfigDict(extra='forbid')
 
-    id: int = Field(...)
+    id: str = Field(...)
     name: str = Field(...)
     price: float = Field(...)
     ingredient: Ingredient = Field(...)
@@ -24,7 +24,7 @@ class Menu(BaseModel):
         populate_by_name = True
         json_schema_extra = {
             "example": {
-                "id": "3",
+                "id": "A3",
                 "name": "Beef Chow Fun",
                 "price": "45.50",
                 "ingredient": "{'name': 'Carrot', 'weight': 120, 'id': 1}",

@@ -1,10 +1,11 @@
 <script>
   import { onMount } from "svelte";  
   import { user } from '../../stores';
+  import { validation } from "$lib/tool.svelte";
 
   let src = './src/images/0.png';
 	let name = 'icon';
-  let role ='Manager';
+  let role ='';
   $: role=user.role;
 
   let users = [];
@@ -20,9 +21,8 @@
 
   
   $: currentPageRows = totalPages.length > 0 ? totalPages[page] : [];
-  $: console.log("Page is", page);
-  $: console.log(user);
-
+  //$: console.log("Page is", page);
+  //$: console.log(user);
   const paginate = (items) => {
     const pages = Math.ceil(items.length / itemsPerPage);
 
@@ -36,8 +36,11 @@
   };
 
 
-  onMount(() => {
+  onMount(async () => {
+    await validation();  
+    role=user.role;
     // history.replaceState(null, 'Profile', '/profile');
+    
     document.title = 'User Management';
 
     users =[
@@ -72,8 +75,7 @@
     { name: 'liu', role: 'Customer', status:false},
     { name: 'zhou', role: 'Customer', status: true},
     { name: 'liu', role: 'Customer', status:false},
-    { name: 'zhou', role: 'Customer', status: true},    
-    
+    { name: 'zhou', role: 'Customer', status: true},        
     // more user...
   ];
     paginate(users);
@@ -132,12 +134,16 @@
     display: flex;
   }
 
-    .activeStatus{
+  .activeStatus{
     color: green;
   }
 
   .deactiveStatus{
     color: #8B8B7A;
+  }
+
+  .row {
+    margin-bottom: 10px;
   }
   
 /*  .activeButton{

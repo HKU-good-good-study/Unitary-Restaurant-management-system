@@ -1,7 +1,8 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
-    import { user } from '../../stores';
+    import { user } from '../../stores'; 
+    import { validation } from '$lib/tool.svelte';
 
     let username = '';
     let password = '';
@@ -30,33 +31,29 @@
         const data = await response.json();
         console.log(data);
 
-        const roleResponse = await fetch('http://localhost:8000/auth/users/me', {
-            method: 'GET',
-            credentials: 'include', // This is important for cookies to be sent
-        });
-        const roleData = await roleResponse.json();
-        console.log(roleData);
+        // const roleResponse = await fetch('http://localhost:8000/auth/users/me', {
+        //     method: 'GET',
+        //     credentials: 'include', // This is important for cookies to be sent
+        // });
+        // const roleData = await roleResponse.json();
+        // console.log(roleData);
+
+        // user.name=roleData.username;
+        // user.role=roleData.role;
+        // user.imgSrc="./src/images/";
+        // user.imgSrc=user.imgSrc+user.role.split(" ")[0].toLowerCase()+'.png';
+        // user.email=roleData.email;
+        // user.phone_number=roleData.phone_number;
+        // console.log(user);
+
+        await validation();
 
         // sessionStorage.setItem("role",roleData.role);
         // sessionStorage.setItem("username",roleData.username);
         // sessionStorage.setItem("email",roleData.email);
         // sessionStorage.setItem("phone_number",roleData.phone_number);
-        user.name=roleData.username;
-        user.role=roleData.role;
-        user.imgSrc="./src/images/";
-        user.imgSrc=user.imgSrc+user.role.split(" ")[0].toLowerCase()+'.png';
-        user.email=roleData.email;
-        user.phone_number=roleData.phone_number;
-        console.log(user);
-        // if (roleData.role === 'Manager') {
-        //     goto('/manager');
-        // } else if (roleData.role === 'Dining Staff') {
-        //     goto('/dining');
-        // } else if (roleData.role === 'Kitchen Staff') {
-        //     goto('/kitchen');
-        // } else if (roleData.role === 'Customer') {
-        //     goto('/customer');
-        // }
+        
+
         goto('./role');
     }
 
