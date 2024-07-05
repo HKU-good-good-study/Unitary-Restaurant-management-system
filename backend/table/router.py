@@ -129,6 +129,12 @@ async def get_table_orders(id:str):
         print(e)
         raise Exception(e)
 
+@router.get("/order/{orderID}")
+async def get_order_by_id(orderID:str):
+    order = await get_order(orderID)
+    if not order:
+        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found!")
+    return order
 
 @router.get("/order/{id}/{day}")
 async def get_table_order_by_date(id, given_date):
