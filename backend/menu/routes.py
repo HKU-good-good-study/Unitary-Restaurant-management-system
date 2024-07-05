@@ -55,6 +55,11 @@ async def update_menu(id: str, menu: Menu):
     if not result:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"table update failed")
 
+    updated_menu = await get_menu(id)
+    if updated_menu:
+        del updated_menu["_id"]
+        return updated_menu
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"menu not found")
 
 @router.delete("/{id}")
 async def delete_menu(id: str):
@@ -64,3 +69,5 @@ async def delete_menu(id: str):
     result = await db.execute("menus", {"id": f"{id}"}, "delete")  # delete menu from database
     if not result:  # deleteion failed
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"menu deletion failed")
+
+    return {"message": "Menu deleted successfully"}

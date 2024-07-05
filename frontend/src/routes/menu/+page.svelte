@@ -86,7 +86,7 @@
         ingredients = ingredients;
     }
   
-    async function saveMenu() {
+async function saveMenu() {
         while (!lock) {}
         newMenu.id = document.getElementById('menuId').value;
         newMenu.name = document.getElementById('menuName').value;
@@ -97,22 +97,46 @@
         newMenu.sold = document.getElementById('menuSold').value;
         newMenu.ingredient = ingredients;
 
+        // 判断是否为编辑操作
+        const existingMenu = menus.find(m => m.id === newMenu.id);
+        if (existingMenu) {
+            // 编辑操作
+            await updateMenu(newMenu);
+        } else {
+            // 新建操作
+            const response = await fetch('http://localhost:8000/menu/' + newMenu.id, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(newMenu),
+                credentials: 'include'
+            });
+            const createdMenu = await response.json();
+        }
 
-        const response = await fetch('http://localhost:8000/menu/'+newMenu.id, {
-            method: 'POST',
-            headers: {
-                  'Content-Type': 'application/json'
-              },
-            body: JSON.stringify(newMenu),
-  
-            credentials: 'include'
-        });
-        const createdMenu = await response.json();
-        
         await fetchMenus();
         showAddMenu = false;
+        isEditMode = false; // 重置为 false
+        // 重新启用 id 输入框
         lock = false;
     }
+
+async function updateMenu(menu) {
+    const response = await fetch('http://localhost:8000/menu/' + menu.id, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(menu),
+        credentials: 'include'
+    });
+    const updatedMenu = await response.json();
+    // 在这里更新 menus 数组中对应的菜品信息
+    const index = menus.findIndex(m => m.id === menu.id);
+    menus[index] = updatedMenu;
+    menus = menus;
+}
   
     function updateQuantity(menuId, operation) {
         if (operation === 'increment') {
@@ -142,46 +166,65 @@
     // }
     function getImage(file) {
     // 检查文件类型是否为 JPEG 或 PNG
-    if (!['image/jpeg', 'image/png'].includes(file.type)) {
-        alert('Please upload a JPEG or PNG image file.');
-        return;
-    }
+        if (!['image/jpeg', 'image/png'].includes(file.type)) {
+            alert('Please upload a JPEG or PNG image file.');
+            return;
+        }
 
-    // 创建一个 Image 对象并设置 src 属性
-    const img = new Image();
-    img.src = URL.createObjectURL(file);
+        // 创建一个 Image 对象并设置 src 属性
+        const img = new Image();
+        img.src = URL.createObjectURL(file);
 
-    // 等待图片加载完成
-    img.onload = () => {
-        // 检查图片尺寸是否符合要求
-        if (img.width > 320 || img.height > 200) {
-            // 调整图片尺寸
-            const canvas = document.createElement('canvas');
-            canvas.width = 320;
-            canvas.height = 200;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, 320, 200);
+        // 等待图片加载完成
+        img.onload = () => {
+            // 检查图片尺寸是否符合要求
+            if (img.width > 320 || img.height > 200) {
+                // 调整图片尺寸
+                const canvas = document.createElement('canvas');
+                canvas.width = 320;
+                canvas.height = 200;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, 320, 200);
 
-            // 将调整后的图片转换为 base64 字符串
-            canvas.toBlob((blob) => {
+                // 将调整后的图片转换为 base64 字符串
+                canvas.toBlob((blob) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(blob);
+                    reader.onload = () => {
+                        newMenu.image = reader.result.split(',')[1];
+                        lock = true;
+                    };
+                }, file.type);
+            } else {
+                // 直接将原图片转换为 base64 字符串
                 const reader = new FileReader();
-                reader.readAsDataURL(blob);
+                reader.readAsDataURL(file);
                 reader.onload = () => {
                     newMenu.image = reader.result.split(',')[1];
                     lock = true;
                 };
-            }, file.type);
+            }
+        };
+    }
+
+    let isEditMode = false;
+    async function handleEdit(menu) {
+        newMenu = { ...menu };
+        showAddMenu = true;
+        isEditMode = true;
+    }
+
+    async function handleDelete(id) {
+        const response = await fetch(`http://localhost:8000/menu/${id}`, {
+            method: 'DELETE',
+            credentials: 'include',
+        });
+        if (response.ok) {
+            await fetchMenus();
         } else {
-            // 直接将原图片转换为 base64 字符串
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => {
-                newMenu.image = reader.result.split(',')[1];
-                lock = true;
-            };
+            console.error('Error deleting menu:', response.status);
         }
-    };
-}
+    }
   </script>
   
   <h1>Menu</h1>
@@ -196,8 +239,11 @@
               <form on:submit|preventDefault={saveMenu}>
                   <label>
                         ID:
-                        <input type="text" id="menuId" required>
-                  </label>
+                        <input type="text" id="menuId" disabled={isEditMode} required>
+                        {#if isEditMode}
+                        <span class="readonly-label">(unchangeable)</span>
+                        {/if}
+                    </label>
                   <label>
                       Name:
                       <input type="text" id="menuName" required>
@@ -274,8 +320,10 @@
           <img src={`data:image/jpeg;base64,${menu.image}`} alt="{menu.name} image" />
           {#if role === 'Manager' || role === 'Kitchen Staff'}
           <div class="actions">
-              <button>Edit</button>
-              <button>Delete</button>
+              <!-- <button>Edit</button>
+              <button>Delete</button> -->
+              <button on:click={() => handleEdit(menu)}>Edit</button>
+              <button on:click={() => handleDelete(menu.id)}>Delete</button>
           </div>
           {/if}
       </div>
