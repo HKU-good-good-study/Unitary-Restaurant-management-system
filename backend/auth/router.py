@@ -9,9 +9,9 @@ from .dependencies import (
     valid_refresh_token,
     valid_refresh_token_user,
     valid_user_update_info,
-    valid_user_register_info
+    valid_user_register_info, valid_user_admin_update_info
 )
-from .jwt import parse_jwt_user_data, parse_jwt_customer_data
+from .jwt import parse_jwt_user_data, parse_jwt_customer_data, parse_jwt_admin_data
 from .schemas import (
     AccessTokenResponse,
     AuthUser,
@@ -21,27 +21,94 @@ from .schemas import (
     UnAuthUserPasswordReset,
     UserLogIn,
     UserResponse,
-    UserUpdate,
+    UserUpdate, AdminUserUpdate,
 )
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
-@router.post("/users", status_code=status.HTTP_201_CREATED, response_model=UserResponse)
-async def register_user(
+@router.get("/users/all", response_model=list[UserResponse])
+async def get_all_users(
+    jwt_data: JWTData = Depends(parse_jwt_admin_data),
+) -> list[UserResponse]:
+    users = await service.get_all_users()
+    return [
+        UserResponse(
+            username=user["username"],
+            email=user["email"],
+            phone_number=user["phone_number"],
+            role=user["role"],
+            remarks=user["remarks"],
+        )
+        for user in users
+    ]
+
+
+@router.post("/users/new", status_code=status.HTTP_201_CREATED, response_model=UserResponse)
+async def create_user(
+    jwt_data: JWTData = Depends(parse_jwt_admin_data),
     auth_data: AuthUser = Depends(valid_user_register_info),
-) -> dict[str, str]:
+) -> UserResponse:
     user = await service.create_user(auth_data)
     if not user:
         raise UserNotCreated()
 
-    return {
-        "username": user["username"],
-        "email": user["email"],
-        "phone_number": user["phone_number"],
-        "role": user["role"],
-        "remarks": user["remarks"],
-    }
+    return UserResponse(
+        username=user["username"],
+        email=user["email"],
+        phone_number=user["phone_number"],
+        role=user["role"],
+        remarks=user["remarks"],
+    )
+
+
+@router.post("/users", status_code=status.HTTP_201_CREATED, response_model=UserResponse)
+async def register_user(
+    auth_data: AuthUser = Depends(valid_user_register_info),
+) -> UserResponse:
+    user = await service.create_user(auth_data)
+    if not user:
+        raise UserNotCreated()
+
+    return UserResponse(
+        username=user["username"],
+        email=user["email"],
+        phone_number=user["phone_number"],
+        role=user["role"],
+        remarks=user["remarks"],
+    )
+
+
+@router.patch("/users/username={username}", response_model=UserResponse)
+async def update_user_role(
+    username: str,
+    jwt_data: JWTData = Depends(parse_jwt_admin_data),
+    update_data: AdminUserUpdate = Depends(valid_user_admin_update_info),
+) -> UserResponse:
+    user = await service.update_user_by_username(username, update_data)
+    if not user:
+        raise UserNotFound()
+
+    return UserResponse(
+        username=user["username"],
+        email=user["email"],
+        phone_number=user["phone_number"],
+        role=user["role"],
+        remarks=user["remarks"],
+    )
+
+
+@router.delete("/users/username={username}", status_code=204)
+async def delete_user(
+    username: str,
+    jwt_data: JWTData = Depends(parse_jwt_admin_data),
+) -> None:
+    user = await service.get_user_by_username(username)
+    if not user:
+        raise UserNotFound()
+    await service.delete_user_by_id(user["_id"])
+    await service.expire_refresh_token(user["_id"])
+
 
 
 @router.get("/users/me", response_model=UserResponse)

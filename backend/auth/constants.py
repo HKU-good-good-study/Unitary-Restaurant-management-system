@@ -9,6 +9,7 @@ class ErrorCode:
     INVALID_CREDENTIALS = "Invalid credentials."
     EMAIL_TAKEN = "Email is already taken."
     USERNAME_TAKEN = "Username is already taken."
+    PHONE_TAKEN = "Phone number is already taken."
     USER_NOT_FOUND = "User not found."
     USER_NOT_CREATED = "User not created."
     REFRESH_TOKEN_NOT_VALID = "Refresh token is not valid."

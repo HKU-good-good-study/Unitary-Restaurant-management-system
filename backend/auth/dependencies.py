@@ -4,26 +4,43 @@ from typing import Any, Union
 from fastapi import Cookie, Depends
 
 from . import service
-from .exceptions import EmailTaken, RefreshTokenNotValid, UsernameTaken, RefreshTokenRequired
-from .schemas import AuthUser, UserUpdate
+from .exceptions import EmailTaken, RefreshTokenNotValid, UsernameTaken, RefreshTokenRequired, PhoneTaken
+from .schemas import AuthUser, UserUpdate, AdminUserUpdate
 
 
+async def validate_user_info(
+    user_data: Union[AuthUser, UserUpdate, AdminUserUpdate],
+    validation_type: str
+) -> Union[AuthUser, UserUpdate, AdminUserUpdate]:
+    # Check for email existence if present in user_data
+    if hasattr(user_data, 'email') and user_data.email is not None:
+        if await service.get_user_by_email(user_data.email):
+            raise EmailTaken()
+
+    # Check for username existence if present in user_data
+    if hasattr(user_data, 'username') and user_data.username is not None:
+        if await service.get_user_by_username(user_data.username):
+            raise UsernameTaken()
+
+    # Check for phone number existence if present in user_data
+    if hasattr(user_data, 'phone_number') and user_data.phone_number is not None:
+        if await service.get_user_by_phone_number(user_data.phone_number):
+            raise PhoneTaken()
+
+    return user_data
+
+
+# Update the dependent functions to use this streamlined approach
 async def valid_user_register_info(user: AuthUser) -> AuthUser:
-    if await service.get_user_by_email(user.email):
-        raise EmailTaken()
-    if await service.get_user_by_username(user.username):
-        raise UsernameTaken()
-
-    return user
+    return await validate_user_info(user, 'register')
 
 
 async def valid_user_update_info(user: UserUpdate) -> UserUpdate:
-    if user.email is not None and await service.get_user_by_email(user.email):
-        raise EmailTaken()
-    if user.username is not None and await service.get_user_by_username(user.username):
-        raise UsernameTaken()
+    return await validate_user_info(user, 'update')
 
-    return user
+
+async def valid_user_admin_update_info(user: AdminUserUpdate) -> AdminUserUpdate:
+    return await validate_user_info(user, 'admin_update')
 
 
 async def valid_refresh_token(
