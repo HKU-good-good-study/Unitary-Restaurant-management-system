@@ -97,7 +97,7 @@ async def create_order(id:str, order:Order):
 
     # create order
     result = await db.execute("orders",order.model_dump(), "insert")
-    if not result:
+    if result:
         return order.id # give back the unique id of order to frontend
 
 @router.delete("/order/{id}/{date}/{orderID}")
