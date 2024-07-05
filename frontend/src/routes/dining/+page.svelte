@@ -35,6 +35,19 @@
   let closedTableNumber = '';
   let sum = '';
   let note = '';
+  let showAddTable = false;
+
+  let newTableSeats=0;
+  let addTableSeats=0;
+  let newTableNumber = '';
+  let addTableNumber ='';
+  let newTable={
+    id: "",
+    order: {},
+    status: "idle",
+    time: new Date(),
+    seats: 0
+  }
 
   function handleTableClick(tableNumber) {
     selectedTable = tableNumber;
@@ -47,6 +60,38 @@
 
   function goToMenu() {
     goto('./menu');
+  }
+
+  function addTableButton(){
+    addTableNumber = '';
+    addTableSeats = 0;
+    showAddTable=true;
+  }
+
+  async function addTable(){
+    if(addTableNumber=='')alert('new table numbaer cannot be empty!');
+    else {
+      newTableNumber = addTableNumber;
+      newTableSeats = addTableSeats;
+      const now = new Date();
+      newTable.id=newTableNumber;
+      newTable.time=now;
+      const response = await fetch('http://localhost:8000/table/'+newTableNumber,{
+          method: 'post',
+          headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include', // This is important for cookies to be sent
+            body: JSON.stringify(newTable)
+      });
+      if (response.ok) {
+        
+      } 
+      else {
+          console.error('Error fetching addTable:', response.status);
+      }    
+      showAddTable=false;
+    }
   }
 
   onMount(async() => {
@@ -95,6 +140,26 @@
     margin-bottom: 20px;
   }
 
+  .addModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .addModal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    max-width: 600px;
+    width: 100%;
+  }
+
   .table-grid {
     grid-gap: 30px;
   }
@@ -115,6 +180,12 @@
     border: 1px solid #ccc;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
+
+  .addButton{
+    margin-left: 5%;
+    border:none;
+    border-radius: 8%;
+  }
 </style>
 
 <div class="container">
@@ -122,6 +193,7 @@
   <div class="row">
     <button>Work</button>
     <button>Get Off Work</button>
+    <button on:click={()=> addTableButton()}>Add Table</button>
   </div>
   <div class="table-grid">
     {#each Object.keys(tableStatus) as tableNumber}
@@ -131,6 +203,22 @@
     {/each}
   </div>
 </div>
+
+
+{#if showAddTable}
+<div class="addModal" on:click={() => showAddTable = false}>
+  <div class="addModal-content" on:click|stopPropagation>
+    <div class="row">
+      <input bind:value={addTableNumber} placeholder="Enter New Table Number" />      
+    </div>
+    <div class="row">
+      <input bind:value={addTableSeats} placeholder="Enter Seats Number" />    
+    </div>
+    <button class="addButton" on:click={() => addTable()}>ADD</button>
+    <button class="addButton" on:click={() => showAddTable = false}>CLOSE</button>     
+  </div>
+</div>
+{/if}
 
 {#if showModal}
 <div class="modal" on:click={() => showModal = false}>

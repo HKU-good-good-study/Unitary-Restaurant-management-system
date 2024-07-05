@@ -48,33 +48,74 @@
 </script>
 
 <style>
+  .block {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    padding: 100px;
+    background-color: #f8f8f8;
+  }
+
+  .box {
+    display: flex;
+    flex-direction: column;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    padding: 60px;
+    background-color: #fff;
+    width: 360px; /* Set the width of each product */
+  }
+
+  .box button{
+    margin: auto;
+    margin-top: 10px;
+    width: 80px;
+    height: 30px;
+  }
+
+
+  .box h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
+  }
+
+  .box .row {
+    margin-bottom: 10px;
+  }
+
+  
+
 
 </style>
 
-    <h3>please update user information</h3>
-
-    <div class="row">
-      <label for="userName">name:</label>
-      <input id="userName" bind:value={selectUser.name} />
-    </div> 
-    <div class="row">
-      <label for="countryCode">country code:</label>
-      <select id="countryCode" bind:value={selectUser.countryCode}>
-          <option value="+1">USA (+1)</option>
-          <option value="+1">CANADA (+1)</option>
-          <option value="+44">Britain (+44)</option>
-          <option value="+86">China (+86)</option>
-          <option value="+91">India (+91)</option>
-          <option value="+852">HongKong SAR (+852)</option>
-          <option value="+52">Mexico (+52)</option>
-      </select>
+  <div class="block">
+    <div class="box">
+      <h2> Update user information here</h2>
+        <div class="row">
+          <label for="userName">name:</label>
+          <input id="userName" bind:value={selectUser.name} />
+        </div> 
+        <div class="row">
+          <label for="countryCode">country code:</label>
+          <select id="countryCode" bind:value={selectUser.countryCode}>
+              <option value="+1">USA (+1)</option>
+              <option value="+1">CANADA (+1)</option>
+              <option value="+44">Britain (+44)</option>
+              <option value="+86">China (+86)</option>
+              <option value="+91">India (+91)</option>
+              <option value="+852">HongKong SAR (+852)</option>
+              <option value="+52">Mexico (+52)</option>
+          </select>
+        </div>
+        <div class="row">
+          <label for="phoneNumber">phone number:</label>
+          <input id="phoneNumber" bind:value={selectUser.phone_number}>
+        </div>
+        <div class="row">
+          <label for="email">email:</label>
+          <input id="email" bind:value={selectUser.email}>
+        </div>
+      <button on:click={update}>Update</button>
     </div>
-    <div class="row">
-      <label for="phoneNumber">phone number:</label>
-      <input id="phoneNumber" bind:value={selectUser.phone_number}>
-    </div>
-    <div class="row">
-      <label for="email">email:</label>
-      <input id="email" bind:value={selectUser.email}>
-    </div>
-    <button on:click={update}>Submit</button>
+  </div>

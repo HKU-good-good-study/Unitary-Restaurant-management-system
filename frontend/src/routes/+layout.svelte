@@ -16,8 +16,23 @@
 
 </script>
 
+<style>
+    body{
+	    margin: 0px;
+    }
+    
+    img{
+        position: relative;
+        padding-left: 5%;
+        margin-bottom: -5%;
+        width: 30px;
+    }
+
+    
+</style>
+
 {#if user.name && $page.url.pathname != '/login'}
-<div>
+<body>
 <HeaderBar back="true" bgcolor="linear-gradient(to right, #4978ff, #17f532)" color="#e4ff00">
     <svelte:fragment slot="backText">
         <i class="iconfont icon-close">Back</i>        
@@ -31,13 +46,13 @@
 
    <svelte:fragment slot="user">
     <i >{user.name}</i>
-    <i style:padding-left=5%><img width=10% src={user.imgSrc} alt="role"></i>
+    <img src={user.imgSrc} alt="role">
     </svelte:fragment>
     
     <svelte:fragment slot="logout">
     <i >logout</i>
     </svelte:fragment>
 </HeaderBar>
-</div>
+</body>
 {/if}
 <slot></slot>

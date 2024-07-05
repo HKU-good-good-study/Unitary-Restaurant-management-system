@@ -135,12 +135,16 @@
     display: flex;
   }
 
-    .activeStatus{
+  .activeStatus{
     color: green;
   }
 
   .deactiveStatus{
     color: #8B8B7A;
+  }
+
+  .row {
+    margin-bottom: 10px;
   }
   
 /*  .activeButton{

@@ -69,11 +69,15 @@
     width: 150px; /* Set the width of each product */
     height: auto; /* Automatically adjust height to maintain image proportions */
     object-fit: cover; /* Set the image fill method */
-    margin-bottom: 10px;
+    margin-bottom: 8px;
   }
+
+  body{
+	    margin: 0px;
+  }   
 </style>
 
-
+<body>
 <div class="menu">
   {#each rolePermissions[role] as permission }
     <div class=function on:click={() => goToFunction(permission)}>
@@ -82,3 +86,4 @@
     </div>    
   {/each}  
 </div>
+</body>
