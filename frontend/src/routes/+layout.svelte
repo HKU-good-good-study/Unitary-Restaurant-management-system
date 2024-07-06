@@ -32,7 +32,7 @@
 </style>
 
 {#if user.name && $page.url.pathname != '/login'}
-<body>
+<!-- <body> -->
 <HeaderBar back="true" bgcolor="linear-gradient(to right, #4978ff, #17f532)" color="#e4ff00">
     <svelte:fragment slot="backText">
         <i class="iconfont icon-close">Back</i>        
@@ -53,6 +53,6 @@
     <i >logout</i>
     </svelte:fragment>
 </HeaderBar>
-</body>
+<!-- </body> -->
 {/if}
 <slot></slot>

@@ -75,16 +75,17 @@
 
   body{
 	    margin: 0px;
-  }   
+  }
+     
 </style>
 
 <body>
-<div class="menu">
-  {#each rolePermissions[role] as permission }
-    <div class=function on:click={() => goToFunction(permission)}>
-      <img src="./src/images/{permission}.png">
-      <h2>{permission}</h2>
-    </div>    
-  {/each}  
-</div>
+  <div class="menu">
+    {#each rolePermissions[role] as permission }
+      <div class=function on:click={() => goToFunction(permission)}>
+        <img src="./src/images/{permission}.png">
+        <h2>{permission}</h2>
+      </div>    
+    {/each}  
+  </div>
 </body>

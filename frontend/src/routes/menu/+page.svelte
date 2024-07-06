@@ -2,7 +2,8 @@
     import { onMount } from 'svelte';
     import { user } from '../../stores';
     import { validation } from '$lib/tool.svelte';
-    
+    import { menuTable } from '../../stores';
+    import { onDestroy } from 'svelte';
 
     let role = '';
     $: role = user.role;
@@ -27,12 +28,18 @@
     let totalPrice = 0;
     let quantities = {};
     let showAddMenu = false;
+
+    let menuTableNumber='';
+    const unsubscribe = menuTable.subscribe((value) => (menuTableNumber=value));
+    console.log(menuTableNumber);
+    
+
+    onDestroy(unsubscribe);
   
     onMount(async () => {
         await validation();
         await fetchMenus();
         role = user.role;
-  
     });
 
     async function fetchMenus() {
