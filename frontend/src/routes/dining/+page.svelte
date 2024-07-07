@@ -5,6 +5,7 @@
   import { validation } from '$lib/tool.svelte';
   import { menuTable } from '../../stores';
   import { user } from '../../stores';
+  import { getNowTime } from '$lib/tool.svelte';
 
   // let tables=[{id: "A1",order: {},status: "idle",time: new Date(),seats: 2},
   // {id: "A2",order: {},status: "occupied",time: new Date(),seats: 2},
@@ -90,7 +91,7 @@
       newTable.id = addTableNumber;
       newTable.status='idle';      
       // const now = new Date().toTimeString();
-      const now = new Date().toUTCString();
+      const now = getNowTime();
       newTable.time=now;      
       newTable.seats = addTableSeats;      
       console.log(newTable);     

@@ -4,6 +4,8 @@
     import { validation } from '$lib/tool.svelte';
     import { menuTable } from '../../stores';
     import { onDestroy } from 'svelte';
+    import { goto } from '$app/navigation';
+    import { getNowTime } from '$lib/tool.svelte';
 
     let role = '';
     $: role = user.role;
@@ -22,6 +24,13 @@
         weight: 0
     };
 
+    let newOrder={        
+        "table": "string",
+        "time": "string",
+        "id": "string",
+        "dish": {}
+    };
+
     let ingredients = [
         { name: '', weight: 0 }
     ];
@@ -32,8 +41,6 @@
     let menuTableNumber='';
     const unsubscribe = menuTable.subscribe((value) => (menuTableNumber=value));
     console.log(menuTableNumber);
-    
-
     onDestroy(unsubscribe);
   
     onMount(async () => {
@@ -60,6 +67,33 @@
           menus = []; // 设置 menus 为空数组
       }
   }
+
+  
+    async function submitOrder(){
+        const response = await fetch('http://localhost:8000/table/order/'+menuTableNumber,{
+          method: 'put',
+          headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include', // This is important for cookies to be sent
+            body: JSON.stringify(newOrder)
+      });
+      if (response.ok) {
+        goto("./dining");
+      } 
+      else {
+          console.error('Error fetching updateTable:', response.status);
+      }
+    }
+
+    async function createOrder(){
+        newOrder.id='1';
+        newOrder.table='menuTableNumber';
+        newOrder.dish= {};           
+        newOrder.time = getNowTime();
+        await submitOrder();
+    }
+
 
     function createTextBox() {
       var textBox = document.createElement('input');
@@ -385,6 +419,10 @@ async function updateMenu(menu) {
         <div class="total-price">Total Price: ${totalPrice.toFixed(2)}</div>
     </div>
     {/if}
+
+    {#if role === 'Dining Room Staff'}
+    <button on:click={() => createOrder()}>Submit Order</button>
+    {/if}
   
   <style>
       .menu-list {
