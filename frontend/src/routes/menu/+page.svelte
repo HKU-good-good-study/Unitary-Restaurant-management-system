@@ -88,9 +88,20 @@
 
     async function createOrder(){
         newOrder.id='1';
-        newOrder.table='menuTableNumber';
+        newOrder.table=menuTableNumber.toString();
         newOrder.dish= {};           
         newOrder.time = getNowTime();
+
+        // 遍历 currentOrder 对象，将菜品信息添加到 newOrder.dish 对象中
+        for (const [menuId, orderItem] of Object.entries(currentOrder)) {
+            if (orderItem.quantity > 0) {
+                newOrder.dish[orderItem.menu.name] = {
+                    amount: orderItem.quantity,
+                    description: orderItem.menu.desc
+                };
+            }
+        }
+        
         await submitOrder();
     }
 
