@@ -10,16 +10,28 @@ router = APIRouter()
                         ############################## helper functions #################################
 async def get_table(id:str):
     result = await db.fetch_one("tables", {"id":f"{id}"})
+    if result:
+        del result["_id"]
     return result
-async def get_order(id:uuid):
-    return db.fetch_one("orders", {"id":f"{id}"})
+
+async def get_order(id:str):
+    result = await db.fetch_one("orders", {"id":f"{id}"}) 
+    if result:
+        del result["_id"]
+    return result
 
 async def get_orders_by_table(id:str) -> list:
-    # id stands for table id
-    orders = await get_table(id)["order"]
+    '''
+    Takes in table id returns order Object if finds any
+    '''
+    orders = await get_table(id)
+    orders = orders["order"] # dictionary of {date: orderID}
     temp = []
-    for orderID in orders.items():
-        temp.append(get_order(orderID))
+    for daily_order_list in orders.values():
+        for orderID in daily_order_list:
+            order = await get_order(str(orderID))
+            print(orderID)
+            temp.append(order)
     return temp
 
                         ############################## table methods #################################
@@ -81,9 +93,9 @@ async def create_order(id:str, order:Order):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"table not found")
     
     # now = datetime.now().strftime("%Y-%m-%d-%H:%M:%S") # time used to label accurate creation time of an order
-    now = datetime.strptime(order.time, "%Y-%m-%d-%H:%M:%S").strftime("%Y-%m-%d-%H:%M:%S")
-    print(now)
-    table_now = now.strftime("%Y-%m-%d") # date used to label order created in a day per table
+    now_datetime  = datetime.strptime(order.time, "%Y-%m-%d-%H:%M:%S")
+    now = now_datetime.strftime("%Y-%m-%d-%H:%M:%S")
+    table_now = now_datetime.strftime("%Y-%m-%d") # date used to label order created in a day per table
     order.id = str(uuid.uuid4())
     order.time = now
     # udpate table
@@ -97,13 +109,13 @@ async def create_order(id:str, order:Order):
 
     # create order
     result = await db.execute("orders",order.model_dump(), "insert")
-    if not result:
+    if result:
         return order.id # give back the unique id of order to frontend
 
 @router.delete("/order/{id}/{date}/{orderID}")
 async def delete_table_order(id:str, orderID:str, date:str): 
     table = await get_table(id)
-    order =await get_order(orderID)
+    order = await get_order(orderID)
     formated_date = datetime.strptime(date, "%Y-%m-%d").strftime("%Y-%m-%d")
 
 
@@ -120,15 +132,21 @@ async def delete_table_order(id:str, orderID:str, date:str):
     if not result2 and not result:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"table/order deletion failed")
     
-@router.get("/order/{id}")
+@router.get("/table_order/{id}")
 async def get_table_orders(id:str):
     try:
-        orders =await get_orders_by_table(id)
+        orders = await get_orders_by_table(id)
         return orders
     except Exception as e:
         print(e)
         raise Exception(e)
 
+@router.get("/order/{orderID}")
+async def get_order_by_id(orderID:str):
+    order = await get_order(orderID)
+    if not order:
+        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found!")
+    return order
 
 @router.get("/order/{id}/{day}")
 async def get_table_order_by_date(id, given_date):
@@ -161,21 +179,23 @@ async def get_table_order_by_date(id, given_date):
     if not date:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"invalid time")
 
-    orderIDs =await get_orders_by_table(id)
+    orders = await get_orders_by_table(id)
     filtered_orders = []
-    for orderID in orderIDs:
-        order =await get_order(orderID.id)
-        if duration == "year" and date-order.time <= timedelta(days=365):
-            filtered_orders.append(order)
-        # a navie way to calculate monthly data 
-        # TODO: convert it to calendar month (nice to have)
-        elif duration == "month" and date-order.time <= timedelta(days=30): 
-            filtered_orders.append(order)
+    for order in orders:
+        if order: # in case order is not exist but table has record of order ID (should not be used if order deleted properly)
+            print(order["time"])
+            order["time"] = datetime.strptime(order["time"], "%Y-%m-%d-%H:%M:%S")
+            if duration == "year" and date-order["time"] <= timedelta(days=365):
+                filtered_orders.append(order)
+            # a navie way to calculate monthly data 
+            # TODO: convert it to calendar month (nice to have)
+            elif duration == "month" and date-order["time"] <= timedelta(days=30): 
+                filtered_orders.append(order)
 
-        elif duration == "day" and date-order.time <= timedelta(days=1):
-            filtered_orders.append(order)
-        
-        elif duration == "accurate" and date == order.time:
-            filtered_orders.append(order)
+            elif duration == "day" and date-order["time"] <= timedelta(days=1):
+                filtered_orders.append(order)
+            
+            elif duration == "accurate" and date == order["time"]:
+                filtered_orders.append(order)
 
     return filtered_orders

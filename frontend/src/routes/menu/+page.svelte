@@ -40,6 +40,7 @@
         await validation();
         await fetchMenus();
         role = user.role;
+        calculateTotalPrice(); // 在这里调用 calculateTotalPrice
     });
 
     async function fetchMenus() {
@@ -93,7 +94,7 @@
         ingredients = ingredients;
     }
   
-    async function saveMenu() {
+async function saveMenu() {
         while (!lock) {}
         newMenu.id = document.getElementById('menuId').value;
         newMenu.name = document.getElementById('menuName').value;
@@ -104,36 +105,80 @@
         newMenu.sold = document.getElementById('menuSold').value;
         newMenu.ingredient = ingredients;
 
+        // 判断是否为编辑操作
+        const existingMenu = menus.find(m => m.id === newMenu.id);
+        if (existingMenu) {
+            // 编辑操作
+            await updateMenu(newMenu);
+        } else {
+            // 新建操作
+            const response = await fetch('http://localhost:8000/menu/' + newMenu.id, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(newMenu),
+                credentials: 'include'
+            });
+            const createdMenu = await response.json();
+        }
 
-        const response = await fetch('http://localhost:8000/menu/'+newMenu.id, {
-            method: 'POST',
-            headers: {
-                  'Content-Type': 'application/json'
-              },
-            body: JSON.stringify(newMenu),
-  
-            credentials: 'include'
-        });
-        const createdMenu = await response.json();
-        
         await fetchMenus();
         showAddMenu = false;
+        isEditMode = false; // 重置为 false
+        // 重新启用 id 输入框
         lock = false;
     }
-  
-    function updateQuantity(menuId, operation) {
+
+async function updateMenu(menu) {
+    const response = await fetch('http://localhost:8000/menu/' + menu.id, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(menu),
+        credentials: 'include'
+    });
+    const updatedMenu = await response.json();
+    // 在这里更新 menus 数组中对应的菜品信息
+    const index = menus.findIndex(m => m.id === menu.id);
+    menus[index] = updatedMenu;
+    menus = menus;
+}
+    let currentOrder = {};
+
+    // function updateQuantity(menuId, operation) {
+    //     if (operation === 'increment') {
+    //         quantities[menuId] = (quantities[menuId] || 0) + 1;
+    //         currentOrder[menuId] = (currentOrder[menuId] || 0) + 1;
+    //     } else {
+    //         quantities[menuId] = Math.max(0, (quantities[menuId] || 0) - 1);
+    //         currentOrder[menuId] = Math.max(0, (currentOrder[menuId] || 0) - 1);
+    //     }
+    //     calculateTotalPrice();
+    // }
+    function updateQuantity(menu, operation) {
         if (operation === 'increment') {
-            quantities[menuId] = (quantities[menuId] || 0) + 1;
+            quantities[menu.id] = (quantities[menu.id] || 0) + 1;
+            currentOrder[menu.id] = (currentOrder[menu.id] || { menu, quantity: 0 });
+            currentOrder[menu.id].quantity += 1;
         } else {
-            quantities[menuId] = Math.max(0, (quantities[menuId] || 0) - 1);
+            quantities[menu.id] = Math.max(0, (quantities[menu.id] || 0) - 1);
+            currentOrder[menu.id] = (currentOrder[menu.id] || { menu, quantity: 0 });
+            currentOrder[menu.id].quantity = Math.max(0, currentOrder[menu.id].quantity - 1);
         }
         calculateTotalPrice();
     }
   
+    // function calculateTotalPrice() {
+    //     totalPrice = Object.entries(quantities).reduce((acc, [menuId, quantity]) => {
+    //         const menu = menus.find(m => m.id === parseInt(menuId));
+    //         return acc + (menu?.price || 0) * quantity;
+    //     }, 0);
+    // }
     function calculateTotalPrice() {
-        totalPrice = Object.entries(quantities).reduce((acc, [menuId, quantity]) => {
-            const menu = menus.find(m => m.id === parseInt(menuId));
-            return acc + (menu?.price || 0) * quantity;
+        totalPrice = Object.values(currentOrder).reduce((acc, orderItem) => {
+            return acc + (orderItem.menu.price * orderItem.quantity);
         }, 0);
     }
     var lock = false;
@@ -149,62 +194,84 @@
     // }
     function getImage(file) {
     // 检查文件类型是否为 JPEG 或 PNG
-    if (!['image/jpeg', 'image/png'].includes(file.type)) {
-        alert('Please upload a JPEG or PNG image file.');
-        return;
-    }
+        if (!['image/jpeg', 'image/png'].includes(file.type)) {
+            alert('Please upload a JPEG or PNG image file.');
+            return;
+        }
 
-    // 创建一个 Image 对象并设置 src 属性
-    const img = new Image();
-    img.src = URL.createObjectURL(file);
+        // 创建一个 Image 对象并设置 src 属性
+        const img = new Image();
+        img.src = URL.createObjectURL(file);
 
-    // 等待图片加载完成
-    img.onload = () => {
-        // 检查图片尺寸是否符合要求
-        if (img.width > 320 || img.height > 200) {
-            // 调整图片尺寸
-            const canvas = document.createElement('canvas');
-            canvas.width = 320;
-            canvas.height = 200;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, 320, 200);
+        // 等待图片加载完成
+        img.onload = () => {
+            // 检查图片尺寸是否符合要求
+            if (img.width > 320 || img.height > 200) {
+                // 调整图片尺寸
+                const canvas = document.createElement('canvas');
+                canvas.width = 320;
+                canvas.height = 200;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, 320, 200);
 
-            // 将调整后的图片转换为 base64 字符串
-            canvas.toBlob((blob) => {
+                // 将调整后的图片转换为 base64 字符串
+                canvas.toBlob((blob) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(blob);
+                    reader.onload = () => {
+                        newMenu.image = reader.result.split(',')[1];
+                        lock = true;
+                    };
+                }, file.type);
+            } else {
+                // 直接将原图片转换为 base64 字符串
                 const reader = new FileReader();
-                reader.readAsDataURL(blob);
+                reader.readAsDataURL(file);
                 reader.onload = () => {
                     newMenu.image = reader.result.split(',')[1];
                     lock = true;
                 };
-            }, file.type);
+            }
+        };
+    }
+
+    let isEditMode = false;
+    async function handleEdit(menu) {
+        newMenu = { ...menu };
+        showAddMenu = true;
+        isEditMode = true;
+    }
+
+    async function handleDelete(id) {
+        const response = await fetch(`http://localhost:8000/menu/${id}`, {
+            method: 'DELETE',
+            credentials: 'include',
+        });
+        if (response.ok) {
+            await fetchMenus();
         } else {
-            // 直接将原图片转换为 base64 字符串
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => {
-                newMenu.image = reader.result.split(',')[1];
-                lock = true;
-            };
+            console.error('Error deleting menu:', response.status);
         }
-    };
-}
+    }
   </script>
   
   <h1>Menu</h1>
   
   {#if role === 'Manager' || role === 'Kitchen Staff'}
   <div>
-      <button on:click={() => showAddMenu = true}>Add New Menu</button>
+      <button on:click={() => showAddMenu = true}>Add New Dish</button>
       {#if showAddMenu}
       <div class="add-menu-container">
           <div class="add-menu-form">
-              <h2>Add New Menu</h2>
+              <h2>Add New Dish</h2>
               <form on:submit|preventDefault={saveMenu}>
                   <label>
                         ID:
-                        <input type="text" id="menuId" required>
-                  </label>
+                        <input type="text" id="menuId" disabled={isEditMode} required>
+                        {#if isEditMode}
+                        <span class="readonly-label">(unchangeable)</span>
+                        {/if}
+                    </label>
                   <label>
                       Name:
                       <input type="text" id="menuName" required>
@@ -262,11 +329,16 @@
           <p>Price: ${menu.price}</p>
           <p>Weight: {menu.weight}g</p>
           {#if role !== 'Manager' && role !== 'kitchen staff'}
-          <div class="quantity-container">
+          <!-- <div class="quantity-container">
               <button on:click={() => updateQuantity(menu.id, 'decrement')}>-</button>
               <span>{quantities[menu.id] || 0}</span>
               <button on:click={() => updateQuantity(menu.id, 'increment')}>+</button>
-          </div>
+          </div> -->
+          <div class="quantity-container">
+            <button on:click={() => updateQuantity(menu, 'decrement')}>-</button>
+            <span>{quantities[menu.id] || 0}</span>
+            <button on:click={() => updateQuantity(menu, 'increment')}>+</button>
+        </div>
           {/if}
           <p>Ingredients:</p>
           {#each menu.ingredient as ingredient}
@@ -281,19 +353,38 @@
           <img src={`data:image/jpeg;base64,${menu.image}`} alt="{menu.name} image" />
           {#if role === 'Manager' || role === 'Kitchen Staff'}
           <div class="actions">
-              <button>Edit</button>
-              <button>Delete</button>
+              <!-- <button>Edit</button>
+              <button>Delete</button> -->
+              <button on:click={() => handleEdit(menu)}>Edit</button>
+              <button on:click={() => handleDelete(menu.id)}>Delete</button>
           </div>
           {/if}
       </div>
       {/each}
   </div>
   
-  {#if role !== 'Manager' && role !== 'Kitchen Staff'}
+  <!-- {#if role !== 'Manager' && role !== 'Kitchen Staff'}
   <div class="total-price-container">
       <p>Total Price: ${totalPrice.toFixed(2)}</p>
   </div>
-  {/if}
+  {/if} -->
+    {#if role !== 'Manager' && role !== 'Kitchen Staff'}
+    <div class="total-price-container">
+        <p>My Order:</p>
+        {#each Object.values(currentOrder) as orderItem}
+        {#if orderItem.quantity > 0}
+        <div class="order-item">
+            <p>{orderItem.menu.name} x {orderItem.quantity}</p>
+            <div class="quantity-controls">
+                <button on:click={() => updateQuantity(orderItem.menu, 'decrement')}>-</button>
+                <button on:click={() => updateQuantity(orderItem.menu, 'increment')}>+</button>
+            </div>
+        </div>
+        {/if}
+        {/each}
+        <div class="total-price">Total Price: ${totalPrice.toFixed(2)}</div>
+    </div>
+    {/if}
   
   <style>
       .menu-list {
@@ -333,14 +424,46 @@
           margin-top: 10px;
       }
   
-      .total-price-container {
-        position: fixed;
+    .total-price-container {
+        position: sticky;
         bottom: 0;
         left: 0;
-        width: 100%;
+        width: 99.5%;
         background-color: #f5f5f5;
         padding: 10px;
+        text-align: left;
+        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+        max-width: 100%;
+        overflow-x: auto;
+        display: inline-block;
+    }
+
+    .total-price-container p {
+        margin: 5px 0;
+    }
+
+    .order-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .quantity-controls {
+        display: flex;
+        gap: 5px;
+    }
+
+    .quantity-controls button {
+        background-color: #e0e0e0;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+    }
+
+    .total-price {
         text-align: right;
+        font-weight: bold;
+        margin-top: 10px;
     }
   
     .add-menu-container {
@@ -395,5 +518,11 @@
   
     .add-menu-form button:hover {
         background-color: #45a049;
+    }
+
+    .readonly-label {
+        color: #999;
+        font-size: 0.8rem;
+        margin-left: 5px;
     }
   </style>
