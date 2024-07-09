@@ -16,6 +16,22 @@ class AuthorizationFailed(PermissionDenied):
     DETAIL = ErrorCode.AUTHORIZATION_FAILED
 
 
+class AuthorizationFailedAdmin(PermissionDenied):
+    DETAIL = ErrorCode.AUTHORIZATION_FAILED_ADMIN
+
+
+class AuthorizationFailedKitchenStaff(PermissionDenied):
+    DETAIL = ErrorCode.AUTHORIZATION_FAILED_KITCHEN_STAFF
+
+
+class AuthorizationFailedDinningStaff(PermissionDenied):
+    DETAIL = ErrorCode.AUTHORIZATION_FAILED_DINNING_STAFF
+
+
+class AuthorizationFailedCustomer(PermissionDenied):
+    DETAIL = ErrorCode.AUTHORIZATION_FAILED_CUSTOMER
+
+
 class InvalidToken(NotAuthenticated):
     DETAIL = ErrorCode.INVALID_TOKEN
 
@@ -32,9 +48,16 @@ class UsernameTaken(BadRequest):
     DETAIL = ErrorCode.USERNAME_TAKEN
 
 
+class PhoneTaken(BadRequest):
+    DETAIL = ErrorCode.PHONE_TAKEN
+
+
 class RefreshTokenNotValid(NotAuthenticated):
     DETAIL = ErrorCode.REFRESH_TOKEN_NOT_VALID
 
+
+class RefreshTokenRequired(BadRequest):
+    DETAIL = ErrorCode.REFRESH_TOKEN_REQUIRED
 
 class UserNotFound(NotFound):
     DETAIL = ErrorCode.USER_NOT_FOUND

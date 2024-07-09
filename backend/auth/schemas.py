@@ -54,6 +54,10 @@ class UserUpdate(CustomModel):
     remarks: Optional[str] = None
 
 
+class AdminUserUpdate(UserUpdate):
+    role: Optional[UserRole] = None
+
+
 class PasswordUpdate(CustomModel):
     new_password: str = Field(
         min_length=6,

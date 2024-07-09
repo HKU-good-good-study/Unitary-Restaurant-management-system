@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime, timedelta
-from typing import Any
+from typing import Any, Union
 
 from pydantic import UUID4
 from bson.objectid import ObjectId
@@ -10,7 +10,7 @@ from bson.objectid import ObjectId
 from utils import generate_random_alphanum
 from .config import auth_config
 from .exceptions import InvalidCredentials, InvalidEmail, InvalidResetToken, PasswordNotMatched, ResetTokenExpired
-from .schemas import AuthUser, UserLogIn, UserRole, UserUpdate
+from .schemas import AuthUser, UserLogIn, UserRole, UserUpdate, AdminUserUpdate
 from .security import check_password, hash_password
 from database import Database
 
@@ -43,7 +43,15 @@ async def get_user_by_email(email: str) -> dict[str, Any] | None:
     return await db.fetch_one("users", {"email": email})
 
 
-async def update_user_by_id(user_id: str, update_data: UserUpdate) -> dict[str, Any] | None:
+async def get_user_by_phone_number(phone_number: str) -> dict[str, Any] | None:
+    return await db.fetch_one("users", {"phone_number": phone_number})
+
+
+async def get_all_users() -> list[dict[str, Any]]:
+    return await db.fetch_all("users", {})
+
+
+async def update_user_by_id(user_id: str, update_data: Union[UserUpdate, AdminUserUpdate]) -> dict[str, Any] | None:
     update_data = update_data.model_dump(exclude_none=True)
     await db.execute(
         "users",
@@ -53,8 +61,28 @@ async def update_user_by_id(user_id: str, update_data: UserUpdate) -> dict[str, 
     return await db.fetch_one("users", {"_id": ObjectId(user_id)})
 
 
+async def update_user_by_username(
+    username: str,
+    update_data: Union[UserUpdate, AdminUserUpdate]
+) -> dict[str, Any] | None:
+    update_data = update_data.model_dump(exclude_none=True)
+    if "role" in update_data:
+        update_data["role"] = update_data["role"].value
+    await db.execute(
+        "users",
+        {"filter": {"username": username}, "update": {"$set": update_data}},
+        "update"
+    )
+    return await db.fetch_one("users", {"username": username}
+)
+
+
+async def delete_user_by_id(user_id: str) -> None:
+    await db.execute("users", {"_id": ObjectId(user_id)}, "delete")
+
+
 async def create_refresh_token(
-        *, user_id: str, refresh_token: str | None = None
+    *, user_id: str, refresh_token: str | None = None
 ) -> str:
     if not refresh_token:
         refresh_token = generate_random_alphanum(64)
@@ -69,8 +97,9 @@ async def create_refresh_token(
     await db.execute("auth_refresh_token", token_data, "insert")
     return refresh_token
 
+
 async def create_password_reset_token(
-        user_id: str, reset_token: str | None = None
+    user_id: str, reset_token: str | None = None
 ) -> str:
     if not reset_token:
         reset_token = generate_random_alphanum(64)
@@ -79,7 +108,7 @@ async def create_password_reset_token(
         "uuid": uuid.uuid4(),
         "reset_token": reset_token,
         "expires_at": datetime.utcnow()
-                        + timedelta(seconds=auth_config.RESET_TOKEN_EXP),
+                      + timedelta(seconds=auth_config.RESET_TOKEN_EXP),
         "user_id": user_id,
     }
     await db.execute("auth_reset_token", token_data, "insert")
@@ -110,6 +139,7 @@ async def expire_reset_token(reset_token_uuid: UUID4) -> None:
          "update": {"$set": {"expires_at": datetime.utcnow() - timedelta(days=1)}}},
         "update"
     )
+
 
 # async def expire_refresh_token_by_user_id(user_id: str) -> None:
 #     await db.execute(
@@ -147,6 +177,7 @@ async def change_password(user_id: str, new_password: str) -> None:
          "update": {"$set": {"password": hash_password(new_password)}}},
         "update"
     )
+
 
 async def update_user_password(user_id: str, old_password: str, new_password: str) -> None:
     if not await verify_password(user_id, old_password):
