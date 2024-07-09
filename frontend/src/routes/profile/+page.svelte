@@ -7,13 +7,13 @@
   $: role=user.role;
 
   
-  let selectUser={name:"",role:"",status:true,index:-1,email:"",countryCode:"",phone_number:"",imgSrc:""};
+  let selectUser={username:"",role:"",status:true,index:-1,email:"",countryCode:"",phone_number:"",imgSrc:""};
 
 
   onMount(async () => {
     await validation();
     // history.replaceState(null, 'Profile', '/profile');
-    selectUser.name=user.name;
+    selectUser.username=user.username;
     selectUser.imgSrc="./src/images/";
     selectUser.imgSrc=user.imgSrc+user.role.split(" ")[0].toLowerCase()+'.png';
     selectUser.email=user.email;
@@ -26,24 +26,22 @@
     })
 
 
-    // $: selectUser.name=user.name;
-    // $: selectUser.imgSrc="./src/images/";
-    // $: selectUser.imgSrc=user.imgSrc+user.role.split(" ")[0].toLowerCase()+'.png';
-    // $: selectUser.email=user.email;
-    // $: selectUser.phone_number=user.phone_number.slice(4);
-    // $: selectUser.countryCode=selectUser.phone_number.split('-')[0];
-    // $: selectUser.phone_number=selectUser.phone_number.split('-')[1]+selectUser.phone_number.split('-')[2]+selectUser.phone_number.split('-')[3];
-    // $: console.log(selectUser);
 
-   
-
+    async function submitUpdate(){
+      const roleResponse = await fetch('http://localhost:8000/auth/users/me', {
+            method: 'patch',
+            credentials: 'include', // This is important for cookies to be sent
+            body: JSON.stringify(user),
+        });
+    }
     
-    function update(){
-      user.name=selectUser.name;
+    async function update(){
+      user.username=selectUser.username;
       user.imgSrc=selectUser.imgSrc;
       user.email=selectUser.email;
       user.phone_number="tel:"+selectUser.countryCode+selectUser.phone_number;
       console.log(user);
+      await submitUpdate();
     }
 </script>
 
@@ -94,7 +92,7 @@
       <h2> Update user information here</h2>
         <div class="row">
           <label for="userName">name:</label>
-          <input id="userName" bind:value={selectUser.name} />
+          <input id="userName" bind:value={selectUser.username} />
         </div> 
         <div class="row">
           <label for="countryCode">country code:</label>

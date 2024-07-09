@@ -8,11 +8,13 @@
     onMount(async () => {
       // history.replaceState(null, 'Profile', '/profile');
       document.title = 'Role Page';
-      await validation();
-      user.name= user.name;
+      if($page.url.pathname == '/login' || $page.url.pathname == '/register');
+      else {
+        await validation();
+      }
+      user.username= user.username;
   });
 
-    //$: user.name= user.name;
 
 </script>
 
@@ -31,7 +33,7 @@
     
 </style>
 
-{#if user.name && $page.url.pathname != '/login'}
+{#if user.username && $page.url.pathname != '/login'}
 <!-- <body> -->
 <HeaderBar back="true" bgcolor="linear-gradient(to right, #4978ff, #17f532)" color="#e4ff00">
     <svelte:fragment slot="backText">
@@ -45,7 +47,7 @@
     </svelte:fragment-->
 
    <svelte:fragment slot="user">
-    <i >{user.name}</i>
+    <i >{user.username}</i>
     <img src={user.imgSrc} alt="role">
     </svelte:fragment>
     

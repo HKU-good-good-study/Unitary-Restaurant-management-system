@@ -16,8 +16,8 @@
   let loading = true;
   let showAddUserDialog = false;
   let showUpdateDialog=false;
-  let newUser={name:"",role:"",status:true,password:"",email:"",countryCode:"",phoneNumber:""};
-  let selectUser={name:"",role:"",status:true,index:-1,email:"",countryCode:"",phoneNumber:""};
+  let newUser={username:"",role:"",status:true,password:"",email:"",countryCode:"",phoneNumber:"",remarks:""};
+  let selectUser={username:"",role:"",status:true,index:-1,email:"",countryCode:"",phoneNumber:"",remarks:""};
 
   
   $: currentPageRows = totalPages.length > 0 ? totalPages[page] : [];
@@ -44,38 +44,38 @@
     document.title = 'User Management';
 
     users =[
-    { name: 'liu', role: 'Customer', status:false,email:"132@qq.com",countryCode:"+86",phoneNumber:"123123123"},
-    { name: 'zhou', role: 'Customer', status: true},
-    { name: 'liu', role: 'Customer', status:false},
-    { name: 'zhou', role: 'Customer', status: true},
-    { name: 'liu', role: 'Customer', status:false},
-    { name: 'zhou', role: 'Customer', status: true},
-    { name: 'liu', role: 'Customer', status:false},
-    { name: 'zhou', role: 'Customer', status: true},
-    { name: 'liu', role: 'Customer', status:false},
-    { name: 'zhou', role: 'Customer', status: true},
-    { name: 'liu', role: 'Customer', status:false},
-    { name: 'zhou', role: 'Customer', status: true},
-    { name: 'liu', role: 'Customer', status:false},
-    { name: 'zhou', role: 'Customer', status: true},
-    { name: 'liu', role: 'Customer', status:false},
-    { name: 'zhou', role: 'Customer', status: true},
-    { name: 'liu', role: 'Customer', status:false},
-    { name: 'zhou', role: 'Customer', status: true},
-    { name: 'liu', role: 'Customer', status:false},
-    { name: 'zhou', role: 'Customer', status: true},
-    { name: 'liu', role: 'Customer', status:false},
-    { name: 'zhou', role: 'Customer', status: true},
-    { name: 'liu', role: 'Customer', status:false},
-    { name: 'zhou', role: 'Customer', status: true},
-    { name: 'liu', role: 'Customer', status:false},
-    { name: 'zhou', role: 'Customer', status: true},
-    { name: 'liu', role: 'Customer', status:false},
-    { name: 'zhou', role: 'Customer', status: true},
-    { name: 'liu', role: 'Customer', status:false},
-    { name: 'zhou', role: 'Customer', status: true},
-    { name: 'liu', role: 'Customer', status:false},
-    { name: 'zhou', role: 'Customer', status: true},        
+    { username: 'liu', role: 'Customer', status:false,email:"132@qq.com",countryCode:"+86",phoneNumber:"123123123"},
+    { username: 'zhou', role: 'Customer', status: true},
+    { username: 'liu', role: 'Customer', status:false},
+    { username: 'zhou', role: 'Customer', status: true},
+    { username: 'liu', role: 'Customer', status:false},
+    { username: 'zhou', role: 'Customer', status: true},
+    { username: 'liu', role: 'Customer', status:false},
+    { username: 'zhou', role: 'Customer', status: true},
+    { username: 'liu', role: 'Customer', status:false},
+    { username: 'zhou', role: 'Customer', status: true},
+    { username: 'liu', role: 'Customer', status:false},
+    { username: 'zhou', role: 'Customer', status: true},
+    { username: 'liu', role: 'Customer', status:false},
+    { username: 'zhou', role: 'Customer', status: true},
+    { username: 'liu', role: 'Customer', status:false},
+    { username: 'zhou', role: 'Customer', status: true},
+    { username: 'liu', role: 'Customer', status:false},
+    { username: 'zhou', role: 'Customer', status: true},
+    { username: 'liu', role: 'Customer', status:false},
+    { username: 'zhou', role: 'Customer', status: true},
+    { username: 'liu', role: 'Customer', status:false},
+    { username: 'zhou', role: 'Customer', status: true},
+    { username: 'liu', role: 'Customer', status:false},
+    { username: 'zhou', role: 'Customer', status: true},
+    { username: 'liu', role: 'Customer', status:false},
+    { username: 'zhou', role: 'Customer', status: true},
+    { username: 'liu', role: 'Customer', status:false},
+    { username: 'zhou', role: 'Customer', status: true},
+    { username: 'liu', role: 'Customer', status:false},
+    { username: 'zhou', role: 'Customer', status: true},
+    { username: 'liu', role: 'Customer', status:false},
+    { username: 'zhou', role: 'Customer', status: true},        
     // more user...
   ];
     paginate(users);
@@ -95,9 +95,34 @@
   }
   
    // 添加用户 用户默认密码位手机号码
-  function addUser(){
+
+  async function submitAddUser(){
+        const userData = {
+            username: newUser.username,
+            password: newUser.password,
+            email: newUser.email,
+            phone_number: newUser.countryCode + " " + newUser.phoneNumber,
+            role: newUser.role,
+            remarks: newUser.remarks
+        };
+
+        const response = await fetch('http://localhost:8000/auth/users', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(userData)
+        });
+        const data = await response.json();
+        console.log(data);
+        //goto('./login');
+  }
+
+  async function addUser(){
     newUser.password='!Qw123456';
-    users.push(newUser);
+    //users.push(newUser);
+    await submitAddUser();
+    users=users;
     paginate(users);
     showAddUserDialog=false;
     console.log(newUser);
@@ -105,12 +130,12 @@
 
   function addUserBotton() {   
     showAddUserDialog=true;
-    newUser={name:"",role:"",status:true,password:"",email:"",countryCode:"",phoneNumber:""};  
+    newUser={username:"",role:"",status:true,password:"",email:"",countryCode:"",phoneNumber:""};  
   }
  
 
   function updateBotton(index) {  
-    selectUser.name= users[index].name;
+    selectUser.username= users[index].username;
     selectUser.role= users[index].role;
     selectUser.status= users[index].status;
     selectUser.email= users[index].email;
@@ -331,7 +356,7 @@
           <tbody>
               {#each currentPageRows as currentPageRow, index}
                 <tr>
-                  <td width=10%>{currentPageRow.name}</td>
+                  <td width=10%>{currentPageRow.username}</td>
                   <td width=10%>{currentPageRow.role}</td>
                   {#if currentPageRow.status}
                   <td class = activeStatus width=10%>
@@ -425,7 +450,7 @@
           </div>
           <div class="row">
             <label for="userName">name:</label>
-            <input id="userName" bind:value={newUser.name} placeholder={"Enter new user name"} />
+            <input id="userName" bind:value={newUser.username} placeholder={"Enter new user name"} />
           </div> 
           <div class="row">
             <label for="countryCode">country code:</label>
@@ -471,7 +496,7 @@
           </div>
           <div class="row">
             <label for="userName">name:</label>
-            <input id="userName" bind:value={selectUser.name} />
+            <input id="userName" bind:value={selectUser.username} />
           </div> 
           <div class="row">
             <label for="countryCode">country code:</label>

@@ -32,6 +32,8 @@
 
   let selectedTable = '';
 
+  let tableOrders=[];
+  let tableOrder='';
   let dishNumber = '';
   let closedTableNumber = '';
   let sum = '';
@@ -64,11 +66,13 @@
   }
 
 
-  function handleTableClick(tableNumber) {
+  async function handleTableClick(tableNumber) {
     selectedTable = tableNumber;
     updateTableID = tables[selectedTable].id;
     tableID = updateTableID;
     updatetableSeats = tables[selectedTable].seats;
+    await getOrder();
+    console.log(tableOrders);
     showModal = true;
     showUpdateModal = true;
   }
@@ -207,6 +211,24 @@
   //     console.log(tables);
   //   }
   // }
+
+  async function getOrder(){
+    try {
+          const response = await fetch('http://localhost:8000/table/table_order/'+tableID, {
+              method: 'GET',
+              credentials: 'include',
+          });
+          if (response.ok) {
+              tableOrders = await response.json();
+          } else {
+              console.error('Error fetching table order:', response.status);
+              tableOrders = []; // 设置 menus 为空数组
+          }
+      } catch (error) {
+          console.error('Error fetching table order:', error);
+          tables = []; // 设置 menus 为空数组
+      }
+  }
 
   onMount(async() => {
     await validation();
@@ -416,10 +438,10 @@
       </select>
       <button on:click={() => showModal = false}>CLOSE</button>
     </div>
-    <div class="row">
+    <!-- <div class="row">
       <input bind:value={dishNumber} placeholder="Enter Dish Number" />
       <button>Order Food for Customers</button>
-    </div>
+    </div> -->
     <div class="row">
       <button>Cross Out Served Dishes</button>
     </div>
@@ -431,6 +453,9 @@
     <div class="row">
       <input bind:value={note} placeholder="Enter Lost Items and Notes" />
       <button>Report Lost Items</button>
+    </div>
+    <div>
+      <h3>order:{tableOrders}</h3>
     </div>
     <div class="row">
       <button on:click={() => goToMenu(tables[selectedTable].id)}>Go to Menu</button>
