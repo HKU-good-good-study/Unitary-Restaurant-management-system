@@ -34,7 +34,11 @@
 
   let tableOrders=[];
   let tableOrder='';
-  let dishNumber = '';
+
+  let dishes = [];
+  let dish ={};
+  let dishesName = [];
+
   let closedTableNumber = '';
   let sum = '';
   let note = '';
@@ -43,6 +47,7 @@
   let showAddTable = false;
   let showUpdateModal = false;   
   let showDeleteModal = false;
+  let showCrossOutModal = false;
 
   let addTableSeats=0;
   let addTableNumber ='';
@@ -72,7 +77,6 @@
     tableID = updateTableID;
     updatetableSeats = tables[selectedTable].seats;
     await getOrder();
-    console.log(tableOrders);
     showModal = true;
     showUpdateModal = true;
   }
@@ -169,14 +173,13 @@
           }
       } catch (error) {
           showDeleteModal = false;
-          console.error('Error fetching menus:', error);
+          console.error('Error fetching table:', error);
       }
   }
 
   function tryDeleteTable(){
     showDeleteModal=true;
   }
-
 
   async function fetchTable(){
     try {
@@ -228,6 +231,13 @@
           console.error('Error fetching table order:', error);
           tables = []; // 设置 menus 为空数组
       }
+  }
+
+  function crossOutButton(){
+    showCrossOutModal = true;
+    tableOrder=tableOrders[tableOrders.length-1];
+    dishes=tableOrder.dish;
+    dishesName = Object.keys(dishes);    
   }
 
   onMount(async() => {
@@ -443,7 +453,7 @@
       <button>Order Food for Customers</button>
     </div> -->
     <div class="row">
-      <button>Cross Out Served Dishes</button>
+      <button on:click={()=> crossOutButton()}>Cross Out Served Dishes</button>
     </div>
     <div class="row">
       <input bind:value={closedTableNumber} placeholder="Enter Closed Table Number" />
@@ -454,12 +464,20 @@
       <input bind:value={note} placeholder="Enter Lost Items and Notes" />
       <button>Report Lost Items</button>
     </div>
-    <div>
-      <h3>order:{tableOrders}</h3>
-    </div>
     <div class="row">
       <button on:click={() => goToMenu(tables[selectedTable].id)}>Go to Menu</button>
     </div>
+    {#if showCrossOutModal}
+    <div class="modal" on:click={() => showCrossOutModal = false}>
+      <div class="modal-content" on:click|stopPropagation>
+        {#each dishesName as dishName}
+        <div class="row">          
+          {dishName}:{dishes[dishName].amount}
+        </div>
+        {/each}
+      </div>
+    </div>
+    {/if}
   </div>
 </div>
 {/if}

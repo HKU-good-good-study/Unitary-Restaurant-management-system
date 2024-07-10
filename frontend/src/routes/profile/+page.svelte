@@ -7,12 +7,13 @@
   $: role=user.role;
 
   
-  let selectUser={username:"",role:"",status:true,index:-1,email:"",countryCode:"",phone_number:"",imgSrc:""};
+  let selectUser={username:"",role:"",status:true,index:-1,email:"",countryCode:"",phone_number:"",imgSrc:"",remarks:""};
 
 
   onMount(async () => {
     await validation();
     // history.replaceState(null, 'Profile', '/profile');
+    selectUser.role=user.role;
     selectUser.username=user.username;
     selectUser.imgSrc="./src/images/";
     selectUser.imgSrc=user.imgSrc+user.role.split(" ")[0].toLowerCase()+'.png';
@@ -20,29 +21,45 @@
     selectUser.phone_number=user.phone_number.slice(4);
     selectUser.countryCode=selectUser.phone_number.split('-')[0];
     selectUser.phone_number=selectUser.phone_number.split('-')[1]+selectUser.phone_number.split('-')[2]+selectUser.phone_number.split('-')[3];
-    console.log(selectUser);
+    // console.log(selectUser);
     
     document.title = 'User profile';
     })
 
 
 
-    async function submitUpdate(){
-      const roleResponse = await fetch('http://localhost:8000/auth/users/me', {
-            method: 'patch',
+    async function update(){
+
+      const userData = {
+            username: selectUser.username,
+            email: selectUser.email,
+            phone_number: selectUser.countryCode + " " + selectUser.phone_number,
+            role: selectUser.role,
+            remarks: selectUser.remarks
+      };
+
+      const response = await fetch('http://localhost:8000/auth/users/me', {
+            method: 'PATCH',
             credentials: 'include', // This is important for cookies to be sent
-            body: JSON.stringify(user),
+            headers: {
+              'Content-Type': 'application/json'
+           },
+            body: JSON.stringify(userData),
         });
+
+      if (response.ok) {
+        user.username=selectUser.username;
+        user.email=selectUser.email;
+        user.phone_number="tel:-"+selectUser.countryCode + "-" + selectUser.phone_number;
+        location.reload();
+        // console.log("pro"+user.username);
+      } 
+      else {
+        console.error('Error update user:', response.status);
+      }
     }
     
-    async function update(){
-      user.username=selectUser.username;
-      user.imgSrc=selectUser.imgSrc;
-      user.email=selectUser.email;
-      user.phone_number="tel:"+selectUser.countryCode+selectUser.phone_number;
-      console.log(user);
-      await submitUpdate();
-    }
+
 </script>
 
 <style>
@@ -108,7 +125,7 @@
         </div>
         <div class="row">
           <label for="phoneNumber">phone number:</label>
-          <input id="phoneNumber" bind:value={selectUser.phone_number}>
+          <input id="phoneNumber" bind:value={selectUser.phone_number} type="tel">
         </div>
         <div class="row">
           <label for="email">email:</label>

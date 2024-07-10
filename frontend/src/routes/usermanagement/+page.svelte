@@ -8,14 +8,18 @@
   let role ='';
   $: role=user.role;
 
-  let users = [];
+
   let page = 0;
   let totalPages = [];
   let currentPageRows = [];
   let itemsPerPage = 13;
   let loading = true;
+
   let showAddUserDialog = false;
   let showUpdateDialog=false;
+  let showDeleteModal=false;
+
+  let users = [{username:"",role:"",status:true,password:"",email:"",countryCode:"",phone_number:"",remarks:""}];
   let newUser={username:"",role:"",status:true,password:"",email:"",countryCode:"",phoneNumber:"",remarks:""};
   let selectUser={username:"",role:"",status:true,index:-1,email:"",countryCode:"",phoneNumber:"",remarks:""};
 
@@ -31,53 +35,16 @@
       return items.slice(start, start + itemsPerPage);
     });
 
-    console.log("paginatedItems are", paginatedItems);
+    //console.log("paginatedItems are", paginatedItems);
     totalPages = [...paginatedItems];
   };
 
 
   onMount(async () => {
     await validation();  
-    role=user.role;
-    // history.replaceState(null, 'Profile', '/profile');
-    
+    role=user.role;    
     document.title = 'User Management';
-
-    users =[
-    { username: 'liu', role: 'Customer', status:false,email:"132@qq.com",countryCode:"+86",phoneNumber:"123123123"},
-    { username: 'zhou', role: 'Customer', status: true},
-    { username: 'liu', role: 'Customer', status:false},
-    { username: 'zhou', role: 'Customer', status: true},
-    { username: 'liu', role: 'Customer', status:false},
-    { username: 'zhou', role: 'Customer', status: true},
-    { username: 'liu', role: 'Customer', status:false},
-    { username: 'zhou', role: 'Customer', status: true},
-    { username: 'liu', role: 'Customer', status:false},
-    { username: 'zhou', role: 'Customer', status: true},
-    { username: 'liu', role: 'Customer', status:false},
-    { username: 'zhou', role: 'Customer', status: true},
-    { username: 'liu', role: 'Customer', status:false},
-    { username: 'zhou', role: 'Customer', status: true},
-    { username: 'liu', role: 'Customer', status:false},
-    { username: 'zhou', role: 'Customer', status: true},
-    { username: 'liu', role: 'Customer', status:false},
-    { username: 'zhou', role: 'Customer', status: true},
-    { username: 'liu', role: 'Customer', status:false},
-    { username: 'zhou', role: 'Customer', status: true},
-    { username: 'liu', role: 'Customer', status:false},
-    { username: 'zhou', role: 'Customer', status: true},
-    { username: 'liu', role: 'Customer', status:false},
-    { username: 'zhou', role: 'Customer', status: true},
-    { username: 'liu', role: 'Customer', status:false},
-    { username: 'zhou', role: 'Customer', status: true},
-    { username: 'liu', role: 'Customer', status:false},
-    { username: 'zhou', role: 'Customer', status: true},
-    { username: 'liu', role: 'Customer', status:false},
-    { username: 'zhou', role: 'Customer', status: true},
-    { username: 'liu', role: 'Customer', status:false},
-    { username: 'zhou', role: 'Customer', status: true},        
-    // more user...
-  ];
+    await fetchUsers();
     paginate(users);
   });
   
@@ -97,32 +64,33 @@
    // 添加用户 用户默认密码位手机号码
 
   async function submitAddUser(){
-        const userData = {
-            username: newUser.username,
-            password: newUser.password,
-            email: newUser.email,
-            phone_number: newUser.countryCode + " " + newUser.phoneNumber,
-            role: newUser.role,
-            remarks: newUser.remarks
-        };
+      const userData = {
+          username: newUser.username,
+          password: newUser.password,
+          email: newUser.email,
+          phone_number: newUser.countryCode + " " + newUser.phoneNumber,
+          role: newUser.role,
+          remarks: newUser.remarks
+      };
 
-        const response = await fetch('http://localhost:8000/auth/users', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(userData)
-        });
-        const data = await response.json();
-        console.log(data);
-        //goto('./login');
+      const response = await fetch('http://localhost:8000/auth/users/new', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(userData)
+      });
+      await fetchUsers();
+      //const data = await response.json();
+      //console.log(data);
   }
 
   async function addUser(){
     newUser.password='!Qw123456';
     //users.push(newUser);
     await submitAddUser();
-    users=users;
+    users = users;
     paginate(users);
     showAddUserDialog=false;
     console.log(newUser);
@@ -140,15 +108,86 @@
     selectUser.status= users[index].status;
     selectUser.email= users[index].email;
     selectUser.countryCode= users[index].countryCode;
-    selectUser.phoneNumber= users[index].phoneNumber;
+    selectUser.phoneNumber= users[index].phone_number;
     selectUser.index=index;
     showUpdateDialog=true;
   }
-  function update() {
+
+  async function update() {
     let number = selectUser.index;
-    users[number] = selectUser;
+    await submitUpdate(users[number].username);
+    users=users;
     paginate(users);    
     showUpdateDialog=false;
+  }
+
+  async function submitUpdate(username){
+      const userData = {
+          username: selectUser.username,
+          email: selectUser.email,
+          phone_number: selectUser.countryCode + " " + selectUser.phoneNumber,
+          role: selectUser.role,
+          remarks: selectUser.remarks
+      };
+
+      const response = await fetch('http://localhost:8000/auth/users/username='+ username, {
+          method: 'PATCH',
+          credentials: 'include',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(userData)
+      });
+      await fetchUsers();
+      const data = await response.json();
+      console.log(data);
+      //goto('./login');
+  }
+  
+  async function fetchUsers(){
+    try {
+          const response = await fetch('http://localhost:8000/auth/users/all', {
+              method: 'GET',
+              credentials: 'include',
+          });
+          if (response.ok) {
+              users = await response.json();
+              var x;
+              for(x in users){
+                users[x].phone_number=users[x].phone_number.slice(4);
+                users[x].countryCode=users[x].phone_number.split('-')[0];
+                users[x].phone_number=users[x].phone_number.split('-')[1]+users[x].phone_number.split('-')[2]+users[x].phone_number.split('-')[3];
+              }
+              // console.log(users);
+          } else {
+              console.error('Error fetching users:', response.status);
+              users = []; // 设置 users 为空数组
+          }
+      } catch (error) {
+          console.error('Error fetching users:', error);
+          users = []; // 设置 users 为空数组
+      }
+  }
+
+  async function deleteUser(){
+    try {
+          const response = await fetch('http://localhost:8000/auth/users/username='+selectUser.username, {
+              method: 'delete',
+              credentials: 'include',
+          });
+          if (response.ok) {
+            await fetchUsers();
+            showUpdateDialog = false;
+            showDeleteModal = false;
+            users=users;
+          } else {
+              showDeleteModal = false;
+              console.error('Error delete user:', response.status);
+          }
+      } catch (error) {
+          showDeleteModal = false;
+          console.error('Error fetching user:', error);
+      }
   }
 
 </script>
@@ -251,6 +290,24 @@
   }
 
   .deactiveButton:hover{
+    color: white;  border: 0;
+    background-color: #B22222;  
+    -webkit-box-shadow: 10px 10px 99px 6px rgba(178, 34, 34, 1);  
+    -moz-box-shadow: 10px 10px 99px 6px rgba(178, 34, 34, 1);
+    box-shadow: 10px 10px 99px 6px rgba(178, 34, 34, 1);
+  }
+
+  .deleteButton{  
+    background-color: #aaa;
+    border-color: #aaa;
+    color:#B22222;
+    background-image: linear-gradient(45deg, #aaa 50%, transparent 50%);
+    background-position: 100%;
+    background-size: 400%;
+    transition: background 300ms ease-in-out;
+  }
+
+  .deleteButton:hover{
     color: white;  border: 0;
     background-color: #B22222;  
     -webkit-box-shadow: 10px 10px 99px 6px rgba(178, 34, 34, 1);  
@@ -467,7 +524,7 @@
           </div>
           <div class="row">
             <label for="phoneNumber">phone number:</label>
-            <input id="phoneNumber" bind:value={newUser.phoneNumber} placeholder="Enter Phone Number">
+            <input id="phoneNumber" bind:value={newUser.phoneNumber} type="tel" placeholder="Enter Phone Number">
           </div>
           <div class="row">
             <label for="email">email:</label>
@@ -512,14 +569,24 @@
           </div>
           <div class="row">
             <label for="phoneNumber">phone number:</label>
-            <input id="phoneNumber" bind:value={selectUser.phoneNumber}>
+            <input id="phoneNumber" bind:value={selectUser.phoneNumber} type="tel">
           </div>
           <div class="row">
             <label for="email">email:</label>
             <input id="email" bind:value={selectUser.email}>
           </div>
           <button on:click={update}>Submit</button>
-          <button on:click={() => showUpdateDialog = false}>CLOSE</button>     
+          <button on:click={() => showUpdateDialog = false}>CLOSE</button>  
+          <button class=deleteButton on:click={() => showDeleteModal = true}>DELETE</button>
+          {#if showDeleteModal}
+            <div class="modal" on:click={() => showDeleteModal = false}>
+              <div class="modal-content" on:click|stopPropagation>
+                <h2>Are you sure deleting it?</h2>
+                <button on:click={() => deleteUser()}>DELETE</button>        
+                <button on:click={() => showDeleteModal = false}>CLOSE</button> 
+              </div>
+            </div>
+          {/if}     
         </div>    
       </div>
     {/if} 

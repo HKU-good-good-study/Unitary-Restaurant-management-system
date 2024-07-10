@@ -8,7 +8,7 @@
         });
         const roleData = await roleResponse.json();
         //console.log(roleData);
-        user.name=roleData.username;
+        user.username=roleData.username;
         user.role=roleData.role;
         user.imgSrc="./src/images/";
         user.imgSrc=user.imgSrc+user.role.split(" ")[0].toLowerCase()+'.png';

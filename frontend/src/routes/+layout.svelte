@@ -4,18 +4,21 @@
     import { user } from '../stores.js'; 
     import { page } from '$app/stores';
     import { validation } from '$lib/tool.svelte';
-
+    
     onMount(async () => {
       // history.replaceState(null, 'Profile', '/profile');
       document.title = 'Role Page';
-      if($page.url.pathname == '/login' || $page.url.pathname == '/register');
+      if($page.url.pathname == '/login' || $page.url.pathname == '/register'){}
       else {
+        console.log($page.url.pathname);
         await validation();
       }
-      user.username= user.username;
-  });
+      user.username=user.username;     
+    });
 
 
+     $: user.username=user.username;
+    //  $: console.log("lay"+user.username);
 </script>
 
 <style>
