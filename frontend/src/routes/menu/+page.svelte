@@ -141,7 +141,6 @@
   
 async function saveMenu() {
         while (!lock) {}
-        newMenu.id = document.getElementById('menuId').value;
         newMenu.name = document.getElementById('menuName').value;
         newMenu.price = document.getElementById('menuPrice').value;
         newMenu.weight = document.getElementById('menuWeight').value;
@@ -150,12 +149,12 @@ async function saveMenu() {
         newMenu.sold = document.getElementById('menuSold').value;
         newMenu.ingredient = ingredients;
 
-        // 判断是否为编辑操作
-        const existingMenu = menus.find(m => m.id === newMenu.id);
-        if (existingMenu) {
+
+        if (isEditMode) {
             // 编辑操作
             await updateMenu(newMenu);
         } else {
+            newMenu.id = document.getElementById('menuId').value;
             // 新建操作
             const response = await fetch('http://localhost:8000/menu/' + newMenu.id, {
                 method: 'POST',
@@ -173,6 +172,7 @@ async function saveMenu() {
         isEditMode = false; // 重置为 false
         // 重新启用 id 输入框
         lock = false;
+        defaultMenu();
     }
 
 async function updateMenu(menu) {
@@ -283,8 +283,20 @@ async function updateMenu(menu) {
     let isEditMode = false;
     async function handleEdit(menu) {
         newMenu = { ...menu };
+        console.log(newMenu.id);
         showAddMenu = true;
         isEditMode = true;
+    }
+
+    function assignValue(){
+        document.getElementById('menuId').value = newMenu.id;
+        document.getElementById('menuName').value = newMenu.name;
+        document.getElementById('menuPrice').value = newMenu.price;
+        document.getElementById('menuWeight').value = newMenu.weight;
+        document.getElementById('menuAvail').checked = newMenu.availability;
+        document.getElementById('menuDes').value = newMenu.desc;
+        document.getElementById('menuSold').value = newMenu.sold;
+        ingredients = newMenu.ingredient;
     }
 
     async function handleDelete(id) {
@@ -298,6 +310,35 @@ async function updateMenu(menu) {
             console.error('Error deleting menu:', response.status);
         }
     }
+
+    function loaded(node) {
+        assignValue();
+        return {
+            destroy() {
+                // cleanup logic, if any
+            }
+        };
+    }
+
+    function defaultMenu(){
+        newMenu = {
+            availability: true,
+            desc: "",
+            id: "",
+            image: "",
+            ingredient: [],
+            name: "",
+            price: 0,
+            sold: 0,
+            weight: 0
+        };
+    }
+
+    function cancelModal(){
+        showAddMenu = false;
+        isEditMode = false;
+        defaultMenu();
+    }
   </script>
   
   <h1>Menu</h1>
@@ -307,7 +348,7 @@ async function updateMenu(menu) {
       <button on:click={() => showAddMenu = true}>Add New Dish</button>
       {#if showAddMenu}
       <div class="add-menu-container">
-          <div class="add-menu-form">
+          <div class="add-menu-form" use:loaded={assignValue()}>
               <h2>Add New Dish</h2>
               <form on:submit|preventDefault={saveMenu}>
                   <label>
@@ -357,7 +398,7 @@ async function updateMenu(menu) {
                       <input type="file" on:change={(e) => getImage(e.target.files[0])} required>
                   </label>
                   <button type="submit" on:click={() => fetchMenus}>Save</button>
-                  <button type="button" on:click={() => showAddMenu = false}>Cancel</button>
+                  <button type="button" on:click={() => cancelModal()}>Cancel</button>
               </form>
           </div>
       </div>
