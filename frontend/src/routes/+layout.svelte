@@ -10,7 +10,6 @@
       document.title = 'Role Page';
       if($page.url.pathname == '/login' || $page.url.pathname == '/register'){}
       else {
-        console.log($page.url.pathname);
         await validation();
       }
       user.username=user.username;     

@@ -38,6 +38,7 @@
   let dishes = [];
   let dish ={};
   let dishesName = [];
+  let lineClass='';
 
   let closedTableNumber = '';
   let sum = '';
@@ -236,8 +237,17 @@
   function crossOutButton(){
     showCrossOutModal = true;
     tableOrder=tableOrders[tableOrders.length-1];
-    dishes=tableOrder.dish;
-    dishesName = Object.keys(dishes);    
+    dishes=tableOrder.dish;    
+    dishesName = Object.keys(dishes);
+    console.log(dishesName);
+    for(dish in dishes){
+      dishes[dish]['served']=false;
+    }
+    console.log(dishes);
+  }
+
+  function servedDish(dishName){
+    dishes[dishName].served=!dishes[dishName].served;
   }
 
   onMount(async() => {
@@ -296,6 +306,10 @@
 
   .modal-content .row {
     margin-bottom: 20px;
+  }
+
+  .modal-content .row p{
+    font-size: larger;
   }
 
   .modal-content input {
@@ -398,6 +412,13 @@
     -moz-box-shadow: 10px 10px 99px 6px rgba(0,191,255);
     box-shadow: 10px 10px 99px 6px rgba(0,191,255);
   }
+
+  .line-through {
+    text-decoration: line-through;
+    /* text-decoration-color:#B22222; */
+    text-decoration-thickness: 10%;
+
+  }
   
 </style>
 
@@ -471,8 +492,13 @@
     <div class="modal" on:click={() => showCrossOutModal = false}>
       <div class="modal-content" on:click|stopPropagation>
         {#each dishesName as dishName}
-        <div class="row">          
-          {dishName}:{dishes[dishName].amount}
+        <div class="row">
+          {#if dishes[dishName].served}         
+            <p class='line-through' on:click={()=>servedDish(dishName)}>{dishName}:{dishes[dishName].amount}</p>
+          {/if}
+          {#if !dishes[dishName].served}         
+            <p on:click={()=>servedDish(dishName)}>{dishName}:{dishes[dishName].amount}</p>
+          {/if}
         </div>
         {/each}
       </div>

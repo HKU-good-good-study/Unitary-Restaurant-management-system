@@ -22,6 +22,8 @@
   let users = [{username:"",role:"",status:true,password:"",email:"",countryCode:"",phone_number:"",remarks:""}];
   let newUser={username:"",role:"",status:true,password:"",email:"",countryCode:"",phoneNumber:"",remarks:""};
   let selectUser={username:"",role:"",status:true,index:-1,email:"",countryCode:"",phoneNumber:"",remarks:""};
+  var userData={};
+  let originUser={username:"",role:"",status:true,index:-1,email:"",countryCode:"",phoneNumber:"",remarks:""};
 
   
   $: currentPageRows = totalPages.length > 0 ? totalPages[page] : [];
@@ -109,7 +111,13 @@
     selectUser.email= users[index].email;
     selectUser.countryCode= users[index].countryCode;
     selectUser.phoneNumber= users[index].phone_number;
-    selectUser.index=index;
+    selectUser.index=index;    
+    originUser.username=selectUser.username;
+    originUser.role=selectUser.role;
+    originUser.status=selectUser.status;
+    originUser.email=selectUser.email;
+    originUser.countryCode=selectUser.countryCode;
+    originUser.phoneNumber=selectUser.phoneNumber;
     showUpdateDialog=true;
   }
 
@@ -122,13 +130,21 @@
   }
 
   async function submitUpdate(username){
-      const userData = {
-          username: selectUser.username,
-          email: selectUser.email,
-          phone_number: selectUser.countryCode + " " + selectUser.phoneNumber,
-          role: selectUser.role,
-          remarks: selectUser.remarks
-      };
+      if(selectUser.username!=originUser.username){
+        userData.username=selectUser.username;
+      }
+      
+      if(selectUser.email!=originUser.email){
+        userData.email=selectUser.email;
+      }
+
+      if(selectUser.role!=originUser.role){
+        userData.role=selectUser.role;
+      }
+
+      if(selectUser.countryCode!=originUser.countryCode || selectUser.phoneNumber!=originUser.phoneNumber){
+        userData.phone_number=selectUser.countryCode + " " + selectUser.phoneNumber;
+      }   
 
       const response = await fetch('http://localhost:8000/auth/users/username='+ username, {
           method: 'PATCH',
@@ -141,7 +157,6 @@
       await fetchUsers();
       const data = await response.json();
       console.log(data);
-      //goto('./login');
   }
   
   async function fetchUsers(){
