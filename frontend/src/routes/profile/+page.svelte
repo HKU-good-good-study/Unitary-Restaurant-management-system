@@ -8,6 +8,8 @@
 
   
   let selectUser={username:"",role:"",status:true,index:-1,email:"",countryCode:"",phone_number:"",imgSrc:"",remarks:""};
+  var userData={};
+  let originUser={username:"",role:"",status:true,index:-1,email:"",countryCode:"",phone_number:"",imgSrc:"",remarks:""};
 
 
   onMount(async () => {
@@ -21,6 +23,8 @@
     selectUser.phone_number=user.phone_number.slice(4);
     selectUser.countryCode=selectUser.phone_number.split('-')[0];
     selectUser.phone_number=selectUser.phone_number.split('-')[1]+selectUser.phone_number.split('-')[2]+selectUser.phone_number.split('-')[3];
+    originUser.countryCode=selectUser.countryCode;
+    originUser.phone_number=selectUser.phone_number;
     // console.log(selectUser);
     
     document.title = 'User profile';
@@ -29,14 +33,17 @@
 
 
     async function update(){
+      if(selectUser.username!=user.username){
+        userData.username=selectUser.username;
+      }
+      
+      if(selectUser.email!=user.email){
+        userData.email=selectUser.email;
+      }
 
-      const userData = {
-            username: selectUser.username,
-            email: selectUser.email,
-            phone_number: selectUser.countryCode + " " + selectUser.phone_number,
-            role: selectUser.role,
-            remarks: selectUser.remarks
-      };
+      if(selectUser.countryCode!=originUser.countryCode || selectUser.phone_number!=originUser.phone_number){
+        userData.phone_number=selectUser.countryCode + " " + selectUser.phone_number;
+      }
 
       const response = await fetch('http://localhost:8000/auth/users/me', {
             method: 'PATCH',

@@ -6,7 +6,7 @@ class Order(CustomModel):
     table:str
     time:str # Time order gets created
     id: str
-    dish:dict # {name of dish: {"amount":, "description":}}
+    dish:dict # {name of dish: {"amount":, "description":,"served":}}
 
     class Config:
         title = 'Order'
@@ -18,7 +18,8 @@ class Order(CustomModel):
                 "dish": {
                     "Beef Chow Fun": {
                         "amount": 2,
-                        "description": "Dry fried beef Shahe noodles"
+                        "description": "Dry fried beef Shahe noodles",
+                        "served": False;
                     }
                 }
             }
