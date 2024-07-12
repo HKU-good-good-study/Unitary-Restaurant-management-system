@@ -12,6 +12,7 @@ After virtual enviroment is created, use command: ```YourEnvironmentPath/Script/
 3. Run command ```npm install```.
 
 **Backend**: (FastAPI)
+
 Install requriement using ```pip install -r requirement.txt```
 
 ## How to run this app:
