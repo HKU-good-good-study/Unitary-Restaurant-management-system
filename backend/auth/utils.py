@@ -4,7 +4,7 @@ from .config import auth_config
 
 
 def get_refresh_token_settings(
-    refresh_token: str,
+    refresh_token: str = "",
     expired: bool = False,
 ) -> dict[str, Any]:
     base_cookie = {
@@ -24,7 +24,7 @@ def get_refresh_token_settings(
 
 
 def get_access_token_settings(
-    access_token: str,
+    access_token: str = "",
     expired: bool = False,
 ) -> dict[str, Any]:
     base_cookie = {
