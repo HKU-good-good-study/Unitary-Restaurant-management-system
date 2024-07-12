@@ -44,7 +44,7 @@ class AuthUser(User):
 
 
 class UserResponse(User):
-    pass
+    phone_number: str
 
 
 class UserUpdate(CustomModel):

@@ -10,8 +10,10 @@ from jose import JWTError, jwt
 
 from .config import auth_config
 from .exceptions import AuthorizationFailed, AuthRequired, InvalidToken, AuthorizationFailedAdmin, \
-    AuthorizationFailedKitchenStaff, AuthorizationFailedDinningStaff, AuthorizationFailedCustomer
+    AuthorizationFailedKitchenStaff, AuthorizationFailedDinningStaff, AuthorizationFailedCustomer, \
+    AuthorizationFailedCustomerOrDinningStaff
 from .schemas import JWTData, UserRole
+
 
 # oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/users/tokens", auto_error=False)
 
@@ -104,6 +106,18 @@ async def parse_jwt_customer_data(
 ) -> JWTData:
     if not has_access(required_role, token.role):
         raise AuthorizationFailedCustomer()
+
+    return token
+
+
+async def parse_jwt_customer_or_dinning_room_staff_data(
+    token: JWTData = Depends(parse_jwt_user_data),
+    required_roles=None,
+) -> JWTData:
+    if required_roles is None:
+        required_roles = {UserRole.CUSTOMER, UserRole.DINING_ROOM_STAFF}
+    if not any(has_access(role, token.role) for role in required_roles):
+        raise AuthorizationFailedCustomerOrDinningStaff()
 
     return token
 
