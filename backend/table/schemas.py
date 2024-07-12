@@ -19,7 +19,7 @@ class Order(CustomModel):
                     "Beef Chow Fun": {
                         "amount": 2,
                         "description": "Dry fried beef Shahe noodles",
-                        "served": False;
+                        "served": False
                     }
                 }
             }

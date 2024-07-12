@@ -131,7 +131,7 @@
   
     function addIngredient() {
         ingredients = [...ingredients, { name: '', weight: 0 }];
-        createTextBox();
+        // createTextBox();
     }
   
     function removeIngredient(index) {
@@ -215,12 +215,6 @@ async function updateMenu(menu) {
         calculateTotalPrice();
     }
   
-    // function calculateTotalPrice() {
-    //     totalPrice = Object.entries(quantities).reduce((acc, [menuId, quantity]) => {
-    //         const menu = menus.find(m => m.id === parseInt(menuId));
-    //         return acc + (menu?.price || 0) * quantity;
-    //     }, 0);
-    // }
     function calculateTotalPrice() {
         totalPrice = Object.values(currentOrder).reduce((acc, orderItem) => {
             return acc + (orderItem.menu.price * orderItem.quantity);
@@ -439,8 +433,6 @@ async function updateMenu(menu) {
           <img src={`data:image/jpeg;base64,${menu.image}`} alt="{menu.name} image" />
           {#if role === 'Manager' || role === 'Kitchen Staff'}
           <div class="actions">
-              <!-- <button>Edit</button>
-              <button>Delete</button> -->
               <button on:click={() => handleEdit(menu)}>Edit</button>
               <button on:click={() => handleDelete(menu.id)}>Delete</button>
           </div>
@@ -449,11 +441,6 @@ async function updateMenu(menu) {
       {/each}
   </div>
   
-  <!-- {#if role !== 'Manager' && role !== 'Kitchen Staff'}
-  <div class="total-price-container">
-      <p>Total Price: ${totalPrice.toFixed(2)}</p>
-  </div>
-  {/if} -->
     {#if role !== 'Manager' && role !== 'Kitchen Staff'}
     <div class="total-price-container">
         <p>My Order:</p>
@@ -486,7 +473,14 @@ async function updateMenu(menu) {
       .menu-item {
           border: 1px solid #ccc;
           padding: 20px;
+          overflow: hidden; 
       }
+
+      .menu-item img {
+        width: 100%; /* 添加这行 */
+        height: 200px; /* 添加这行 */
+        object-fit: cover; /* 添加这行 */
+    }
   
       .ingredient-container {
           display: flex;
