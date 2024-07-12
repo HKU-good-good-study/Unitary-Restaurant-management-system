@@ -32,6 +32,9 @@ class AuthorizationFailedCustomer(PermissionDenied):
     DETAIL = ErrorCode.AUTHORIZATION_FAILED_CUSTOMER
 
 
+class AuthorizationFailedCustomerOrDinningStaff(PermissionDenied):
+    DETAIL = ErrorCode.AUTHORIZATION_FAILED_CUSTOMER_OR_DINNING_STAFF
+
 class InvalidToken(NotAuthenticated):
     DETAIL = ErrorCode.INVALID_TOKEN
 

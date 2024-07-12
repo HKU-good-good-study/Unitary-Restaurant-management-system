@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any
+from typing import Any, Self
 from zoneinfo import ZoneInfo
 
 from fastapi.encoders import jsonable_encoder
@@ -19,16 +19,27 @@ class CustomModel(BaseModel):
         populate_by_name=True,
     )
 
-    @model_validator(mode="before")
-    @classmethod
-    def set_null_microseconds(cls, data: dict[str, Any]) -> dict[str, Any]:
+    # @model_validator(mode="after")
+    # @classmethod
+    # def set_null_microseconds(cls, data: dict[str, Any]) -> dict[str, Any]:
+    #     datetime_fields = {
+    #         k: v.replace(microsecond=0)
+    #         for k, v in data.items()
+    #         if isinstance(v, datetime)
+    #     }
+    #
+    #     return {**data, **datetime_fields}
+
+    @model_validator(mode="after")
+    def set_null_microseconds(self) -> Self:
         datetime_fields = {
             k: v.replace(microsecond=0)
-            for k, v in data.items()
+            for k, v in self.model_dump().items()
             if isinstance(v, datetime)
         }
 
-        return {**data, **datetime_fields}
+        return self.model_copy(update=datetime_fields)
+
 
     def serializable_dict(self, **kwargs):
         """Return a dict which contains only serializable fields."""

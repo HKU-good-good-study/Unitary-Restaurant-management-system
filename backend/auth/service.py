@@ -25,7 +25,7 @@ async def create_user(user: AuthUser) -> dict[str, Any] | None:
         "phone_number": user.phone_number,
         "role": user.role.value if isinstance(user.role, UserRole) else user.role,
         "remarks": user.remarks,
-        "created_at": datetime.utcnow(),
+        "created_at": datetime.utcnow().replace(microsecond=0),
     }
     user_id = await db.execute("users", user_data, "insert")
     return await db.fetch_one("users", {"_id": user_id.inserted_id})
@@ -74,7 +74,7 @@ async def update_user_by_username(
         "update"
     )
     return await db.fetch_one("users", {"username": username}
-)
+                              )
 
 
 async def delete_user_by_id(user_id: str) -> None:
@@ -208,3 +208,13 @@ async def reset_password(reset_token: str, new_password: str) -> None:
     await expire_reset_token(reset_token_data["uuid"])
 
     # send_password_reset_email(user["email"])
+
+
+def format_phone_number(phone_number: str) -> str:
+    if phone_number.startswith("tel:"):
+        phone_number = phone_number[4:]
+
+    parts = phone_number.split("-", 1)
+    formatted_number = parts[0] + " " + parts[1].replace("-", "") if len(parts) > 1 else parts[0]
+
+    return formatted_number

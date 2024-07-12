@@ -1,3 +1,4 @@
+from dotenv import load_dotenv, find_dotenv
 from fastapi import (
     Depends,
     FastAPI,
@@ -10,6 +11,7 @@ from fastapi import (
 )
 from fastapi.middleware.cors import CORSMiddleware
 from auth.router import router as auth_router
+from checkout.router import router as checkout_router
 from fastapi import FastAPI, Request, Response, HTTPException
 from database import Database
 from os import getenv
@@ -34,6 +36,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+
+load_dotenv()
 app.include_router(table_router, tags=["tables"], prefix="/table")
 app.include_router(menu_router, tags=["menus"], prefix="/menu")
 
@@ -72,6 +76,8 @@ app.add_middleware(
 )
 
 app.include_router(auth_router)
+
+app.include_router(checkout_router)
 
 # Sample Editing Methods
 menuDb: List[Menu] = []

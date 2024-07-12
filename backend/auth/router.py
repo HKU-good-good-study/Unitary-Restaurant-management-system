@@ -36,7 +36,7 @@ async def get_all_users(
         UserResponse(
             username=user["username"],
             email=user["email"],
-            phone_number=user["phone_number"],
+            phone_number=service.format_phone_number(user["phone_number"]),
             role=user["role"],
             remarks=user["remarks"],
         )
@@ -56,7 +56,7 @@ async def create_user(
     return UserResponse(
         username=user["username"],
         email=user["email"],
-        phone_number=user["phone_number"],
+        phone_number=service.format_phone_number(user["phone_number"]),
         role=user["role"],
         remarks=user["remarks"],
     )
@@ -73,7 +73,7 @@ async def register_user(
     return UserResponse(
         username=user["username"],
         email=user["email"],
-        phone_number=user["phone_number"],
+        phone_number=service.format_phone_number(user["phone_number"]),
         role=user["role"],
         remarks=user["remarks"],
     )
@@ -92,7 +92,7 @@ async def update_user_role(
     return UserResponse(
         username=user["username"],
         email=user["email"],
-        phone_number=user["phone_number"],
+        phone_number=service.format_phone_number(user["phone_number"]),
         role=user["role"],
         remarks=user["remarks"],
     )
@@ -110,7 +110,6 @@ async def delete_user(
     await service.expire_refresh_token(user["_id"])
 
 
-
 @router.get("/users/me", response_model=UserResponse)
 async def get_my_account(
     jwt_data: JWTData = Depends(parse_jwt_user_data),
@@ -122,7 +121,7 @@ async def get_my_account(
     return UserResponse(
         username=user["username"],
         email=user["email"],
-        phone_number=user["phone_number"],
+        phone_number=service.format_phone_number(user["phone_number"]),
         role=user["role"],
         remarks=user["remarks"],
     )
@@ -140,7 +139,7 @@ async def update_my_account(
     return UserResponse(
         username=user["username"],
         email=user["email"],
-        phone_number=user["phone_number"],
+        phone_number=service.format_phone_number(user["phone_number"]),
         role=user["role"],
         remarks=user["remarks"],
     )
@@ -231,5 +230,3 @@ async def reset_password(
     reset_data: UnAuthUserPasswordReset,
 ) -> None:
     await service.reset_password(reset_data.token, reset_data.new_password)
-
-

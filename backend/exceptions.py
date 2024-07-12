@@ -31,3 +31,8 @@ class NotAuthenticated(DetailedHTTPException):
 
     def __init__(self) -> None:
         super().__init__(headers={"WWW-Authenticate": "Bearer"})
+
+
+class ServiceUnavailable(DetailedHTTPException):
+    STATUS_CODE = status.HTTP_503_SERVICE_UNAVAILABLE
+    DETAIL = "Service unavailable"

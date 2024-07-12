@@ -5,6 +5,7 @@ class ErrorCode:
     AUTHORIZATION_FAILED_KITCHEN_STAFF = "Authorization failed. User has no access. Kitchen staff required."
     AUTHORIZATION_FAILED_DINNING_STAFF = "Authorization failed. User has no access. Dining room staff required."
     AUTHORIZATION_FAILED_CUSTOMER = "Authorization failed. User has no access. Customer required."
+    AUTHORIZATION_FAILED_CUSTOMER_OR_DINNING_STAFF = "Authorization failed. User has no access. Customer or Dining room staff required."
     INVALID_TOKEN = "Invalid token."
     INVALID_CREDENTIALS = "Invalid credentials."
     EMAIL_TAKEN = "Email is already taken."
