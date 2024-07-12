@@ -18,6 +18,7 @@
   let showAddUserDialog = false;
   let showUpdateDialog=false;
   let showDeleteModal=false;
+  let showResetModal=false;
 
   let users = [{username:"",role:"",status:true,password:"",email:"",countryCode:"",phone_number:"",remarks:""}];
   let newUser={username:"",role:"",status:true,password:"",email:"",countryCode:"",phoneNumber:"",remarks:""};
@@ -205,6 +206,36 @@
       }
   }
 
+  async function resetPassword(){
+      const response = await fetch('http://localhost:8000/auth/users/password-reset-token', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(selectUser.email)
+      });
+      const data = await response.json();
+      console.log(data);
+
+      // const resetData={
+      //   credentials: 'include',
+      // };
+      // console.log(resetData);
+      // const resetResponse = await fetch('http://localhost:8000/auth/users/password-reset',{
+      //     method: 'POST',
+      //     credentials: 'include',
+      //     headers: {
+      //         'Content-Type': 'application/json'
+      //     },
+      //     body: JSON.stringify(resetData)        
+      // });
+      // const resetData = await resetResponse.json();      
+      // console.log(resetData);
+
+      showResetModal=false;
+  }
+
 </script>
 
 <style>
@@ -225,23 +256,6 @@
     margin-bottom: 10px;
   }
   
-/*  .activeButton{
-    background-color: #aaa;
-    border-color: #c4f07a;
-    color:b9e769
-    height: 2rem;
-    width: 3rem;
-    background-image: linear-gradient(45deg, #c4f07a 50%, transparent 50%);
-    background-position: 100%;
-    background-size: 400%;
-    transition: background 300ms ease-in-out;
-  }
-    .activeButton:hover {
-    background-position: 0;
-    color: #aaa;
-    
-  }*/
-
   button{
     margin-left: 5%;
     border:none;
@@ -328,6 +342,24 @@
     -webkit-box-shadow: 10px 10px 99px 6px rgba(178, 34, 34, 1);  
     -moz-box-shadow: 10px 10px 99px 6px rgba(178, 34, 34, 1);
     box-shadow: 10px 10px 99px 6px rgba(178, 34, 34, 1);
+  }
+
+  .resetButton{
+    background-color: #aaa;
+    border-color: #aaa;
+    color:#b9e769;
+    background-image: linear-gradient(45deg, #b9e769 50%, transparent 50%);
+    background-position: 100%;
+    background-size: 400%;
+    transition: background 300ms ease-in-out;
+  }
+
+  .resetButton:hover{
+    color: black;  border: 0;
+    background-color: #b9e769;  
+    -webkit-box-shadow: 10px 10px 99px 6px rgba(185, 231, 105, 1);  
+    -moz-box-shadow: 10px 10px 99px 6px rgba(185, 231, 105, 1);
+    box-shadow: 10px 10px 99px 6px rgba(185, 231, 105, 1);
   }
 
   .addUser{
@@ -556,7 +588,9 @@
     {#if showUpdateDialog}
       <div class="modal" on:click={() => showUpdateDialog = false}>
         <div class="modal-content" on:click|stopPropagation>
+
           <h3>please update user information</h3>
+
           <div class="row">
             <label for="userRole">role:</label>
             <select id="userRole"bind:value={selectUser.role}>
@@ -566,10 +600,12 @@
               <option value="Kitchen Staff">Kitchen Staff</option>
             </select>
           </div>
+
           <div class="row">
             <label for="userName">name:</label>
             <input id="userName" bind:value={selectUser.username} />
           </div> 
+
           <div class="row">
             <label for="countryCode">country code:</label>
             <select id="countryCode" bind:value={selectUser.countryCode}>
@@ -582,17 +618,22 @@
                 <option value="+52">Mexico (+52)</option>
             </select>
           </div>
+
           <div class="row">
             <label for="phoneNumber">phone number:</label>
             <input id="phoneNumber" bind:value={selectUser.phoneNumber} type="tel">
           </div>
+
           <div class="row">
             <label for="email">email:</label>
             <input id="email" bind:value={selectUser.email}>
           </div>
+
           <button on:click={update}>Submit</button>
           <button on:click={() => showUpdateDialog = false}>CLOSE</button>  
           <button class=deleteButton on:click={() => showDeleteModal = true}>DELETE</button>
+          <button class=resetButton on:click={()=> showResetModal = true}>RESET PASSWORD</button>
+
           {#if showDeleteModal}
             <div class="modal" on:click={() => showDeleteModal = false}>
               <div class="modal-content" on:click|stopPropagation>
@@ -602,6 +643,17 @@
               </div>
             </div>
           {/if}     
+
+          {#if showResetModal}
+            <div class="modal" on:click={() => showResetModal = false}>
+              <div class="modal-content" on:click|stopPropagation>
+                <h2>Are you sure reset password?</h2>
+                <button on:click={() => resetPassword()}>RESET PASSWORD</button>        
+                <button on:click={() => showResetModal = false}>CLOSE</button> 
+              </div>
+            </div>
+          {/if}
+
         </div>    
       </div>
     {/if} 

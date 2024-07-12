@@ -6,6 +6,11 @@
   let role ='';
   $: role=user.role;
 
+  let newPassword ='';
+  let oldPassword ='';
+
+  let showResetModal=false;
+
   
   let selectUser={username:"",role:"",status:true,index:-1,email:"",countryCode:"",phone_number:"",imgSrc:"",remarks:""};
   var userData={};
@@ -66,6 +71,27 @@
       }
     }
     
+    async function resetPassword(){
+      const resetData={
+        new_password: newPassword,
+        old_password: oldPassword
+      }
+      const response = await fetch('http://localhost:8000/auth/users/password-update', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(resetData)
+      });
+      if(response.ok){
+        showResetModal=false;
+      }
+      else{
+        alert("reset wrong!");
+      }
+    }
+    
 
 </script>
 
@@ -91,8 +117,12 @@
   .box button{
     margin: auto;
     margin-top: 10px;
-    width: 80px;
+    width: 150px;
     height: 30px;
+    
+    margin-left: 5%;
+    border:none;
+    border-radius: 8%;
   }
 
 
@@ -106,6 +136,43 @@
     margin-bottom: 10px;
   }
 
+  .resetButton{   
+    background-color: #D3D3D3;
+    border-color: #D3D3D3;
+    color:#00BFFF;
+    background-image: linear-gradient(45deg, #00BFFF 50%, transparent 50%);
+    background-position: 100%;
+    background-size: 400%;
+    transition: background 300ms ease-in-out;
+  }
+
+  .resetButton:hover{
+    color: black;  border: 0;
+    background-color: #00BFFF;  
+    -webkit-box-shadow: 10px 10px 99px 6px rgba(0,191,255);  
+    -moz-box-shadow: 10px 10px 99px 6px rgba(0,191,255);
+    box-shadow: 10px 10px 99px 6px rgba(0,191,255);
+  }
+
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    max-width: 600px;
+    width: 100%;
+  }
   
 
 
@@ -138,6 +205,26 @@
           <label for="email">email:</label>
           <input id="email" bind:value={selectUser.email}>
         </div>
+        <div class="row">
       <button on:click={update}>Update</button>
+          <button class=resetButton on:click={()=> showResetModal = true}>Reset Password</button>
+        </div>
+      
+
+      {#if showResetModal}
+            <div class="modal" on:click={() => showResetModal = false}>
+              <div class="modal-content" on:click|stopPropagation>
+
+                <label for="oldPassword">oldPassword:</label>
+                <input id="oldPassword" bind:value={oldPassword}  placeholder="Enter oldPassword">
+
+                <label for="newPassword">newPassword:</label>
+                <input id="newPassword" bind:value={newPassword}  placeholder="Enter newPassword">
+
+                <button on:click={() => resetPassword()}>RESET</button>        
+                <button on:click={() => showResetModal = false}>CLOSE</button> 
+              </div>
+            </div>
+          {/if}
     </div>
   </div>
