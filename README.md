@@ -18,12 +18,15 @@ Install requriement using ```pip install -r requirement.txt```
 ## How to run this app:
 
 **Frontend**:
+
 Go to directory ```frontend```
 Run command ```npm run dev``` to start frontend service.
 
 **Backend**: 
+
 Go to directory ```backend```
 Run with command:   ```uvicorn main:app --reload```/```python main.py``` to start backend service.
 
 **Database**
+
 Run MongoDB client: Default using localhost with port 27017 (Recommand to use MongoDB compass to visualize data)
