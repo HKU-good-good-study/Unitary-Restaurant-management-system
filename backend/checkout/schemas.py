@@ -4,7 +4,7 @@ from enum import Enum
 from pydantic import field_validator, BaseModel
 from pydantic_extra_types.payment import PaymentCardNumber
 
-from backend.models import CustomModel
+from models import CustomModel
 
 
 class TransactionStatus(Enum):

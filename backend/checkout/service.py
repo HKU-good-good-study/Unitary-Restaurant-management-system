@@ -3,14 +3,14 @@ from typing import Any, List, Dict
 import stripe.checkout
 from bson import ObjectId
 from fastapi import Depends
-from backend.config import app_config
-from backend.checkout.config import checkout_config
+from config import app_config
+from checkout.config import checkout_config
 
-from backend.checkout.exceptions import TransactionAlreadyExists, StripeError, TransactionAlreadySuccessful
-from backend.checkout.schemas import Transaction, TransactionCreate, TransactionStatus
-from backend.database import Database
-from backend.menu.models import Menu
-from backend.table.schemas import Order
+from checkout.exceptions import TransactionAlreadyExists, StripeError, TransactionAlreadySuccessful
+from checkout.schemas import Transaction, TransactionCreate, TransactionStatus
+from database import Database
+from menu.models import Menu
+from table.schemas import Order
 
 db = Database()  # Create an instance of the Database class
 

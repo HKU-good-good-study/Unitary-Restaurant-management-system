@@ -1,15 +1,15 @@
 import stripe
 from fastapi import APIRouter, Depends, Request
 
-from backend.auth.jwt import parse_jwt_customer_or_dinning_room_staff_data, parse_jwt_admin_data
-from backend.auth.schemas import JWTData
-from backend.checkout import service
-from backend.auth import service as auth_service
-from backend.checkout.config import checkout_config
-from backend.checkout.dependencies import valid_order_id, valid_transaction_data
-from backend.checkout.exceptions import OrderNotFound, CheckoutParamInvalid
-from backend.checkout.schemas import TransactionCreate, RedirectResponse, TransactionResponse, AdminTransactionResponse
-from backend.exceptions import BadRequest
+from auth.jwt import parse_jwt_customer_or_dinning_room_staff_data, parse_jwt_admin_data
+from auth.schemas import JWTData
+from checkout import service
+from auth import service as auth_service
+from checkout.config import checkout_config
+from checkout.dependencies import valid_order_id, valid_transaction_data
+from checkout.exceptions import OrderNotFound, CheckoutParamInvalid
+from checkout.schemas import TransactionCreate, RedirectResponse, TransactionResponse, AdminTransactionResponse
+from exceptions import BadRequest
 
 router = APIRouter(prefix="/checkout", tags=["Checkout"])
 endpoint_secret = checkout_config.STRIPE_WEBHOOK_SECRET

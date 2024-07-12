@@ -1,5 +1,5 @@
-from backend.checkout.exceptions import OrderIdRequired, TransactionDataRequired
-from backend.checkout.schemas import TransactionCreate
+from checkout.exceptions import OrderIdRequired, TransactionDataRequired
+from checkout.schemas import TransactionCreate
 
 
 async def valid_order_id(order_id: str) -> str:

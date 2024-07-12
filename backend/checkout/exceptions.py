@@ -1,5 +1,5 @@
-from backend.checkout.constants import ErrorCode
-from backend.exceptions import BadRequest, NotFound, ServiceUnavailable
+from checkout.constants import ErrorCode
+from exceptions import BadRequest, NotFound, ServiceUnavailable
 
 
 class OrderIdRequired(BadRequest):
