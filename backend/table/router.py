@@ -121,9 +121,10 @@ async def update_order(order_id:str, order:Order):
     if not order_found:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found!")
     
-    result = await db.execute("orders", {"filter":{"id":f"{order.id}"}, "update":{"$set":{"order":order}}}, "update")
+    result = await db.execute("orders", {"filter":{"id":f"{order.id}"}, "update":{"$set":order.model_dump()}}, "update")
     if not result:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Order update failed")
+    return order_id
 
 @router.delete("/order/{id}/{date}/{orderID}")
 async def delete_table_order(id:str, orderID:str, date:str): 
