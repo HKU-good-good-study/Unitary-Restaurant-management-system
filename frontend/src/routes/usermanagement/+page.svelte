@@ -14,6 +14,7 @@
   let currentPageRows = [];
   let itemsPerPage = 13;
   let loading = true;
+  let resetToken='';
 
   let showAddUserDialog = false;
   let showUpdateDialog=false;
@@ -170,9 +171,12 @@
               users = await response.json();
               var x;
               for(x in users){
-                users[x].phone_number=users[x].phone_number.slice(4);
-                users[x].countryCode=users[x].phone_number.split('-')[0];
-                users[x].phone_number=users[x].phone_number.split('-')[1]+users[x].phone_number.split('-')[2]+users[x].phone_number.split('-')[3];
+                // users[x].phone_number=users[x].phone_number.slice(4);
+                // users[x].countryCode=users[x].phone_number.split('-')[0];
+                // users[x].phone_number=users[x].phone_number.split('-')[1]+users[x].phone_number.split('-')[2]+users[x].phone_number.split('-')[3];
+                users[x].countryCode=users[x].phone_number.split(' ')[0];
+                users[x].phone_number=users[x].phone_number.split(' ')[1];
+              
               }
               // console.log(users);
           } else {
@@ -206,34 +210,57 @@
       }
   }
 
+  async function getResetPassword(){
+      const emailData={
+        email:selectUser.email
+      }
+      try {
+        const response = await fetch('http://localhost:8000/auth/users/password-reset-token', {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(emailData),
+        });
+
+        if (response.ok) {
+          showResetModal=true;
+          console.log("check reset token");
+        } 
+        else {
+          console.error("Error requesting password reset token:", response.statusText);
+          return null;
+        }
+      } 
+      catch (error) {
+        console.error("Error requesting password reset token:", error);
+        return null;
+      }      
+  }
+
   async function resetPassword(){
-      const response = await fetch('http://localhost:8000/auth/users/password-reset-token', {
+      const resetData={
+              new_password: '!Qw123456',
+              token: resetToken
+            };
+      // console.log(resetData);
+      const response = await fetch('http://localhost:8000/auth/users/password-reset',{
           method: 'POST',
           credentials: 'include',
           headers: {
               'Content-Type': 'application/json'
           },
-          body: JSON.stringify(selectUser.email)
+          body: JSON.stringify(resetData)        
       });
-      const data = await response.json();
-      console.log(data);
-
-      // const resetData={
-      //   credentials: 'include',
-      // };
-      // console.log(resetData);
-      // const resetResponse = await fetch('http://localhost:8000/auth/users/password-reset',{
-      //     method: 'POST',
-      //     credentials: 'include',
-      //     headers: {
-      //         'Content-Type': 'application/json'
-      //     },
-      //     body: JSON.stringify(resetData)        
-      // });
-      // const resetData = await resetResponse.json();      
-      // console.log(resetData);
-
-      showResetModal=false;
+      if (response.ok) {
+        alert("reset password");
+        showResetModal=false;
+      } 
+      else {
+        console.error("Error reset password :", response.statusText);
+        return null;
+      }
+      
   }
 
 </script>
@@ -632,7 +659,7 @@
           <button on:click={update}>Submit</button>
           <button on:click={() => showUpdateDialog = false}>CLOSE</button>  
           <button class=deleteButton on:click={() => showDeleteModal = true}>DELETE</button>
-          <button class=resetButton on:click={()=> showResetModal = true}>RESET PASSWORD</button>
+          <button class=resetButton on:click={()=> getResetPassword()}>RESET PASSWORD</button>
 
           {#if showDeleteModal}
             <div class="modal" on:click={() => showDeleteModal = false}>
@@ -647,7 +674,11 @@
           {#if showResetModal}
             <div class="modal" on:click={() => showResetModal = false}>
               <div class="modal-content" on:click|stopPropagation>
-                <h2>Are you sure reset password?</h2>
+                <h2>Please input reset token</h2>
+                <div class="row">
+                  <label for="token">resetToken:</label>
+                  <input id="token" bind:value={resetToken}>
+                </div>
                 <button on:click={() => resetPassword()}>RESET PASSWORD</button>        
                 <button on:click={() => showResetModal = false}>CLOSE</button> 
               </div>

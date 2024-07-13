@@ -7,31 +7,15 @@
   import { user } from '../../stores';
   import { getNowTime } from '$lib/tool.svelte';
 
-  // let tables=[{id: "A1",order: {},status: "idle",time: new Date(),seats: 2},
-  // {id: "A2",order: {},status: "occupied",time: new Date(),seats: 2},
-  // {id: "A3",order: {},status: "idle",time: new Date(),seats: 2},
-  // {id: "A4",order: {},status: "reserved",time: new Date(),seats: 2},
-  // {id: "A5",order: {},status: "idle",time: new Date(),seats: 2},
-  // {id: "B1",order: {},status: "reserved",time: new Date(),seats: 4},
-  // {id: "B2",order: {},status: "idle",time: new Date(),seats: 4},
-  // {id: "B3",order: {},status: "occupied",time: new Date(),seats: 4},
-  // {id: "B4",order: {},status: "reserved",time: new Date(),seats: 4},
-  // {id: "C1",order: {},status: "idle",time: new Date(),seats: 8},
-  // {id: "C2",order: {},status: "idle",time: new Date(),seats: 8},
-  // {id: "C3",order: {},status: "occupied",time: new Date(),seats: 8},
-  // {id: "C4",order: {},status: "idle",time: new Date(),seats: 8},
-  // {id: "D1",order: {},status: "reserved",time: new Date(),seats: 10},
-  // {id: "D2",order: {},status: "idle",time: new Date(),seats: 10},
-  // ];
-
   // @ts-ignore
-  let tables= [];
+  
 
   let role = user.role;
   // $: console.log(role);
 
   let selectedTable = '';
 
+  let tables= [];
   let tableOrders=[];
   let tableOrder='';
 
@@ -103,7 +87,7 @@
       const now = getNowTime();
       newTable.time=now;      
       newTable.seats = addTableSeats;      
-      console.log(newTable);     
+      // console.log(newTable);     
       const response = await fetch('http://localhost:8000/table/'+addTableNumber,{
           method: 'post',
           headers: {
@@ -114,7 +98,7 @@
       });
       if (response.ok) {
         await fetchTable();
-        console.log(newTable);        
+        // console.log(newTable);        
       } 
       else {
           console.error('Error fetching addTable:', response.status);
@@ -190,6 +174,7 @@
           });
           if (response.ok) {
               tables = await response.json();
+              // console.log(tables);
           } else {
               console.error('Error fetching table:', response.status);
               tables = []; // 设置 menus 为空数组
@@ -199,22 +184,6 @@
           tables = []; // 设置 menus 为空数组
       }
   }
-
-  // function addTable(){
-  //   if(addTableNumber=='')alert('new table numbaer cannot be empty!');
-  //   if(addTableSeats<1)alert('table seats cannot < 1');
-  //   else {
-  //     newTable.id = addTableNumber;
-  //     newTable.seats = addTableSeats;
-  //     const now = new Date().toString();
-  //     newTable.time=now
-  //     newTable.status='idle';
-  //     tables.push(newTable);
-  //     tables=tables;
-  //     showAddTable=false;
-  //     console.log(tables);
-  //   }
-  // }
 
   async function getOrder(){
     try {
@@ -235,15 +204,21 @@
   }
 
   function crossOutButton(){
-    showCrossOutModal = true;
-    tableOrder=tableOrders[tableOrders.length-1];
-    dishes=tableOrder.dish;    
-    dishesName = Object.keys(dishes);
-    console.log(dishesName);
-    for(dish in dishes){
-      dishes[dish]['served']=false;
+    if(tableOrders.length!=0){      
+      showCrossOutModal = true;
+      tableOrder=tableOrders[tableOrders.length-1];
+      dishes=tableOrder.dish;    
+      dishesName = Object.keys(dishes);
+      console.log(dishesName);
+      for(dish in dishes){
+        dishes[dish]['served']=false;
+      }
+      console.log(dishes);
     }
-    console.log(dishes);
+    else{
+      alert("There is no order");
+      showCrossOutModal=false;
+    }
   }
 
   function servedDish(dishName){

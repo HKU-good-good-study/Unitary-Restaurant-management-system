@@ -25,9 +25,11 @@
     selectUser.imgSrc="./src/images/";
     selectUser.imgSrc=user.imgSrc+user.role.split(" ")[0].toLowerCase()+'.png';
     selectUser.email=user.email;
-    selectUser.phone_number=user.phone_number.slice(4);
-    selectUser.countryCode=selectUser.phone_number.split('-')[0];
-    selectUser.phone_number=selectUser.phone_number.split('-')[1]+selectUser.phone_number.split('-')[2]+selectUser.phone_number.split('-')[3];
+    // selectUser.phone_number=user.phone_number.slice(4);
+    // selectUser.countryCode=selectUser.phone_number.split('-')[0];
+    // selectUser.phone_number=selectUser.phone_number.split('-')[1]+selectUser.phone_number.split('-')[2]+selectUser.phone_number.split('-')[3];
+    selectUser.countryCode=user.phone_number.split(' ')[0];
+    selectUser.phone_number=user.phone_number.split(' ')[1];
     originUser.countryCode=selectUser.countryCode;
     originUser.phone_number=selectUser.phone_number;
     // console.log(selectUser);
