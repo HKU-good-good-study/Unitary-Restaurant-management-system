@@ -7,31 +7,15 @@
   import { user } from '../../stores';
   import { getNowTime } from '$lib/tool.svelte';
 
-  // let tables=[{id: "A1",order: {},status: "idle",time: new Date(),seats: 2},
-  // {id: "A2",order: {},status: "occupied",time: new Date(),seats: 2},
-  // {id: "A3",order: {},status: "idle",time: new Date(),seats: 2},
-  // {id: "A4",order: {},status: "reserved",time: new Date(),seats: 2},
-  // {id: "A5",order: {},status: "idle",time: new Date(),seats: 2},
-  // {id: "B1",order: {},status: "reserved",time: new Date(),seats: 4},
-  // {id: "B2",order: {},status: "idle",time: new Date(),seats: 4},
-  // {id: "B3",order: {},status: "occupied",time: new Date(),seats: 4},
-  // {id: "B4",order: {},status: "reserved",time: new Date(),seats: 4},
-  // {id: "C1",order: {},status: "idle",time: new Date(),seats: 8},
-  // {id: "C2",order: {},status: "idle",time: new Date(),seats: 8},
-  // {id: "C3",order: {},status: "occupied",time: new Date(),seats: 8},
-  // {id: "C4",order: {},status: "idle",time: new Date(),seats: 8},
-  // {id: "D1",order: {},status: "reserved",time: new Date(),seats: 10},
-  // {id: "D2",order: {},status: "idle",time: new Date(),seats: 10},
-  // ];
-
   // @ts-ignore
-  let tables= [];
+  
 
   let role = user.role;
   // $: console.log(role);
 
   let selectedTable = '';
 
+  let tables= [];
   let tableOrders=[];
   let tableOrder='';
 
@@ -190,6 +174,7 @@
           });
           if (response.ok) {
               tables = await response.json();
+              // console.log(tables);
           } else {
               console.error('Error fetching table:', response.status);
               tables = []; // 设置 menus 为空数组

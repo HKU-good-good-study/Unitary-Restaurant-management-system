@@ -104,8 +104,6 @@
             alert("please check it is table number?");
         }
     }
-
-
   
     async function submitOrder(){
         const response = await fetch('http://localhost:8000/table/order/'+menuTableNumber,{
@@ -135,7 +133,8 @@
             if (orderItem.quantity > 0) {
                 newOrder.dish[orderItem.menu.name] = {
                     amount: orderItem.quantity,
-                    description: orderItem.menu.desc
+                    description: orderItem.menu.desc,
+                    served:false
                 };
             }
         }
