@@ -114,7 +114,7 @@ async def create_order(id:str, order:Order):
     else:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Order creation failed")
 
-@router.update("/order/{order_id}")
+@router.put("/order/update/{order_id}")
 async def update_order(order_id:str, order:Order):
     assert order_id == order.id, "order_id and id in order json not matched"
     order_found = await get_order(order.id)
