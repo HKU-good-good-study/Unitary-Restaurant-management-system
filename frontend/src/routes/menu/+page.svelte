@@ -104,6 +104,10 @@
             alert("please check it is table number?");
         }
     }
+
+    function goBack(){
+        goto('./role');
+    }
   
     async function submitOrder(){
         const response = await fetch('http://localhost:8000/table/order/'+menuTableNumber,{
@@ -371,7 +375,9 @@ async function updateMenu(menu) {
         defaultMenu();
     }
   </script>
-  
+
+
+{#if role !== 'Manager' && role !== 'Kitchen Staff'}  
   {#if showInputTableNumber}
     <div class="modal">
         <div class="modal-content" on:click|stopPropagation>
@@ -380,6 +386,7 @@ async function updateMenu(menu) {
                 <input type="text" id="menuTableNumber" bind:value={menuTableNumber} required>
             </label>
             <button on:click={() => submitTableNumber()} >submit</button>
+            <button class="actions" on:click={() => goBack()}>back</button>
         </div>
     </div>
   {/if}
@@ -387,8 +394,10 @@ async function updateMenu(menu) {
   {#if !showInputTableNumber}
   <h1>Menu Table {menuTableNumber}</h1>
   {/if}
+{/if}
   
   {#if role === 'Manager' || role === 'Kitchen Staff'}
+  <h1>Menu</h1>
   <div>
       <button on:click={() => showAddMenu = true}>Add New Dish</button>
       {#if showAddMenu}

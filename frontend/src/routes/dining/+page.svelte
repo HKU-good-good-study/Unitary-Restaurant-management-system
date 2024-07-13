@@ -193,6 +193,7 @@
           });
           if (response.ok) {
               tableOrders = await response.json();
+              // console.log(tableOrders);
           } else {
               console.error('Error fetching table order:', response.status);
               tableOrders = []; // 设置 menus 为空数组
@@ -209,11 +210,11 @@
       tableOrder=tableOrders[tableOrders.length-1];
       dishes=tableOrder.dish;    
       dishesName = Object.keys(dishes);
-      console.log(dishesName);
-      for(dish in dishes){
-        dishes[dish]['served']=false;
-      }
-      console.log(dishes);
+      // console.log(dishesName);
+      // for(dish in dishes){
+      //   dishes[dish]['served']=false;
+      // }
+      // // console.log(dishes);
     }
     else{
       alert("There is no order");
@@ -221,8 +222,20 @@
     }
   }
 
-  function servedDish(dishName){
+  async function servedDish(dishName){
     dishes[dishName].served=!dishes[dishName].served;
+    console.log(tableOrder);
+    const response = await fetch('http://localhost:8000/table/order/update/'+tableOrder.id, {
+              method: 'put',
+              headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include', // This is important for cookies to be sent
+            body: JSON.stringify(tableOrder)
+    });
+    const data = await response.json();
+    console.log(data);
+
   }
 
   onMount(async() => {
