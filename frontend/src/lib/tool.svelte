@@ -7,7 +7,7 @@
             credentials: 'include', // This is important for cookies to be sent
         });
         const roleData = await roleResponse.json();
-        //console.log(roleData);
+        // console.log(roleData);
         user.username=roleData.username;
         user.role=roleData.role;
         user.imgSrc="./src/images/";

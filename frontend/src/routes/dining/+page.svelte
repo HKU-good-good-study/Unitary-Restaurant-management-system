@@ -103,7 +103,7 @@
       const now = getNowTime();
       newTable.time=now;      
       newTable.seats = addTableSeats;      
-      console.log(newTable);     
+      // console.log(newTable);     
       const response = await fetch('http://localhost:8000/table/'+addTableNumber,{
           method: 'post',
           headers: {
@@ -114,7 +114,7 @@
       });
       if (response.ok) {
         await fetchTable();
-        console.log(newTable);        
+        // console.log(newTable);        
       } 
       else {
           console.error('Error fetching addTable:', response.status);
@@ -200,22 +200,6 @@
       }
   }
 
-  // function addTable(){
-  //   if(addTableNumber=='')alert('new table numbaer cannot be empty!');
-  //   if(addTableSeats<1)alert('table seats cannot < 1');
-  //   else {
-  //     newTable.id = addTableNumber;
-  //     newTable.seats = addTableSeats;
-  //     const now = new Date().toString();
-  //     newTable.time=now
-  //     newTable.status='idle';
-  //     tables.push(newTable);
-  //     tables=tables;
-  //     showAddTable=false;
-  //     console.log(tables);
-  //   }
-  // }
-
   async function getOrder(){
     try {
           const response = await fetch('http://localhost:8000/table/table_order/'+tableID, {
@@ -235,15 +219,21 @@
   }
 
   function crossOutButton(){
-    showCrossOutModal = true;
-    tableOrder=tableOrders[tableOrders.length-1];
-    dishes=tableOrder.dish;    
-    dishesName = Object.keys(dishes);
-    console.log(dishesName);
-    for(dish in dishes){
-      dishes[dish]['served']=false;
+    if(tableOrders.length!=0){      
+      showCrossOutModal = true;
+      tableOrder=tableOrders[tableOrders.length-1];
+      dishes=tableOrder.dish;    
+      dishesName = Object.keys(dishes);
+      console.log(dishesName);
+      for(dish in dishes){
+        dishes[dish]['served']=false;
+      }
+      console.log(dishes);
     }
-    console.log(dishes);
+    else{
+      alert("There is no order");
+      showCrossOutModal=false;
+    }
   }
 
   function servedDish(dishName){

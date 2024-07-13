@@ -24,6 +24,9 @@
         weight: 0
     };
 
+    let tables= [];
+    let tablesNumber=[];
+
     let newOrder={        
         "table": "string",
         "time": "string",
@@ -36,7 +39,9 @@
     ];
     let totalPrice = 0;
     let quantities = {};
+
     let showAddMenu = false;
+    let showInputTableNumber = true;
 
     let menuTableNumber='';
     const unsubscribe = menuTable.subscribe((value) => (menuTableNumber=value));
@@ -46,6 +51,7 @@
     onMount(async () => {
         await validation();
         await fetchMenus();
+        await fetchTableNmbuer();
         role = user.role;
         calculateTotalPrice(); // 在这里调用 calculateTotalPrice
     });
@@ -66,7 +72,39 @@
           console.error('Error fetching menus:', error);
           menus = []; // 设置 menus 为空数组
       }
-  }
+    }
+
+    async function fetchTableNmbuer(){
+    try {
+          const response = await fetch('http://localhost:8000/table/all', {
+              method: 'GET',
+              credentials: 'include',
+          });
+          if (response.ok) {
+              tables = await response.json();              
+              for(var i in tables){
+                tablesNumber.push(tables[i].id);
+              }
+            //   console.log(tablesNumber);
+          } else {
+              console.error('Error fetching table:', response.status);
+              tables = []; // 设置 menus 为空数组
+          }
+      } catch (error) {
+          console.error('Error fetching table:', error);
+          tables = []; // 设置 menus 为空数组
+      }
+    }
+
+    function submitTableNumber(){
+        if(tablesNumber.includes(menuTableNumber)){
+            showInputTableNumber=false;
+        }
+        else{
+            alert("please check it is table number?");
+        }
+    }
+
 
   
     async function submitOrder(){
@@ -335,7 +373,21 @@ async function updateMenu(menu) {
     }
   </script>
   
-  <h1>Menu</h1>
+  {#if showInputTableNumber}
+    <div class="modal">
+        <div class="modal-content" on:click|stopPropagation>
+            <label>
+                Please input table number
+                <input type="text" id="menuTableNumber" bind:value={menuTableNumber} required>
+            </label>
+            <button on:click={() => submitTableNumber()} >submit</button>
+        </div>
+    </div>
+  {/if}
+  
+  {#if !showInputTableNumber}
+  <h1>Menu Table {menuTableNumber}</h1>
+  {/if}
   
   {#if role === 'Manager' || role === 'Kitchen Staff'}
   <div>
@@ -608,5 +660,25 @@ async function updateMenu(menu) {
         color: #999;
         font-size: 0.8rem;
         margin-left: 5px;
+    }
+
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background-color: white;
+        padding: 20px;
+        border-radius: 5px;
+        max-width: 600px;
+        width: 100%;
     }
   </style>
