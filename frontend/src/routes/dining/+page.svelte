@@ -11,20 +11,19 @@
   
 
   let role = user.role;
-  // $: console.log(role);
 
   let selectedTable = '';
 
   let tables= [];
   let tableOrders=[];
-  let tableOrder='';
+  let tableOrder='';  
+  let orderId = '';
 
   let dishes = [];
   let dish ={};
   let dishesName = [];
   let lineClass='';
 
-  let closedTableNumber = '';
   let sum = '';
   let note = '';
   
@@ -33,6 +32,7 @@
   let showUpdateModal = false;   
   let showDeleteModal = false;
   let showCrossOutModal = false;
+  let showCheckOutModal = false;
 
   let addTableSeats=0;
   let addTableNumber ='';
@@ -208,6 +208,7 @@
     if(tableOrders.length!=0){      
       showCrossOutModal = true;
       tableOrder=tableOrders[tableOrders.length-1];
+      // console.log(tableOrder);
       dishes=tableOrder.dish;    
       dishesName = Object.keys(dishes);
       // console.log(dishesName);
@@ -238,12 +239,46 @@
 
   }
 
+  function checkOutButton(){
+    tableOrder=tableOrders[tableOrders.length-1];
+    orderId=tableOrder.id;
+    showCheckOutModal = true;
+  }
+
+  async function handleSubmit() {
+    //event.preventDefault(); // Prevent the default form submission behavior
+    try {
+      const response = await fetch('http://localhost:8000/checkout/new', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // This is important for cookies to be sent
+        body: JSON.stringify({
+          order_id: orderId,
+          // Include other necessary fields as per your TransactionCreate model
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        window.location.href = data.url; // Redirect to the payment URL
+      } else {
+        console.error('Failed to create transaction:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+
   onMount(async() => {
     await validation();
     await fetchTable();
+    role = user.role;
     // history.replaceState(null, 'Profile', '/profile');
     document.title = 'Dining Staff Page';
   });
+  
 </script>
 
 <style>
@@ -409,120 +444,136 @@
   }
   
 </style>
-
-<div class="container">
-  <h2>{role}</h2>
-  <div class="row">
-    <button>Work</button>
-    <button>Get Off Work</button>
-    <button on:click={()=> addTableButton()}>Add Table</button>
-  </div>
-  <div class="table-grid">
-    {#each tables as table, index}
-      <div class="table-container" on:click={() => handleTableClick(+index)}>
-        <Table id={table.id} status={table.status} on:changeStatus={(event) => updateTableStatus(+index, event.detail.status)}/>
-      </div>
-    {/each}
-  </div>
-</div>
-
-
-{#if showAddTable}
-<div class="addModal" >
-  <div class="addModal-content" on:click|stopPropagation>
+{#if user.username!='testC'}
+  <div class="container">
+    <h2>{role}</h2>
     <div class="row">
-      <label for= "addTableNumber">New Table Number:</label>
-      <input id="addTableNumber" bind:value={addTableNumber} placeholder="Enter New Table Number" />      
+      <button>Work</button>
+      <button>Get Off Work</button>
+      <button on:click={()=> addTableButton()}>Add Table</button>
     </div>
-    <div class="row">
-      <label for = "Seats Number">Seats Number:</label>
-      <input id = "Seats Number" type=number bind:value={addTableSeats} min=0 placeholder="Enter Seats Number" />    
-    </div>
-    <button on:click={() => addTable()}>ADD</button>
-    <button on:click={() => showAddTable = false}>CLOSE</button>     
-  </div>
-</div>
-{/if}
-
-{#if role == 'Dining Room Staff' && showModal}
-<div class="modal" on:click={() => showModal = false}>
-  <div class="modal-content" on:click|stopPropagation>
-    <h3>Table {tables[selectedTable].id}</h3>
-    <h4>{tables[selectedTable].seats} seats</h4>
-    <div class="row">
-      <select bind:value={tables[selectedTable].status}  on:change={() => updateTableStatus(+selectedTable, tables[selectedTable].status)}>
-        <option value="idle">Idle</option>
-        <option value="reserved">Reserved</option>
-        <option value="occupied">Occupied</option>
-      </select>
-      <button on:click={() => showModal = false}>CLOSE</button>
-    </div>
-    <!-- <div class="row">
-      <input bind:value={dishNumber} placeholder="Enter Dish Number" />
-      <button>Order Food for Customers</button>
-    </div> -->
-    <div class="row">
-      <button on:click={()=> crossOutButton()}>Cross Out Served Dishes</button>
-    </div>
-    <div class="row">
-      <input bind:value={closedTableNumber} placeholder="Enter Closed Table Number" />
-      <input bind:value={sum} placeholder="Enter Total Amount" />
-      <button>Checkout</button>
-    </div>
-    <div class="row">
-      <input bind:value={note} placeholder="Enter Lost Items and Notes" />
-      <button>Report Lost Items</button>
-    </div>
-    <div class="row">
-      <button on:click={() => goToMenu(tables[selectedTable].id)}>Go to Menu</button>
-    </div>
-    {#if showCrossOutModal}
-    <div class="modal" on:click={() => showCrossOutModal = false}>
-      <div class="modal-content" on:click|stopPropagation>
-        {#each dishesName as dishName}
-        <div class="row">
-          {#if dishes[dishName].served}         
-            <p class='line-through' on:click={()=>servedDish(dishName)}>{dishName}:{dishes[dishName].amount}</p>
-          {/if}
-          {#if !dishes[dishName].served}         
-            <p on:click={()=>servedDish(dishName)}>{dishName}:{dishes[dishName].amount}</p>
-          {/if}
+    <div class="table-grid">
+      {#each tables as table, index}
+        <div class="table-container" on:click={() => handleTableClick(+index)}>
+          <Table id={table.id} status={table.status} on:changeStatus={(event) => updateTableStatus(+index, event.detail.status)}/>
         </div>
-        {/each}
-      </div>
+      {/each}
     </div>
-    {/if}
   </div>
-</div>
-{/if}
 
-{#if role=='Manager'&& showUpdateModal }
-<div class="addModal" >
-  <div class="modal" on:click={() => showUpdateModal = false}>
+
+  {#if showAddTable}
+  <div class="addModal" >
     <div class="addModal-content" on:click|stopPropagation>
       <div class="row">
         <label for= "addTableNumber">New Table Number:</label>
-        <input id="addTableNumber" bind:value={updateTableID} placeholder="Enter New Table Number" />      
+        <input id="addTableNumber" bind:value={addTableNumber} placeholder="Enter New Table Number" />      
       </div>
       <div class="row">
         <label for = "Seats Number">Seats Number:</label>
-        <input id = "Seats Number" type=number bind:value={updatetableSeats} min=0 placeholder="Enter New Seats Number" />    
+        <input id = "Seats Number" type=number bind:value={addTableSeats} min=0 placeholder="Enter Seats Number" />    
       </div>
-      <button class="updateButton" on:click={() => updatetable()}>UPDATE</button>
-      <button on:click={() => showUpdateModal = false}>CLOSE</button>     
-      <button class="deactiveButton" on:click={() => tryDeleteTable()}>DELETE</button>
-      {#if showDeleteModal}
-      <div class="addModal" >
-        <div class="modal" on:click={() => showUpdateModal = false}>
-          <div class="addModal-content" on:click|stopPropagation>
-            <h2>Are you sure deleting it?</h2>
-            <button on:click={() => deleteTable()}>DELETE</button>        
-            <button on:click={() => showUpdateModal = false}>CLOSE</button> 
-          </div>
-        </div>
-      </div>
-      {/if}     
+      <button on:click={() => addTable()}>ADD</button>
+      <button on:click={() => showAddTable = false}>CLOSE</button>     
     </div>
   </div>
-</div>
+  {/if}
+
+  {#if role == 'Dining Room Staff' && showModal}
+  <div class="modal" on:click={() => showModal = false}>
+    <div class="modal-content" on:click|stopPropagation>
+      <h3>Table {tables[selectedTable].id}</h3>
+      <h4>{tables[selectedTable].seats} seats</h4>
+      <div class="row">
+        <select bind:value={tables[selectedTable].status}  on:change={() => updateTableStatus(+selectedTable, tables[selectedTable].status)}>
+          <option value="idle">Idle</option>
+          <option value="reserved">Reserved</option>
+          <option value="occupied">Occupied</option>
+        </select>
+        <button on:click={() => showModal = false}>CLOSE</button>
+      </div>
+      <!-- <div class="row">
+        <input bind:value={dishNumber} placeholder="Enter Dish Number" />
+        <button>Order Food for Customers</button>
+      </div> -->
+      <div class="row">
+        <button on:click={()=> crossOutButton()}>Cross Out Served Dishes</button>
+      </div>
+      <div class="row">
+        <button on:click={()=> checkOutButton()}>Checkout</button>
+      </div>
+      <div class="row">
+        <input bind:value={note} placeholder="Enter Lost Items and Notes" />
+        <button>Report Lost Items</button>
+      </div>
+      <div class="row">
+        <button on:click={() => goToMenu(tables[selectedTable].id)}>Go to Menu</button>
+      </div>
+
+      {#if showCrossOutModal}
+      <div class="modal" on:click={() => showCrossOutModal = false}>
+        <div class="modal-content" on:click|stopPropagation>
+          {#each dishesName as dishName}
+          <div class="row">
+            {#if dishes[dishName].served}         
+              <p class='line-through' on:click={()=>servedDish(dishName)}>{dishName}:{dishes[dishName].amount}</p>
+            {/if}
+            {#if !dishes[dishName].served}         
+              <p on:click={()=>servedDish(dishName)}>{dishName}:{dishes[dishName].amount}</p>
+            {/if}
+          </div>
+          {/each}
+        </div>
+      </div>
+      {/if}
+
+      {#if showCheckOutModal}
+      <div class="modal" on:click={() => showCheckOutModal = false}>
+        <div class="modal-content" on:click|stopPropagation>
+          <form on:submit={handleSubmit}>
+            <p>Order Time: {tableOrder.time}</p>
+            <button type="submit">Submit</button>
+          </form>
+        </div>
+      </div>
+      {/if}
+
+    </div>
+  </div>
+  {/if}
+
+  {#if role=='Manager'&& showUpdateModal }
+  <div class="addModal" >
+    <div class="modal" on:click={() => showUpdateModal = false}>
+      <div class="addModal-content" on:click|stopPropagation>
+        <div class="row">
+          <label for= "addTableNumber">New Table Number:</label>
+          <input id="addTableNumber" bind:value={updateTableID} placeholder="Enter New Table Number" />      
+        </div>
+        <div class="row">
+          <label for = "Seats Number">Seats Number:</label>
+          <input id = "Seats Number" type=number bind:value={updatetableSeats} min=0 placeholder="Enter New Seats Number" />    
+        </div>
+        <button class="updateButton" on:click={() => updatetable()}>UPDATE</button>
+        <button on:click={() => showUpdateModal = false}>CLOSE</button>     
+        <button class="deactiveButton" on:click={() => tryDeleteTable()}>DELETE</button>
+        {#if showDeleteModal}
+        <div class="addModal" >
+          <div class="modal" on:click={() => showUpdateModal = false}>
+            <div class="addModal-content" on:click|stopPropagation>
+              <h2>Are you sure deleting it?</h2>
+              <button on:click={() => deleteTable()}>DELETE</button>        
+              <button on:click={() => showUpdateModal = false}>CLOSE</button> 
+            </div>
+          </div>
+        </div>
+        {/if}     
+      </div>
+    </div>
+  </div>
+  {/if}
+{/if}
+
+{#if user.username=='testC'}
+  <p>Order Successful!</p>
 {/if}

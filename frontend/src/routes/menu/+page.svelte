@@ -45,7 +45,7 @@
 
     let menuTableNumber='';
     const unsubscribe = menuTable.subscribe((value) => (menuTableNumber=value));
-    console.log(menuTableNumber);
+    // console.log(menuTableNumber);
     onDestroy(unsubscribe);
   
     onMount(async () => {
@@ -53,6 +53,9 @@
         await fetchMenus();
         await fetchTableNmbuer();
         role = user.role;
+        if(menuTableNumber!=''){
+            showInputTableNumber=false;
+        }
         calculateTotalPrice(); 
     });
 
@@ -85,6 +88,7 @@
               for(var i in tables){
                 tablesNumber.push(tables[i].id);
               }
+              tablesNumber=tablesNumber;
             //   console.log(tablesNumber);
           } else {
               console.error('Error fetching table:', response.status);
@@ -504,7 +508,7 @@ async function updateMenu(menu) {
     </div>
     {/if}
 
-    {#if role === 'Dining Room Staff'}
+    {#if role === 'Dining Room Staff'|| role === 'Customer' }
     <button on:click={() => createOrder()}>Submit Order</button>
     {/if}
   

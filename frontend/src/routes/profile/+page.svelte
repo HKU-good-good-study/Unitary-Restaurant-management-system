@@ -86,10 +86,13 @@
         },
         body: JSON.stringify(resetData)
       });
-      if(response.ok){
+      // const data = await response.json();
+      if(response.ok){        
+        // console.log(data);
         showResetModal=false;
       }
       else{
+        // console.log(data);
         alert("reset wrong!");
       }
     }
@@ -179,7 +182,7 @@
 
 
 </style>
-
+{#if user.username!='testC'}
   <div class="block">
     <div class="box">
       <h2> Update user information here</h2>
@@ -230,3 +233,4 @@
           {/if}
     </div>
   </div>
+{/if}

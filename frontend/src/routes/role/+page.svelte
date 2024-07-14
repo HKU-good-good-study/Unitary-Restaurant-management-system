@@ -3,6 +3,7 @@
   import { user } from '../../stores';
   import { onMount } from 'svelte';
   import { validation } from '$lib/tool.svelte';
+  import { menuTable } from '../../stores';
 
   // let roleData=sessionStorage.getItem("role");
   //let role = roleData; // Change this to 'kitchen', 'manager', 'customer', or 'dining' based on the current user
@@ -21,6 +22,9 @@
 
   function goToFunction(feature) {
     var url='./'+feature;
+    if(feature=='menu'){
+      menuTable.set('');
+    }
     goto(url);
   }
 
@@ -79,6 +83,7 @@
      
 </style>
 
+{#if user.username!='testC'}
 <body>
   <div class="menu">
     {#each rolePermissions[role] as permission }
@@ -89,3 +94,4 @@
     {/each}  
   </div>
 </body>
+{/if}

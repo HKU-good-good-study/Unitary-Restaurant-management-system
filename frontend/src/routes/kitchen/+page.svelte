@@ -147,7 +147,7 @@
 <style>
   /* 添加了滚动容器的样式 */
   .scroll-container {
-    height: 200px;
+    height: 100%;
     overflow-y: auto;
   }
 
@@ -235,12 +235,3 @@
   {/each}
 </div>
 
-<div>
-  <h2>Menu</h2>
-  {#each menu as dish, index (dish.name)}
-    <div>
-      <p>{dish.name}</p>
-      <input type="number" min="0" bind:value={dish.quantity} on:change={() => updateMenu(index, dish.quantity)} />
-    </div>
-  {/each}
-</div>

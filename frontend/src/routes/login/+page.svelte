@@ -30,7 +30,7 @@
             body: JSON.stringify({ username, password })
         });
         const data = await response.json();
-        console.log(data);
+        // console.log(data);
 
         // const roleResponse = await fetch('http://localhost:8000/auth/users/me', {
         //     method: 'GET',
@@ -67,7 +67,21 @@
         goToRegister();
     //     window.location.href = "http://localhost:5173/register";
     }
-    function noRegisterOrder(){
+    async function noRegisterOrder(){
+        username="testC";
+        password='!Qw123456';
+        const response = await fetch('http://localhost:8000/auth/users/tokens', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include', // This is important for cookies to be sent
+            body: JSON.stringify({ username, password })
+        });
+        const data=await response.json();
+        console.log(data);
+        
+        await validation();
         goto('./menu');
     }
 </script>
