@@ -490,12 +490,9 @@
           <option value="reserved">Reserved</option>
           <option value="occupied">Occupied</option>
         </select>
-        <button on:click={() => showModal = false}>CLOSE</button>
+        <button on:click={() => showModal = false}>Close</button>
       </div>
-      <!-- <div class="row">
-        <input bind:value={dishNumber} placeholder="Enter Dish Number" />
-        <button>Order Food for Customers</button>
-      </div> -->
+      {#if tables[selectedTable].status=='occupied'}
       <div class="row">
         <button on:click={()=> crossOutButton()}>Cross Out Served Dishes</button>
       </div>
@@ -506,6 +503,7 @@
         <input bind:value={note} placeholder="Enter Lost Items and Notes" />
         <button>Report Lost Items</button>
       </div>
+      {/if}
       <div class="row">
         <button on:click={() => goToMenu(tables[selectedTable].id)}>Go to Menu</button>
       </div>
