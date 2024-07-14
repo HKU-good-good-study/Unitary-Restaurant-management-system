@@ -53,7 +53,7 @@
         await fetchMenus();
         await fetchTableNmbuer();
         role = user.role;
-        calculateTotalPrice(); // 在这里调用 calculateTotalPrice
+        calculateTotalPrice(); 
     });
 
     async function fetchMenus() {
@@ -180,8 +180,8 @@
         ingredients = ingredients;
     }
   
-async function saveMenu() {
-        while (!lock) {}
+    async function saveMenu() {
+        while (!lock && !isEditMode) {}
         newMenu.name = document.getElementById('menuName').value;
         newMenu.price = document.getElementById('menuPrice').value;
         newMenu.weight = document.getElementById('menuWeight').value;
@@ -189,7 +189,6 @@ async function saveMenu() {
         newMenu.desc = document.getElementById('menuDes').value;
         newMenu.sold = document.getElementById('menuSold').value;
         newMenu.ingredient = ingredients;
-
 
         if (isEditMode) {
             // 编辑操作
@@ -233,16 +232,6 @@ async function updateMenu(menu) {
 }
     let currentOrder = {};
 
-    // function updateQuantity(menuId, operation) {
-    //     if (operation === 'increment') {
-    //         quantities[menuId] = (quantities[menuId] || 0) + 1;
-    //         currentOrder[menuId] = (currentOrder[menuId] || 0) + 1;
-    //     } else {
-    //         quantities[menuId] = Math.max(0, (quantities[menuId] || 0) - 1);
-    //         currentOrder[menuId] = Math.max(0, (currentOrder[menuId] || 0) - 1);
-    //     }
-    //     calculateTotalPrice();
-    // }
     function updateQuantity(menu, operation) {
         if (operation === 'increment') {
             quantities[menu.id] = (quantities[menu.id] || 0) + 1;
@@ -262,18 +251,11 @@ async function updateMenu(menu) {
         }, 0);
     }
     var lock = false;
-    // function getImage(file){
-    //   const reader = new FileReader();
-    //   reader.readAsDataURL(file);
-    //   reader.onload = e => {
-    //       newMenu.image= e.target.result;
-    //       lock = true;
-    //       newMenu.image = newMenu.image.split(',')[1];
-    //       // newMenu.image = "123";
-    //   };
-    // }
+
     function getImage(file) {
-    // 检查文件类型是否为 JPEG 或 PNG
+        if (!file) return; // 如果没有选择文件，直接返回
+
+        // 检查文件类型是否为 JPEG 或 PNG
         if (!['image/jpeg', 'image/png'].includes(file.type)) {
             alert('Please upload a JPEG or PNG image file.');
             return;
@@ -315,10 +297,11 @@ async function updateMenu(menu) {
         };
     }
 
+
     let isEditMode = false;
     async function handleEdit(menu) {
         newMenu = { ...menu };
-        console.log(newMenu.id);
+        console.log(newMenu.image);
         showAddMenu = true;
         isEditMode = true;
     }
@@ -448,9 +431,12 @@ async function updateMenu(menu) {
                       <textarea id="menuDes" required></textarea>
                   </label>
                   <label>
-                      Image:
-                      <input type="file" on:change={(e) => getImage(e.target.files[0])} required>
-                  </label>
+                    Image:
+                    <input type="file" on:change={(e) => getImage(e.target.files[0])}>
+                    {#if isEditMode}
+                    <span class="note">(Leave empty to keep the current image)</span>
+                    {/if}
+                </label>
                   <button type="submit" on:click={() => fetchMenus}>Save</button>
                   <button type="button" on:click={() => cancelModal()}>Cancel</button>
               </form>
