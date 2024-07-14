@@ -448,44 +448,43 @@ async function updateMenu(menu) {
   
   <h2>Menu List</h2>
   <div class="menu-list">
-      {#each menus as menu}
-      <div class="menu-item">
-          <p>ID: {menu.id}</p>
-          <p>Name: {menu.name}</p>
-          <p>Price: ${menu.price}</p>
-          <p>Weight: {menu.weight}g</p>
-          {#if role !== 'Manager' && role !== 'kitchen staff'}
-          <!-- <div class="quantity-container">
-              <button on:click={() => updateQuantity(menu.id, 'decrement')}>-</button>
-              <span>{quantities[menu.id] || 0}</span>
-              <button on:click={() => updateQuantity(menu.id, 'increment')}>+</button>
-          </div> -->
-          <div class="quantity-container">
-            <button on:click={() => updateQuantity(menu, 'decrement')}>-</button>
+    {#each menus as menu}
+    <div class="menu-item" class:disabled={role !== 'Manager' && role !== 'Kitchen Staff' && !menu.availability}>
+        <p>ID: {menu.id}</p>
+        <p>Name: {menu.name}</p>
+        <p>Price: ${menu.price}</p>
+        <p>Weight: {menu.weight}g</p>
+        {#if role !== 'Manager' && role !== 'Kitchen Staff'}
+        <div class="quantity-container">
+            <button on:click={() => updateQuantity(menu, 'decrement')} disabled={role !== 'Manager' && role !== 'Kitchen Staff' && !menu.availability}>-</button>
             <span>{quantities[menu.id] || 0}</span>
-            <button on:click={() => updateQuantity(menu, 'increment')}>+</button>
+            <button on:click={() => updateQuantity(menu, 'increment')} disabled={role !== 'Manager' && role !== 'Kitchen Staff' && !menu.availability}>+</button>
         </div>
-          {/if}
-          <p>Ingredients:</p>
-          {#each menu.ingredient as ingredient}
-          <div class="ingredient-info">
-              <p>{ingredient.name} - {ingredient.weight}g</p>
-          </div>
-          {/each}
-          <p>Sold: {menu.sold}</p>
-          <p>Availability: {menu.availability ? 'Yes' : 'No'}</p>
-          <p>Description: {menu.desc}</p>
-          <!-- <img src={`data:image/jpeg;base64,${btoa(String.fromCharCode(...new Uint8Array(menu.image)))}`} alt="{menu.name} image"> -->
-          <img src={`data:image/jpeg;base64,${menu.image}`} alt="{menu.name} image" />
-          {#if role === 'Manager' || role === 'Kitchen Staff'}
-          <div class="actions">
-              <button on:click={() => handleEdit(menu)}>Edit</button>
-              <button on:click={() => handleDelete(menu.id)}>Delete</button>
-          </div>
-          {/if}
-      </div>
-      {/each}
-  </div>
+        {/if}
+        <p>Ingredients:</p>
+        {#each menu.ingredient as ingredient}
+        <div class="ingredient-info">
+            <p>{ingredient.name} - {ingredient.weight}g</p>
+        </div>
+        {/each}
+        <p>Sold: {menu.sold}</p>
+        <p>Availability: {menu.availability ? 'Yes' : 'No'}</p>
+        <p>Description: {menu.desc}</p>
+        <img src={`data:image/jpeg;base64,${menu.image}`} alt="{menu.name} image" />
+        {#if role === 'Manager' || role === 'Kitchen Staff'}
+        <div class="actions">
+            <button on:click={() => handleEdit(menu)}>Edit</button>
+            <button on:click={() => handleDelete(menu.id)}>Delete</button>
+        </div>
+        {/if}
+        {#if role !== 'Manager' && role !== 'Kitchen Staff' && !menu.availability}
+        <div class="not-available-overlay">
+            <span>Not available</span>
+        </div>
+        {/if}
+    </div>
+    {/each}
+</div>
   
     {#if role !== 'Manager' && role !== 'Kitchen Staff'}
     <div class="total-price-container">
