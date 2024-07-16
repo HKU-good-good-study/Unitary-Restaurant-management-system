@@ -76,7 +76,7 @@
     }
     async function noRegisterOrder(){
         username="customer";
-        password='!Qw123456';
+        password='Passw@rd';
         const response = await fetch('http://localhost:8000/auth/users/tokens', {
             method: 'POST',
             headers: {
