@@ -3,16 +3,20 @@
     import { user } from '../stores.js'; 
     import { page } from '$app/stores';
     import { validation } from '$lib/tool.svelte';
-
+    
     onMount(async () => {
       // history.replaceState(null, 'Profile', '/profile');
       document.title = 'Role Page';
-      await validation();
-      user.name= user.name;
-  });
+      if($page.url.pathname == '/login' || $page.url.pathname == '/register'){}
+      else {
+        await validation();
+      }
+      user.username=user.username;     
+    });
 
-    //$: user.name= user.name;
 
+     $: user.username=user.username;
+    //  $: console.log("lay"+user.username);
 </script>
 
 <style>
@@ -30,8 +34,8 @@
     
 </style>
 
-{#if user.name && $page.url.pathname != '/login'}
-<body>
+{#if user.username && $page.url.pathname != '/login'}
+<!-- <body> -->
 <HeaderBar back="true" bgcolor="linear-gradient(to right, #4978ff, #17f532)" color="#e4ff00">
     <svelte:fragment slot="backText">
         <i class="iconfont icon-close">Back</i>        
@@ -44,7 +48,7 @@
     </svelte:fragment-->
 
    <svelte:fragment slot="user">
-    <i >{user.name}</i>
+    <i >{user.username}</i>
     <img src={user.imgSrc} alt="role">
     </svelte:fragment>
     
@@ -52,6 +56,6 @@
     <i >logout</i>
     </svelte:fragment>
 </HeaderBar>
-</body>
+<!-- </body> -->
 {/if}
 <slot></slot>

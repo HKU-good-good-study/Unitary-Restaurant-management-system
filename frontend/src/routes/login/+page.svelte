@@ -13,10 +13,17 @@
     let registerRole = 'Customer';
     let registerRemarks = '';
 
+    let showResetModal = false;
+    let showInputModal = false;
+    let userEmail = '';
+    let resetToken ='';
+
     onMount(() => {
         document.body.style.backgroundColor = '#f2f2f2'; // Light Gray
         // history.replaceState(null, 'Profile', '/profile');
         document.title = 'Login Page';
+        userEmail='';
+        resetToken='';
     });
 
     async function submitLogin() {
@@ -29,7 +36,7 @@
             body: JSON.stringify({ username, password })
         });
         const data = await response.json();
-        console.log(data);
+        // console.log(data);
 
         // const roleResponse = await fetch('http://localhost:8000/auth/users/me', {
         //     method: 'GET',
@@ -66,9 +73,77 @@
         goToRegister();
     //     window.location.href = "http://localhost:5173/register";
     }
-    function noRegisterOrder(){
+    async function noRegisterOrder(){
+        username="customer";
+        password='Passw@rd';
+        const response = await fetch('http://localhost:8000/auth/users/tokens', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include', // This is important for cookies to be sent
+            body: JSON.stringify({ username, password })
+        });
+        const data=await response.json();
+        console.log(data);
+        
+        await validation();
         goto('./menu');
     }
+
+    async function getResetPassword(){
+        showInputModal=true;
+        const emailData={
+            email:userEmail
+        }
+        try {
+        const response = await fetch('http://localhost:8000/auth/users/password-reset-token', {
+            method: "POST",
+            headers: {
+            "Content-Type": "application/json",
+            },
+            body: JSON.stringify(emailData),
+        });
+
+        if (response.ok) {
+            showResetModal=true;
+            console.log("check reset token");
+        } 
+        else {
+            console.error("Error requesting password reset token:", response.statusText);
+            return null;
+        }
+        } 
+        catch (error) {
+        console.error("Error requesting password reset token:", error);
+        return null;
+        }      
+  }
+
+    async function resetPassword(){
+      const resetData={
+              new_password: '!Qw123456',
+              token: resetToken
+            };
+      // console.log(resetData);
+      const response = await fetch('http://localhost:8000/auth/users/password-reset',{
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(resetData)        
+      });
+      if (response.ok) {
+        alert("reset password");
+        showResetModal=false;
+      } 
+      else {
+        console.error("Error reset password :", response.statusText);
+        return null;
+      }
+      
+  }
 </script>
 
 <style>
@@ -94,6 +169,7 @@
         border-radius: 10px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         margin: 0 auto;
+        margin-top: 100px;
         width: fit-content;
     }
 
@@ -123,7 +199,7 @@
         margin-bottom: 15px; /* Added margin-bottom for spacing */
     }
 
-    button {
+    .row button {
         background-color: #333;
         color: white;
         padding: 10px 20px;
@@ -135,8 +211,17 @@
         transition: background-color 0.3s ease;
     }
 
-    button:hover {
+    .row button:hover {
         background-color: #555;
+    }
+
+    .underline{
+        text-decoration: underline;
+        text-decoration-color:#0550c0;
+        text-decoration-thickness: 1%;
+        text-decoration-style:wavy;
+        font-size: small;
+        color: #555;
     }
 
     /* .register-modal {
@@ -155,25 +240,78 @@
         padding: 20px;
         border-radius: 5px;
     } */
+
+    .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    max-width: 600px;
+    width: 100%;
+  }
   </style>
 
 
     <div class="container">
         <h2>Login</h2>
+
         <div class="row">
             <label for="username">Username:</label>
             <input id="username" bind:value={username} type="text" placeholder="Enter Username">
         </div>
+
         <div class="row">
             <label for="password">Password:</label>
             <input id="password" bind:value={password} type="password" placeholder="Enter Password">
-        </div>
+            <p class="underline" on:click={()=> getResetPassword()}>forgetPassword</p>
+        </div>           
+
         <div class="row">
             <button on:click={submitLogin}>Submit</button>
             <button on:click={toggleRegisterModal}>Register</button>
             <button on:click={noRegisterOrder}>Order without registration</button>
         </div>
     </div>
+    
+
+    {#if showInputModal}
+    <div class="modal" on:click={() => showInputModal = false}>
+        <div class="modal-content" on:click|stopPropagation>
+        <h2>Please input email</h2>
+        <div class="row">
+            <label for="email">Email:</label>
+            <input id="email" bind:value={userEmail}>
+        </div>
+        <button on:click={() => getResetPassword()}>Submit</button>        
+        <button on:click={() => showInputModal = false}>Close</button> 
+        </div>
+    </div>
+    {/if}
+
+    {#if showResetModal}
+    <div class="modal" on:click={() => showResetModal = false}>
+        <div class="modal-content" on:click|stopPropagation>
+        <h2>Please input reset token</h2>
+        <div class="row">
+            <label for="token">resetToken:</label>
+            <input id="token" bind:value={resetToken}>
+        </div>
+        <button on:click={() => resetPassword()}>RESET PASSWORD</button>        
+        <button on:click={() => showResetModal = false}>CLOSE</button> 
+        </div>
+    </div>
+    {/if}
 
 <!-- {#if isRegisterModalOpen}
 <div class="register-modal">

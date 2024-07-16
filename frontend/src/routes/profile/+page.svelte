@@ -6,45 +6,100 @@
   let role ='';
   $: role=user.role;
 
+  let newPassword ='';
+  let oldPassword ='';
+
+  let showResetModal=false;
+
   
-  let selectUser={name:"",role:"",status:true,index:-1,email:"",countryCode:"",phone_number:"",imgSrc:""};
+  let selectUser={username:"",role:"",status:true,index:-1,email:"",countryCode:"",phone_number:"",imgSrc:"",remarks:""};
+  var userData={};
+  let originUser={username:"",role:"",status:true,index:-1,email:"",countryCode:"",phone_number:"",imgSrc:"",remarks:""};
 
 
   onMount(async () => {
     await validation();
     // history.replaceState(null, 'Profile', '/profile');
-    selectUser.name=user.name;
+    selectUser.role=user.role;
+    selectUser.username=user.username;
     selectUser.imgSrc="./src/images/";
     selectUser.imgSrc=user.imgSrc+user.role.split(" ")[0].toLowerCase()+'.png';
     selectUser.email=user.email;
-    selectUser.phone_number=user.phone_number.slice(4);
-    selectUser.countryCode=selectUser.phone_number.split('-')[0];
-    selectUser.phone_number=selectUser.phone_number.split('-')[1]+selectUser.phone_number.split('-')[2]+selectUser.phone_number.split('-')[3];
-    console.log(selectUser);
+    // selectUser.phone_number=user.phone_number.slice(4);
+    // selectUser.countryCode=selectUser.phone_number.split('-')[0];
+    // selectUser.phone_number=selectUser.phone_number.split('-')[1]+selectUser.phone_number.split('-')[2]+selectUser.phone_number.split('-')[3];
+    selectUser.countryCode=user.phone_number.split(' ')[0];
+    selectUser.phone_number=user.phone_number.split(' ')[1];
+    originUser.countryCode=selectUser.countryCode;
+    originUser.phone_number=selectUser.phone_number;
+    // console.log(selectUser);
     
     document.title = 'User profile';
     })
 
 
-    // $: selectUser.name=user.name;
-    // $: selectUser.imgSrc="./src/images/";
-    // $: selectUser.imgSrc=user.imgSrc+user.role.split(" ")[0].toLowerCase()+'.png';
-    // $: selectUser.email=user.email;
-    // $: selectUser.phone_number=user.phone_number.slice(4);
-    // $: selectUser.countryCode=selectUser.phone_number.split('-')[0];
-    // $: selectUser.phone_number=selectUser.phone_number.split('-')[1]+selectUser.phone_number.split('-')[2]+selectUser.phone_number.split('-')[3];
-    // $: console.log(selectUser);
 
-   
+    async function update(){
+      if(selectUser.username!=user.username){
+        userData.username=selectUser.username;
+      }
+      
+      if(selectUser.email!=user.email){
+        userData.email=selectUser.email;
+      }
 
-    
-    function update(){
-      user.name=selectUser.name;
-      user.imgSrc=selectUser.imgSrc;
-      user.email=selectUser.email;
-      user.phone_number="tel:"+selectUser.countryCode+selectUser.phone_number;
-      console.log(user);
+      if(selectUser.countryCode!=originUser.countryCode || selectUser.phone_number!=originUser.phone_number){
+        userData.phone_number=selectUser.countryCode + " " + selectUser.phone_number;
+      }
+
+      const response = await fetch('http://localhost:8000/auth/users/me', {
+            method: 'PATCH',
+            credentials: 'include', // This is important for cookies to be sent
+            headers: {
+              'Content-Type': 'application/json'
+           },
+            body: JSON.stringify(userData),
+        });
+
+      if (response.ok) {
+        user.username=selectUser.username;
+        user.email=selectUser.email;
+        user.phone_number="tel:-"+selectUser.countryCode + "-" + selectUser.phone_number;
+        location.reload();
+        // console.log("pro"+user.username);
+      } 
+      else {
+        const data=await response.json();
+        alert(data.detail);
+        console.error('Error update user:', response.status);
+      }
     }
+    
+    async function resetPassword(){
+      const resetData={
+        new_password: newPassword,
+        old_password: oldPassword
+      }
+      const response = await fetch('http://localhost:8000/auth/users/password-update', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(resetData)
+      });
+      // const data = await response.json();
+      if(response.ok){        
+        // console.log(data);
+        showResetModal=false;
+      }
+      else{
+        // console.log(data);
+        alert("reset wrong!");
+      }
+    }
+    
+
 </script>
 
 <style>
@@ -69,8 +124,12 @@
   .box button{
     margin: auto;
     margin-top: 10px;
-    width: 80px;
+    width: 150px;
     height: 30px;
+    
+    margin-left: 5%;
+    border:none;
+    border-radius: 8%;
   }
 
 
@@ -84,17 +143,54 @@
     margin-bottom: 10px;
   }
 
+  .resetButton{   
+    background-color: #D3D3D3;
+    border-color: #D3D3D3;
+    color:#00BFFF;
+    background-image: linear-gradient(45deg, #00BFFF 50%, transparent 50%);
+    background-position: 100%;
+    background-size: 400%;
+    transition: background 300ms ease-in-out;
+  }
+
+  .resetButton:hover{
+    color: black;  border: 0;
+    background-color: #00BFFF;  
+    -webkit-box-shadow: 10px 10px 99px 6px rgba(0,191,255);  
+    -moz-box-shadow: 10px 10px 99px 6px rgba(0,191,255);
+    box-shadow: 10px 10px 99px 6px rgba(0,191,255);
+  }
+
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    max-width: 600px;
+    width: 100%;
+  }
   
 
 
 </style>
-
+{#if user.username!='customer'}
   <div class="block">
     <div class="box">
       <h2> Update user information here</h2>
         <div class="row">
           <label for="userName">name:</label>
-          <input id="userName" bind:value={selectUser.name} />
+          <input id="userName" bind:value={selectUser.username} />
         </div> 
         <div class="row">
           <label for="countryCode">country code:</label>
@@ -110,12 +206,33 @@
         </div>
         <div class="row">
           <label for="phoneNumber">phone number:</label>
-          <input id="phoneNumber" bind:value={selectUser.phone_number}>
+          <input id="phoneNumber" bind:value={selectUser.phone_number} type="tel">
         </div>
         <div class="row">
           <label for="email">email:</label>
           <input id="email" bind:value={selectUser.email}>
         </div>
+        <div class="row">
       <button on:click={update}>Update</button>
+          <button class=resetButton on:click={()=> showResetModal = true}>Reset Password</button>
+        </div>
+      
+
+      {#if showResetModal}
+            <div class="modal" on:click={() => showResetModal = false}>
+              <div class="modal-content" on:click|stopPropagation>
+
+                <label for="oldPassword">oldPassword:</label>
+                <input id="oldPassword" bind:value={oldPassword}  placeholder="Enter oldPassword">
+
+                <label for="newPassword">newPassword:</label>
+                <input id="newPassword" bind:value={newPassword}  placeholder="Enter newPassword">
+
+                <button on:click={() => resetPassword()}>RESET</button>        
+                <button on:click={() => showResetModal = false}>CLOSE</button> 
+              </div>
+            </div>
+          {/if}
     </div>
   </div>
+{/if}

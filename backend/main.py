@@ -1,3 +1,7 @@
+from datetime import datetime
+
+import bcrypt
+from dotenv import load_dotenv, find_dotenv
 from fastapi import (
     Depends,
     FastAPI,
@@ -10,6 +14,8 @@ from fastapi import (
 )
 from fastapi.middleware.cors import CORSMiddleware
 from auth.router import router as auth_router
+from auth.schemas import UserRole
+from checkout.router import router as checkout_router
 from fastapi import FastAPI, Request, Response, HTTPException
 from database import Database
 from os import getenv
@@ -28,17 +34,19 @@ from typing import List
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    startup_db_client()
+    await startup_db_client()
     yield
     close_db_client()
 
 
 app = FastAPI(lifespan=lifespan)
+
+load_dotenv()
 app.include_router(table_router, tags=["tables"], prefix="/table")
 app.include_router(menu_router, tags=["menus"], prefix="/menu")
 
 
-def startup_db_client():
+async def startup_db_client():
     args = {}
 
     # grab address and port from system variables
@@ -51,6 +59,44 @@ def startup_db_client():
 
     setattr(app, "database", Database(**args))
     print("Connected to MongoDB")
+
+    # Ensure admin user exists
+    await ensure_admin_user_exists(app.database)
+    await ensure_customer_user_exists(app.database)
+
+
+async def ensure_admin_user_exists(database):
+    admin_user = await database.fetch_one("users", {"username": "admin"})
+    if not admin_user:
+        hashed_password = bcrypt.hashpw(bytes("Passw@rd", "utf-8"), bcrypt.gensalt())
+        admin_user = {
+            "username": "admin",
+            "email": "admin@test.com",
+            "password": hashed_password,
+            "phone_number": "tel:+852-5637-0718",
+            "role": UserRole.MANAGER.value,
+            "remarks": "The admin user",
+            "created_at": datetime.utcnow().replace(microsecond=0),
+        }
+        await database.execute("users", admin_user, "insert")
+        print("Admin user created")
+
+
+async def ensure_customer_user_exists(database):
+    customer_user = await database.fetch_one("users", {"username": "customer"})
+    if not customer_user:
+        hashed_password = bcrypt.hashpw(bytes("Passw@rd", "utf-8"), bcrypt.gensalt())
+        customer_user = {
+            "username": "customer",
+            "email": "customer@test.com",
+            "password": hashed_password,
+            "phone_number": "tel:+852-5634-0718",
+            "role": UserRole.CUSTOMER.value,
+            "remarks": "The temp customer user",
+            "created_at": datetime.utcnow().replace(microsecond=0),
+        }
+        await database.execute("users", customer_user, "insert")
+        print("Customer user created")
 
 
 def close_db_client():
@@ -72,6 +118,8 @@ app.add_middleware(
 )
 
 app.include_router(auth_router)
+
+app.include_router(checkout_router)
 
 # Sample Editing Methods
 menuDb: List[Menu] = []

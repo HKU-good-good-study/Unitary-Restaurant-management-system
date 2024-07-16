@@ -1,12 +1,11 @@
 from models import CustomModel
 from dataclasses import asdict, dataclass, fields
-import uuid
 
 class Order(CustomModel):
     table:str
     time:str # Time order gets created
     id: str
-    dish:dict # {name of dish: {"amount":, "description":}}
+    dish:dict # {name of dish: {"amount":, "description":,"served":true/false}}
 
     class Config:
         title = 'Order'
@@ -18,7 +17,8 @@ class Order(CustomModel):
                 "dish": {
                     "Beef Chow Fun": {
                         "amount": 2,
-                        "description": "Dry fried beef Shahe noodles"
+                        "description": "Dry fried beef Shahe noodles",
+                        "served": False
                     }
                 }
             }

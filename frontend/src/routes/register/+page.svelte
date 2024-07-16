@@ -48,9 +48,10 @@
             },
             body: JSON.stringify(userData)
         });
+        
         const data = await response.json();
         console.log(data);
-        //goto('./login');
+        goto('./login');
     }
 </script>
 

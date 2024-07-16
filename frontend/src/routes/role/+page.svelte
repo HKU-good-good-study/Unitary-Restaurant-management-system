@@ -3,6 +3,7 @@
   import { user } from '../../stores';
   import { onMount } from 'svelte';
   import { validation } from '$lib/tool.svelte';
+  import { menuTable } from '../../stores';
 
   // let roleData=sessionStorage.getItem("role");
   //let role = roleData; // Change this to 'kitchen', 'manager', 'customer', or 'dining' based on the current user
@@ -21,6 +22,9 @@
 
   function goToFunction(feature) {
     var url='./'+feature;
+    if(feature=='menu'){
+      menuTable.set('');
+    }
     goto(url);
   }
 
@@ -29,6 +33,7 @@
       document.title = 'Role Page';
       await validation();
       role=user.role;
+      user.username=user.username;
   });
 
 </script>
@@ -75,16 +80,28 @@
 
   body{
 	    margin: 0px;
-  }   
+  }
+     
 </style>
 
+{#if user.username!='customer'}
 <body>
-<div class="menu">
-  {#each rolePermissions[role] as permission }
-    <div class=function on:click={() => goToFunction(permission)}>
-      <img src="./src/images/{permission}.png">
-      <h2>{permission}</h2>
-    </div>    
-  {/each}  
-</div>
+  <div class="menu">
+    {#each rolePermissions[role] as permission }
+      <div class=function on:click={() => goToFunction(permission)}>
+        <img src="./src/images/{permission}.png">
+        <h2>{permission}</h2>
+      </div>    
+    {/each}  
+  </div>
 </body>
+{/if}
+
+{#if user.username=='customer'}
+<div class="menu">
+  <div class=function on:click={() => goToFunction('menu')}>
+    <img src="./src/images/menu.png">
+    <h2>menu</h2>
+  </div>  
+</div>  
+{/if}

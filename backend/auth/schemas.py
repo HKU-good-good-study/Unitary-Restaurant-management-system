@@ -44,7 +44,7 @@ class AuthUser(User):
 
 
 class UserResponse(User):
-    pass
+    phone_number: str
 
 
 class UserUpdate(CustomModel):
@@ -52,6 +52,10 @@ class UserUpdate(CustomModel):
     email: Optional[EmailStr] = None
     phone_number: Optional[PhoneNumber] = None
     remarks: Optional[str] = None
+
+
+class AdminUserUpdate(UserUpdate):
+    role: Optional[UserRole] = None
 
 
 class PasswordUpdate(CustomModel):

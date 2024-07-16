@@ -8,16 +8,24 @@
   let role ='';
   $: role=user.role;
 
-  let users = [];
+
   let page = 0;
   let totalPages = [];
   let currentPageRows = [];
   let itemsPerPage = 13;
   let loading = true;
+  let resetToken='';
+
   let showAddUserDialog = false;
   let showUpdateDialog=false;
-  let newUser={name:"",role:"",status:true,password:"",email:"",countryCode:"",phoneNumber:""};
-  let selectUser={name:"",role:"",status:true,index:-1,email:"",countryCode:"",phoneNumber:""};
+  let showDeleteModal=false;
+  let showResetModal=false;
+
+  let users = [{username:"",role:"",status:true,password:"",email:"",countryCode:"",phone_number:"",remarks:""}];
+  let newUser={username:"",role:"",status:true,password:"",email:"",countryCode:"",phoneNumber:"",remarks:""};
+  let selectUser={username:"",role:"",status:true,index:-1,email:"",countryCode:"",phoneNumber:"",remarks:""};
+  var userData={};
+  let originUser={username:"",role:"",status:true,index:-1,email:"",countryCode:"",phoneNumber:"",remarks:""};
 
   
   $: currentPageRows = totalPages.length > 0 ? totalPages[page] : [];
@@ -31,53 +39,16 @@
       return items.slice(start, start + itemsPerPage);
     });
 
-    console.log("paginatedItems are", paginatedItems);
+    //console.log("paginatedItems are", paginatedItems);
     totalPages = [...paginatedItems];
   };
 
 
   onMount(async () => {
     await validation();  
-    role=user.role;
-    // history.replaceState(null, 'Profile', '/profile');
-    
+    role=user.role;    
     document.title = 'User Management';
-
-    users =[
-    { name: 'liu', role: 'Customer', status:false,email:"132@qq.com",countryCode:"+86",phoneNumber:"123123123"},
-    { name: 'zhou', role: 'Customer', status: true},
-    { name: 'liu', role: 'Customer', status:false},
-    { name: 'zhou', role: 'Customer', status: true},
-    { name: 'liu', role: 'Customer', status:false},
-    { name: 'zhou', role: 'Customer', status: true},
-    { name: 'liu', role: 'Customer', status:false},
-    { name: 'zhou', role: 'Customer', status: true},
-    { name: 'liu', role: 'Customer', status:false},
-    { name: 'zhou', role: 'Customer', status: true},
-    { name: 'liu', role: 'Customer', status:false},
-    { name: 'zhou', role: 'Customer', status: true},
-    { name: 'liu', role: 'Customer', status:false},
-    { name: 'zhou', role: 'Customer', status: true},
-    { name: 'liu', role: 'Customer', status:false},
-    { name: 'zhou', role: 'Customer', status: true},
-    { name: 'liu', role: 'Customer', status:false},
-    { name: 'zhou', role: 'Customer', status: true},
-    { name: 'liu', role: 'Customer', status:false},
-    { name: 'zhou', role: 'Customer', status: true},
-    { name: 'liu', role: 'Customer', status:false},
-    { name: 'zhou', role: 'Customer', status: true},
-    { name: 'liu', role: 'Customer', status:false},
-    { name: 'zhou', role: 'Customer', status: true},
-    { name: 'liu', role: 'Customer', status:false},
-    { name: 'zhou', role: 'Customer', status: true},
-    { name: 'liu', role: 'Customer', status:false},
-    { name: 'zhou', role: 'Customer', status: true},
-    { name: 'liu', role: 'Customer', status:false},
-    { name: 'zhou', role: 'Customer', status: true},
-    { name: 'liu', role: 'Customer', status:false},
-    { name: 'zhou', role: 'Customer', status: true},        
-    // more user...
-  ];
+    await fetchUsers();
     paginate(users);
   });
   
@@ -95,35 +66,216 @@
   }
   
    // 添加用户 用户默认密码位手机号码
-  function addUser(){
+
+  async function submitAddUser(){
+      const userData = {
+          username: newUser.username,
+          password: newUser.password,
+          email: newUser.email,
+          phone_number: newUser.countryCode + " " + newUser.phoneNumber,
+          role: newUser.role,
+          remarks: newUser.remarks
+      };
+
+      const response = await fetch('http://localhost:8000/auth/users/new', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(userData)
+      });
+      if(response.ok){
+        await fetchUsers();        
+        users = users;
+        paginate(users);
+        showAddUserDialog=false;
+      }
+      else{
+        alert("add user fail");
+        const data = await response.json();
+        console.log(data);
+      }
+      
+  }
+
+  async function addUser(){
     newUser.password='!Qw123456';
-    users.push(newUser);
-    paginate(users);
-    showAddUserDialog=false;
-    console.log(newUser);
+    //users.push(newUser);
+    await submitAddUser();
+    
+    // console.log(newUser);
   }
 
   function addUserBotton() {   
     showAddUserDialog=true;
-    newUser={name:"",role:"",status:true,password:"",email:"",countryCode:"",phoneNumber:""};  
+    newUser={username:"",role:"",status:true,password:"",email:"",countryCode:"",phoneNumber:""};  
   }
  
 
   function updateBotton(index) {  
-    selectUser.name= users[index].name;
+    selectUser.username= users[index].username;
     selectUser.role= users[index].role;
     selectUser.status= users[index].status;
     selectUser.email= users[index].email;
     selectUser.countryCode= users[index].countryCode;
-    selectUser.phoneNumber= users[index].phoneNumber;
-    selectUser.index=index;
+    selectUser.phoneNumber= users[index].phone_number;
+    selectUser.index=index;    
+    originUser.username=selectUser.username;
+    originUser.role=selectUser.role;
+    originUser.status=selectUser.status;
+    originUser.email=selectUser.email;
+    originUser.countryCode=selectUser.countryCode;
+    originUser.phoneNumber=selectUser.phoneNumber;
     showUpdateDialog=true;
   }
-  function update() {
+
+  async function update() {
     let number = selectUser.index;
-    users[number] = selectUser;
+    await submitUpdate(users[number].username);
+    users=users;
     paginate(users);    
     showUpdateDialog=false;
+  }
+
+  async function submitUpdate(username){
+      userData={};
+      if(selectUser.username!=originUser.username){
+        userData.username=selectUser.username;
+      }
+      
+      if(selectUser.email!=originUser.email){
+        userData.email=selectUser.email;
+      }
+
+      if(selectUser.role!=originUser.role){
+        userData.role=selectUser.role;
+      }
+
+      if(selectUser.countryCode!=originUser.countryCode || selectUser.phoneNumber!=originUser.phoneNumber){
+        userData.phone_number=selectUser.countryCode + " " + selectUser.phoneNumber;
+      }   
+
+      const response = await fetch('http://localhost:8000/auth/users/username='+ username, {
+          method: 'PATCH',
+          credentials: 'include',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(userData)
+      });
+      if(response.ok){        
+        await fetchUsers();
+      } 
+      else{
+        alert("Invalid phone number pattern!");
+        const data = await response.json();
+        console.log(data);
+      }
+    }
+      
+  
+  async function fetchUsers(){
+    try {
+          const response = await fetch('http://localhost:8000/auth/users/all', {
+              method: 'GET',
+              credentials: 'include',
+          });
+          if (response.ok) {
+              users = await response.json();
+              var x;
+              for(x in users){
+                // users[x].phone_number=users[x].phone_number.slice(4);
+                // users[x].countryCode=users[x].phone_number.split('-')[0];
+                // users[x].phone_number=users[x].phone_number.split('-')[1]+users[x].phone_number.split('-')[2]+users[x].phone_number.split('-')[3];
+                users[x].status=true;
+                users[x].countryCode=users[x].phone_number.split(' ')[0];
+                users[x].phone_number=users[x].phone_number.split(' ')[1];
+              
+              }
+              // console.log(users);
+          } else {
+              console.error('Error fetching users:', response.status);
+              users = []; // 设置 users 为空数组
+          }
+      } catch (error) {
+          console.error('Error fetching users:', error);
+          users = []; // 设置 users 为空数组
+      }
+  }
+
+  async function deleteUser(){
+    try {
+          const response = await fetch('http://localhost:8000/auth/users/username='+selectUser.username, {
+              method: 'delete',
+              credentials: 'include',
+          });
+          if (response.ok) {
+            await fetchUsers();
+            showUpdateDialog = false;
+            showDeleteModal = false;
+            users=users;
+          } else {
+              showDeleteModal = false;
+              console.error('Error delete user:', response.status);
+          }
+      } catch (error) {
+          showDeleteModal = false;
+          console.error('Error fetching user:', error);
+      }
+  }
+
+  async function getResetPassword(){
+      const emailData={
+        email:selectUser.email
+      }
+      try {
+        const response = await fetch('http://localhost:8000/auth/users/password-reset-token', {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(emailData),
+        });
+
+        if (response.ok) {
+          showResetModal=true;
+          console.log("check reset token");
+        } 
+        else {
+          console.error("Error requesting password reset token:", response.statusText);
+          return null;
+        }
+      } 
+      catch (error) {
+        console.error("Error requesting password reset token:", error);
+        return null;
+      }      
+  }
+
+  async function resetPassword(){
+      const resetData={
+              new_password: '!Qw123456',
+              token: resetToken
+            };
+      // console.log(resetData);
+      const response = await fetch('http://localhost:8000/auth/users/password-reset',{
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(resetData)        
+      });
+      if (response.ok) {
+        alert("reset password");
+        showResetModal=false;
+      } 
+      else {
+        console.error("Error reset password :", response.statusText);
+        return null;
+      }
+      
   }
 
 </script>
@@ -146,23 +298,6 @@
     margin-bottom: 10px;
   }
   
-/*  .activeButton{
-    background-color: #aaa;
-    border-color: #c4f07a;
-    color:b9e769
-    height: 2rem;
-    width: 3rem;
-    background-image: linear-gradient(45deg, #c4f07a 50%, transparent 50%);
-    background-position: 100%;
-    background-size: 400%;
-    transition: background 300ms ease-in-out;
-  }
-    .activeButton:hover {
-    background-position: 0;
-    color: #aaa;
-    
-  }*/
-
   button{
     margin-left: 5%;
     border:none;
@@ -231,6 +366,42 @@
     -webkit-box-shadow: 10px 10px 99px 6px rgba(178, 34, 34, 1);  
     -moz-box-shadow: 10px 10px 99px 6px rgba(178, 34, 34, 1);
     box-shadow: 10px 10px 99px 6px rgba(178, 34, 34, 1);
+  }
+
+  .deleteButton{  
+    background-color: #aaa;
+    border-color: #aaa;
+    color:#B22222;
+    background-image: linear-gradient(45deg, #aaa 50%, transparent 50%);
+    background-position: 100%;
+    background-size: 400%;
+    transition: background 300ms ease-in-out;
+  }
+
+  .deleteButton:hover{
+    color: white;  border: 0;
+    background-color: #B22222;  
+    -webkit-box-shadow: 10px 10px 99px 6px rgba(178, 34, 34, 1);  
+    -moz-box-shadow: 10px 10px 99px 6px rgba(178, 34, 34, 1);
+    box-shadow: 10px 10px 99px 6px rgba(178, 34, 34, 1);
+  }
+
+  .resetButton{
+    background-color: #aaa;
+    border-color: #aaa;
+    color:#b9e769;
+    background-image: linear-gradient(45deg, #b9e769 50%, transparent 50%);
+    background-position: 100%;
+    background-size: 400%;
+    transition: background 300ms ease-in-out;
+  }
+
+  .resetButton:hover{
+    color: black;  border: 0;
+    background-color: #b9e769;  
+    -webkit-box-shadow: 10px 10px 99px 6px rgba(185, 231, 105, 1);  
+    -moz-box-shadow: 10px 10px 99px 6px rgba(185, 231, 105, 1);
+    box-shadow: 10px 10px 99px 6px rgba(185, 231, 105, 1);
   }
 
   .addUser{
@@ -331,7 +502,7 @@
           <tbody>
               {#each currentPageRows as currentPageRow, index}
                 <tr>
-                  <td width=10%>{currentPageRow.name}</td>
+                  <td width=10%>{currentPageRow.username}</td>
                   <td width=10%>{currentPageRow.role}</td>
                   {#if currentPageRow.status}
                   <td class = activeStatus width=10%>
@@ -425,7 +596,7 @@
           </div>
           <div class="row">
             <label for="userName">name:</label>
-            <input id="userName" bind:value={newUser.name} placeholder={"Enter new user name"} />
+            <input id="userName" bind:value={newUser.username} placeholder={"Enter new user name"} />
           </div> 
           <div class="row">
             <label for="countryCode">country code:</label>
@@ -442,7 +613,7 @@
           </div>
           <div class="row">
             <label for="phoneNumber">phone number:</label>
-            <input id="phoneNumber" bind:value={newUser.phoneNumber} placeholder="Enter Phone Number">
+            <input id="phoneNumber" bind:value={newUser.phoneNumber} type="tel" placeholder="Enter Phone Number">
           </div>
           <div class="row">
             <label for="email">email:</label>
@@ -459,7 +630,9 @@
     {#if showUpdateDialog}
       <div class="modal" on:click={() => showUpdateDialog = false}>
         <div class="modal-content" on:click|stopPropagation>
+
           <h3>please update user information</h3>
+
           <div class="row">
             <label for="userRole">role:</label>
             <select id="userRole"bind:value={selectUser.role}>
@@ -469,10 +642,12 @@
               <option value="Kitchen Staff">Kitchen Staff</option>
             </select>
           </div>
+
           <div class="row">
             <label for="userName">name:</label>
-            <input id="userName" bind:value={selectUser.name} />
+            <input id="userName" bind:value={selectUser.username} />
           </div> 
+
           <div class="row">
             <label for="countryCode">country code:</label>
             <select id="countryCode" bind:value={selectUser.countryCode}>
@@ -485,16 +660,46 @@
                 <option value="+52">Mexico (+52)</option>
             </select>
           </div>
+
           <div class="row">
             <label for="phoneNumber">phone number:</label>
-            <input id="phoneNumber" bind:value={selectUser.phoneNumber}>
+            <input id="phoneNumber" bind:value={selectUser.phoneNumber} type="tel">
           </div>
+
           <div class="row">
             <label for="email">email:</label>
             <input id="email" bind:value={selectUser.email}>
           </div>
+
           <button on:click={update}>Submit</button>
-          <button on:click={() => showUpdateDialog = false}>CLOSE</button>     
+          <button on:click={() => showUpdateDialog = false}>CLOSE</button>  
+          <button class=deleteButton on:click={() => showDeleteModal = true}>DELETE</button>
+          <button class=resetButton on:click={()=> getResetPassword()}>RESET PASSWORD</button>
+
+          {#if showDeleteModal}
+            <div class="modal" on:click={() => showDeleteModal = false}>
+              <div class="modal-content" on:click|stopPropagation>
+                <h2>Are you sure deleting it?</h2>
+                <button on:click={() => deleteUser()}>DELETE</button>        
+                <button on:click={() => showDeleteModal = false}>CLOSE</button> 
+              </div>
+            </div>
+          {/if}     
+
+          {#if showResetModal}
+            <div class="modal" on:click={() => showResetModal = false}>
+              <div class="modal-content" on:click|stopPropagation>
+                <h2>Please input reset token</h2>
+                <div class="row">
+                  <label for="token">resetToken:</label>
+                  <input id="token" bind:value={resetToken}>
+                </div>
+                <button on:click={() => resetPassword()}>RESET PASSWORD</button>        
+                <button on:click={() => showResetModal = false}>CLOSE</button> 
+              </div>
+            </div>
+          {/if}
+
         </div>    
       </div>
     {/if} 
