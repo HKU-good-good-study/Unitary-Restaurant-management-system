@@ -444,7 +444,7 @@
   }
   
 </style>
-{#if user.username!='testC'}
+{#if user.username!='customer'}
   <div class="container">
     <h2>{role}</h2>
     <div class="row">
@@ -572,6 +572,6 @@
   {/if}
 {/if}
 
-{#if user.username=='testC'}
+{#if user.username=='customer'}
   <p>Order Successful!</p>
 {/if}
