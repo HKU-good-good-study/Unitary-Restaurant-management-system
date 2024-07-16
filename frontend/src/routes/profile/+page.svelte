@@ -69,6 +69,8 @@
         // console.log("pro"+user.username);
       } 
       else {
+        const data=await response.json();
+        alert(data.detail);
         console.error('Error update user:', response.status);
       }
     }

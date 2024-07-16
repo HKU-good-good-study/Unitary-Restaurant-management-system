@@ -85,19 +85,26 @@
           },
           body: JSON.stringify(userData)
       });
-      await fetchUsers();
-      //const data = await response.json();
-      //console.log(data);
+      if(response.ok){
+        await fetchUsers();        
+        users = users;
+        paginate(users);
+        showAddUserDialog=false;
+      }
+      else{
+        alert("add user fail");
+        const data = await response.json();
+        console.log(data);
+      }
+      
   }
 
   async function addUser(){
     newUser.password='!Qw123456';
     //users.push(newUser);
     await submitAddUser();
-    users = users;
-    paginate(users);
-    showAddUserDialog=false;
-    console.log(newUser);
+    
+    // console.log(newUser);
   }
 
   function addUserBotton() {   
@@ -132,6 +139,7 @@
   }
 
   async function submitUpdate(username){
+      userData={};
       if(selectUser.username!=originUser.username){
         userData.username=selectUser.username;
       }
@@ -156,10 +164,16 @@
           },
           body: JSON.stringify(userData)
       });
-      await fetchUsers();
-      const data = await response.json();
-      console.log(data);
-  }
+      if(response.ok){        
+        await fetchUsers();
+      } 
+      else{
+        alert("Invalid phone number pattern!");
+        const data = await response.json();
+        console.log(data);
+      }
+    }
+      
   
   async function fetchUsers(){
     try {

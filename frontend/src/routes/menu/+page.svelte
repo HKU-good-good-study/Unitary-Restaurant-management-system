@@ -26,6 +26,7 @@
 
     let tables= [];
     let tablesNumber=[];
+    let tablesStatus='';
 
     let newOrder={        
         "table": "string",
@@ -102,7 +103,18 @@
 
     function submitTableNumber(){
         if(tablesNumber.includes(menuTableNumber)){
-            showInputTableNumber=false;
+            for(var i in tables){
+                if(tables[i].id == menuTableNumber){
+                    tablesStatus=tables[i].status;
+                    break;
+                }
+              }
+            if(tablesStatus=='occupied'){
+                showInputTableNumber=false;
+            }
+            else{
+                alert("This table is not occupied!");
+            }
         }
         else{
             alert("please check it is table number?");
