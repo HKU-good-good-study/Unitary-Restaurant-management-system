@@ -3,6 +3,7 @@
     import { user } from '../stores.js'; 
     import { page } from '$app/stores';
     import { validation } from '$lib/tool.svelte';
+    import { onMount  } from 'svelte';
     
     onMount(async () => {
       // history.replaceState(null, 'Profile', '/profile');
