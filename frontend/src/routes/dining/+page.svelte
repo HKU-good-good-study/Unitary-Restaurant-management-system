@@ -225,7 +225,7 @@
 
   async function servedDish(dishName){
     dishes[dishName].served=!dishes[dishName].served;
-    console.log(tableOrder);
+    // console.log(tableOrder);
     const response = await fetch('http://localhost:8000/table/order/update/'+tableOrder.id, {
               method: 'put',
               headers: {
@@ -235,14 +235,27 @@
             body: JSON.stringify(tableOrder)
     });
     const data = await response.json();
-    console.log(data);
+    // console.log(data);
 
   }
 
   function checkOutButton(){
     tableOrder=tableOrders[tableOrders.length-1];
-    orderId=tableOrder.id;
-    showCheckOutModal = true;
+    orderId=tableOrder.id;        
+    if(isAllServed()){      
+      showCheckOutModal = true;
+    }
+    else{
+      alert("There are still some dishes not served");
+    }
+  }
+
+  function isAllServed(){
+    dishes=tableOrder.dish;
+    for(var i in dishes){
+      if(!dishes[i].served)return false;
+    }
+    return true;    
   }
 
   async function handleSubmit() {
@@ -263,6 +276,7 @@
       if (response.ok) {
         const data = await response.json();
         window.location.href = data.url; // Redirect to the payment URL
+        updateTableStatus(selectedTable,'idle');
       } else {
         console.error('Failed to create transaction:', response.statusText);
       }

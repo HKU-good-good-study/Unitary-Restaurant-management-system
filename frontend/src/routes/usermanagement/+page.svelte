@@ -174,6 +174,7 @@
                 // users[x].phone_number=users[x].phone_number.slice(4);
                 // users[x].countryCode=users[x].phone_number.split('-')[0];
                 // users[x].phone_number=users[x].phone_number.split('-')[1]+users[x].phone_number.split('-')[2]+users[x].phone_number.split('-')[3];
+                users[x].status=true;
                 users[x].countryCode=users[x].phone_number.split(' ')[0];
                 users[x].phone_number=users[x].phone_number.split(' ')[1];
               
