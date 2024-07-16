@@ -62,6 +62,7 @@ async def startup_db_client():
 
     # Ensure admin user exists
     await ensure_admin_user_exists(app.database)
+    await ensure_customer_user_exists(app.database)
 
 
 async def ensure_admin_user_exists(database):
@@ -79,6 +80,23 @@ async def ensure_admin_user_exists(database):
         }
         await database.execute("users", admin_user, "insert")
         print("Admin user created")
+
+
+async def ensure_customer_user_exists(database):
+    customer_user = await database.fetch_one("users", {"username": "customer"})
+    if not customer_user:
+        hashed_password = bcrypt.hashpw(bytes("Passw@rd", "utf-8"), bcrypt.gensalt())
+        customer_user = {
+            "username": "customer",
+            "email": "customer@test.com",
+            "password": hashed_password,
+            "phone_number": "tel:+852-5634-0718",
+            "role": UserRole.CUSTOMER.value,
+            "remarks": "The temp customer user",
+            "created_at": datetime.utcnow().replace(microsecond=0),
+        }
+        await database.execute("users", customer_user, "insert")
+        print("Customer user created")
 
 
 def close_db_client():

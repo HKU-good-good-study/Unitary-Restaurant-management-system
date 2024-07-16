@@ -182,7 +182,7 @@
 
 
 </style>
-{#if user.username!='testC'}
+{#if user.username!='customer'}
   <div class="block">
     <div class="box">
       <h2> Update user information here</h2>

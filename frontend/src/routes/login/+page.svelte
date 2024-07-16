@@ -75,7 +75,7 @@
     //     window.location.href = "http://localhost:5173/register";
     }
     async function noRegisterOrder(){
-        username="testC";
+        username="customer";
         password='!Qw123456';
         const response = await fetch('http://localhost:8000/auth/users/tokens', {
             method: 'POST',

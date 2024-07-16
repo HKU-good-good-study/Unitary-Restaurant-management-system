@@ -33,6 +33,7 @@
       document.title = 'Role Page';
       await validation();
       role=user.role;
+      user.username=user.username;
   });
 
 </script>
@@ -83,7 +84,7 @@
      
 </style>
 
-{#if user.username!='testC'}
+{#if user.username!='customer'}
 <body>
   <div class="menu">
     {#each rolePermissions[role] as permission }
@@ -94,4 +95,13 @@
     {/each}  
   </div>
 </body>
+{/if}
+
+{#if user.username=='customer'}
+<div class="menu">
+  <div class=function on:click={() => goToFunction('menu')}>
+    <img src="./src/images/menu.png">
+    <h2>menu</h2>
+  </div>  
+</div>  
 {/if}
