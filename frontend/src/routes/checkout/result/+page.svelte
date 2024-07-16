@@ -17,7 +17,7 @@
 </script>
 
 {#if successMessage}
-  <p>{successMessage}</p>
+  <p align="center">{successMessage}</p>
 {:else if errorMessage}
-  <p>{errorMessage}</p>
+  <p align="center">{errorMessage}</p>
 {/if}

@@ -587,5 +587,5 @@
 {/if}
 
 {#if user.username=='customer'}
-  <p>Order Successful!</p>
+  <p align="center" >Order Successful!</p>
 {/if}
