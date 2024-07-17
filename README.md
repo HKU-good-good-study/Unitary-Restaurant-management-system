@@ -2,9 +2,9 @@
 
 ## Way(s) to setup this app:
 
-If virtual enviroment (**Recommand**) not yet created, use: ```python -m venv EnvironmentPathYouWish``` (Don't forget to add your virtual enviroment folder into .gitignore if it is in project directory's scope)
+If virtual environment (**Recommend**) not yet created, use: ```python -m venv EnvironmentPathYouWish``` (Don't forget to add your virtual environment folder into .gitignore if it is in project directory's scope)
 
-After virtual enviroment is created, use command: ```YourEnvironmentPath/Script/activate``` to activate your virtual environment
+After virtual environment is created, use command: ```YourEnvironmentPath/Script/activate``` to activate your virtual environment
 
 **Frontend**:(Sevelte)
 1. Install Node.js (latest LST version)
@@ -13,7 +13,7 @@ After virtual enviroment is created, use command: ```YourEnvironmentPath/Script/
 
 **Backend**: (FastAPI)
 
-Install requriement using ```pip install -r requirement.txt```
+Install requirement using ```pip install -r requirement.txt```
 
 ## How to run this app:
 
@@ -29,4 +29,4 @@ Run with command:   ```uvicorn main:app --reload```/```python main.py``` to star
 
 **Database**
 
-Run MongoDB client: Default using localhost with port 27017 (Recommand to use MongoDB compass to visualize data)
+Run MongoDB client: Default using localhost with port 27017 (Recommend to use MongoDB compass to visualize data)
